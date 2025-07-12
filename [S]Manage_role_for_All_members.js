@@ -43,12 +43,11 @@ module.exports = {
     if (!guild) return this.callNextAction(cache);
 
     try {
-      // Pobieramy wszystkich członków
       const members = await guild.members.fetch();
 
       let count = 0;
 
-      for (const member of members.values()) {
+      for (const [_, member] of members) {
         const hasRole = member.roles.cache.has(roleId);
         const isBot = member.user.bot;
 
