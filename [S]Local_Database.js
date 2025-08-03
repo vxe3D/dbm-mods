@@ -337,6 +337,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
     //////////////////////////////////////////////////
 
     async action(cache) {
+
         const data = cache.actions[cache.index];
         const dboperation = data.dboperation;
         const tableNameRaw = this.evalMessage(data.tableName, cache);
@@ -374,7 +375,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
         let output;
 
         // Dynamiczne kolumny i wartości
-        let columns = columnsRaw ? columnsRaw.split(',').map(c => c.trim()) : [];
+        let columns = columnsRaw ? columnsRaw.split(',').map(c => c.trim()).filter(Boolean) : [];
         let values = valuesRaw ? valuesRaw.split(',').map(v => v.trim()) : [];
         // Dodaj kolumnę warunku jeśli jej nie ma w columns
         if (dboperation === 'update' && conditionColumn && !columns.includes(conditionColumn)) {
@@ -399,6 +400,37 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
             if (columnsToClearRaw && columnsToClearRaw.trim() !== '') {
                 columnsToClear = columnsToClearRaw.split(',').map(c => c.trim()).filter(Boolean);
             }
+        }
+
+        // --- AUTOCREATE TABLE IF NOT EXISTS ---
+        // Zbierz wszystkie kolumny, które mogą być użyte do utworzenia tabeli
+        let allColumns = [...columns];
+        if (conditionColumn && !allColumns.includes(conditionColumn)) allColumns.push(conditionColumn);
+        if (columnsToClear && Array.isArray(columnsToClear)) {
+            columnsToClear.forEach(col => {
+                if (!allColumns.includes(col)) allColumns.push(col);
+            });
+        }
+        // Jeśli nie ma żadnych kolumn, domyślna kolumna 'id'
+        if (allColumns.length === 0) allColumns = ['id'];
+        // Przygotuj CREATE TABLE IF NOT EXISTS
+        const tableNameNoExt = tableName.replace('.sqlite','');
+        const createCols = allColumns.map(col => `\`${col}\` TEXT`).join(', ');
+        const createTableSQL = `CREATE TABLE IF NOT EXISTS \`${tableNameNoExt}\` (${createCols})`;
+        try {
+            await new Promise((resolve, reject) => {
+                db.run(createTableSQL, [], function(err) {
+                    if (err) {
+                        console.error('[sqlite3] CREATE TABLE ERROR:', err);
+                        reject(err);
+                    } else {
+                        console.log('[sqlite3] CREATE TABLE OK:', createTableSQL);
+                        resolve();
+                    }
+                });
+            });
+        } catch (err) {
+            console.error('[sqlite3] DB CREATE TABLE Error:', err);
         }
 
         // --- Funkcje pomocnicze ---
