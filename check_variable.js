@@ -71,27 +71,27 @@ module.exports = {
 <br><br><br>
 
 <div style="padding-top: 8px;">
-	<div style="float: left; width: 35%;">
-		<span class="dbminputlabel">Comparison Type</span><br>
-		<select id="comparison" class="round" onchange="glob.onComparisonChanged(this)">
-			<option value="0">Exists</option>
-			<option value="1" selected>Equals</option>
-			<option value="2">Equals Exactly</option>
-			<option value="3">Less Than</option>
-			<option value="4">Greater Than</option>
-			<option value="5">Includes</option>
-			<option value="6">Matches Regex</option>
-			<option value="7">Starts With</option>
-			<option value="8">Ends With</option>
-			<option value="9">Length Equals</option>
-			<option value="10">Length is Greater Than</option>
-			<option value="11">Length is Less Than</option>
-		</select>
-	</div>
-	<div style="float: right; width: 60%;" id="directValue">
-		<span class="dbminputlabel">Value to Compare to</span><br>
-		<input id="value" class="round" type="text" name="is-eval">
-	</div>
+  <div style="float: left; width: 35%;">
+    <span class="dbminputlabel">Comparison Type</span><br>
+    <select id="comparison" class="round" onchange="glob.onComparisonChanged(this)">
+      <option value="0">Exists</option>
+      <option value="1" selected>Equals</option>
+      <option value="2">Equals Exactly</option>
+      <option value="3">Less Than</option>
+      <option value="4">Greater Than</option>
+      <option value="5">Includes</option>
+      <option value="6">Matches Regex</option>
+      <option value="7">Starts With</option>
+      <option value="8">Ends With</option>
+      <option value="9">Length Equals</option>
+      <option value="10">Length is Greater Than</option>
+      <option value="11">Length is Less Than</option>
+    </select>
+  </div>
+  <div style="float: right; width: 60%;" id="directValue">
+    <span class="dbminputlabel">Value to Compare to</span><br>
+    <input id="value" class="round" type="text" name="is-eval">
+  </div>
 </div>
 
 <br><br><br><br>
@@ -183,8 +183,12 @@ module.exports = {
         result = val1 > val2;
         break;
       case 5:
-        if (typeof val1?.includes === "function") {
-          result = val1.includes(val2);
+        let includesVal1 = val1;
+        if (typeof includesVal1 !== "string" && !Array.isArray(includesVal1)) {
+          includesVal1 = String(includesVal1);
+        }
+        if (typeof includesVal1?.includes === "function") {
+          result = includesVal1.includes(val2);
         }
         break;
       case 6:
@@ -218,7 +222,6 @@ module.exports = {
         }
         break;
     }
-    
     this.executeResults(result, data?.branch ?? data, cache);
   },
 
