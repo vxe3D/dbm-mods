@@ -19,7 +19,8 @@ module.exports = {
     "leaveOnEnd",
     "useCookies",
     "cookies",
-    "eqBands",
+    "eqBandsStorage",
+    "eqBandsVar",
   ],
 
   subtitle(data) {
@@ -181,46 +182,42 @@ module.exports = {
   
   <tab-system>
   <tab label="General" icon="cogs">
-  <div style="max-height: 350px;">
-    <div style="width:100%; min-height: 40px;">
-      <div style="float:left; width:48%; padding-top:8px; padding-bottom:12px;">
-        <span class="dbminputlabel">YouTube URL</span><br>
-        <input id="query" class="round" type="text" placeholder="YouTube Video/Playlist URL">
+    <div style="width: 100%; margin-bottom: 8px;">
+      <div style="float: left; width: 38%; min-width: 220px;">
+        <retrieve-from-variable dropdownLabel="EQ Bands" selectId="eqBandsStorage" selectWidth="100%" variableInputWidth="100%" variableContainerId="eqBandsVarContainer" variableInputId="eqBandsVar"></retrieve-from-variable>
       </div>
-      <div style="float:right; width:48%; padding-top:8px; padding-bottom:12px;">
-        <span class="dbminputlabel">Equalizer Bands (JSON)</span><br>
-        <input id="eqBands" class="round" type="text" placeholder='[{"freq":60,"gain":0},...]'>
+      <div style="float: right; width: 54%; min-width: 220px;">
+        <voice-channel-input dropdownLabel="Voice Channel" selectId="voiceChannel" variableContainerId="varNameContainer" variableInputId="varName" selectWidth="100%" variableInputWidth="100%"></voice-channel-input>
       </div>
-      <div style="clear:both;"></div>
+      <div style="clear: both;"></div>
     </div>
-  
-    <div>
-      <voice-channel-input dropdownLabel="Voice Channel" selectId="voiceChannel" variableContainerId="varNameContainer" variableInputId="varName"></voice-channel-input>
-    </div>
-    <br><br><br>
-  
-    <div style="padding-top: 4px; width: 100%;">
+    <div style="width: 100%; margin-top: 2px;">
+      <div style="float: left; width: 38%; min-width: 220px;">
         <span class="dbminputlabel">Play Type</span><br>
-        <select id="type" class="round" style="width: 35%;">
+        <select id="type" class="round" style="width: 100%;">
             <option value="0" selected>Add to Queue</option>
             <option value="1">Play Immediately</option>
         </select>
-    </div>
-    <br>
+      </div>
+      <div style="float: right; width: 54%; min-width: 220px;">
+        <span class="dbminputlabel">YouTube URL</span><br>
+        <input id="query" class="round" type="text" placeholder="YouTube Video/Playlist URL">
+      </div>
+      <div style="clear: both;"></div>
+    </div><br><br>
   
-    <div style="padding-top: -5px; width: 100%; height: 50px; display: flex;">
+    <div style="width: 100%; height: 50px; display: flex;">
       <div style="width: 35%; height: 100%; padding-top: -5px;">
         <span class="dbminputlabel">Default Volume</span><br>
         <input id="volume" class="round" type="text" placeholder="Leave blank for 80">
       </div>
-      <div style="width: 60%; height: 100%; padding-top: 25px; padding-left: 5%;">
+      <div style="width: 60%; height: 100%; padding-top: 20px; padding-left: 5%;">
         <dbm-checkbox style="float: left;" id="leaveOnEmpty" label="Leave On Empty" checked></dbm-checkbox>
         <dbm-checkbox style="float: right;" id="leaveOnEnd" label="Leave On End" checked></dbm-checkbox>
       </div>
-    </div>
-    <br>
+    </div><br>
 
-    <div style="float: left; width: 100%; padding-top: -5px;">
+    <div style="float: left; width: 100%; padding-top: 6px;">
       <store-in-variable dropdownLabel="Store In" selectId="storage" variableContainerId="varNameContainer2" variableInputId="varName2"></store-in-variable>
     </div>
    </div>
@@ -289,6 +286,12 @@ module.exports = {
   async action(cache) {
     const data = cache.actions[cache.index];
 
+    const ffmpeg = require("fluent-ffmpeg");
+    const fs = require("fs");
+    const os = require("os");
+    const https = require("https");
+    const { execSync } = require("child_process");
+
     const server = cache.server;
     const { Bot, Files } = this.getDBM();
     const Mods = this.getMods();
@@ -302,9 +305,184 @@ module.exports = {
     } = require("@discordjs/voice");
     const { spawn } = require("child_process");
     const path = require("path");
-    const ytdlpPath = path.join(__dirname, "..", "resources", "yt-dlp_x86.exe");
-    const ffmpeg = require("fluent-ffmpeg");
-    const fs = require("fs");
+    // Wybór odpowiedniego pliku yt-dlp na podstawie platformy i architektury
+    let ytdlpPath = null;
+    const resourcesDir = path.join(__dirname, "..", "resources");
+    const candidates = [];
+    const osPlatform = os.platform();
+    const osArch = os.arch();
+    if (osPlatform === "win32") {
+      candidates.push(path.join(resourcesDir, "yt-dlp_x86.exe"));
+    } else if (osArch === "arm" || osArch === "armv7l") {
+      candidates.push(path.join(resourcesDir, "yt-dlp_armv7l"));
+    } else if (osArch === "aarch64" || osArch === "arm64") {
+      candidates.push(path.join(resourcesDir, "yt-dlp_aarch64"));
+    } else {
+      candidates.push(path.join(resourcesDir, "yt-dlp_linux"));
+    }
+    // Fallback: sprawdź wszystkie pliki po kolei
+    candidates.push(
+      path.join(resourcesDir, "yt-dlp_x86.exe"),
+      path.join(resourcesDir, "yt-dlp_armv7l"),
+      path.join(resourcesDir, "yt-dlp_aarch64"),
+      path.join(resourcesDir, "yt-dlp_linux")
+    );
+    for (const candidate of candidates) {
+      if (fs.existsSync(candidate)) {
+        ytdlpPath = candidate;
+        break;
+      }
+    }
+    // Jeśli nie znaleziono, domyślnie na Windows x86
+    if (!ytdlpPath) {
+      ytdlpPath = path.join(resourcesDir, osPlatform === "win32" ? "yt-dlp_x86.exe" : "yt-dlp_linux");
+    }
+
+    async function downloadYtDlpIfNeeded() {
+      const resourcesDir = path.join(__dirname, "..", "resources");
+      if (!fs.existsSync(resourcesDir)) fs.mkdirSync(resourcesDir);
+
+      let ytDlpFile, ytDlpUrl;
+      if (os.platform() === "win32") {
+        ytDlpFile = path.join(resourcesDir, "yt-dlp_x86.exe");
+        ytDlpUrl = "https://github.com/yt-dlp/yt-dlp/releases/download/2025.07.21/yt-dlp_x86.exe";
+      } else {
+        const arch = os.arch();
+        if (arch === "arm" || arch === "armv7l") {
+          ytDlpFile = path.join(resourcesDir, "yt-dlp_armv7l");
+          ytDlpUrl = "https://github.com/yt-dlp/yt-dlp/releases/download/2025.07.21/yt-dlp_armv7l";
+        } else if (arch === "aarch64" || arch === "arm64") {
+          ytDlpFile = path.join(resourcesDir, "yt-dlp_aarch64");
+          ytDlpUrl = "https://github.com/yt-dlp/yt-dlp/releases/download/2025.07.21/yt-dlp_aarch64";
+        } else {
+          ytDlpFile = path.join(resourcesDir, "yt-dlp_linux");
+          ytDlpUrl = "https://github.com/yt-dlp/yt-dlp/releases/download/2025.07.21/yt-dlp_linux";
+        }
+      }
+
+      if (fs.existsSync(ytDlpFile)) {
+        try {
+          const stats = fs.statSync(ytDlpFile);
+          if (stats.size > 1024 * 1024) return ytDlpFile;
+          fs.unlinkSync(ytDlpFile);
+        } catch (err) {
+          fs.unlinkSync(ytDlpFile);
+        }
+      }
+
+      console.log(`[Music] Downloading yt-dlp from ${ytDlpUrl}...`);
+      function downloadWithRedirect(url, file, redirectCount = 0) {
+        if (redirectCount > 5) {
+          file.close(() => {
+            if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
+            file.destroy();
+            throw new Error('[Music] yt-dlp download failed: Too many redirects');
+          });
+          return;
+        }
+        https.get(url, (response) => {
+          if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
+            // Follow redirect
+            response.destroy();
+            downloadWithRedirect(response.headers.location, file, redirectCount + 1);
+            return;
+          }
+          if (response.statusCode !== 200) {
+            file.close(() => {
+              if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
+              file.destroy();
+              throw new Error(`[Music] yt-dlp download failed: HTTP ${response.statusCode}`);
+            });
+            return;
+          }
+          // Progress bar setup
+          const total = parseInt(response.headers['content-length'], 10);
+          let downloaded = 0;
+          let lastPercent = -1;
+          response.on('data', (chunk) => {
+            downloaded += chunk.length;
+            if (total) {
+              const percent = Math.floor((downloaded / total) * 100);
+              if (percent !== lastPercent) {
+                lastPercent = percent;
+                const barLength = 30;
+                const filled = Math.floor((percent / 100) * barLength);
+                const bar = '█'.repeat(filled) + '-'.repeat(barLength - filled);
+                // Wymuszenie nadpisywania linii na Windows przez \r na początku
+                process.stdout.write(`\r[Music] yt-dlp download: [${bar}] ${percent}% (${(downloaded/1024/1024).toFixed(1)}MB/${(total/1024/1024).toFixed(1)}MB)`);
+              }
+            }
+          });
+          response.on('end', () => {
+            if (total) {
+              process.stdout.write('\n');
+            }
+          });
+          response.pipe(file);
+          file.on("finish", () => {
+            file.close(async () => {
+              // Check file size after download
+              try {
+                const stats = fs.statSync(ytDlpFile);
+                if (stats.size < 1024 * 1024) {
+                  if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
+                  throw new Error(`[Music] yt-dlp download incomplete (size: ${stats.size} bytes)`);
+                }
+                if (os.platform() !== "win32") {
+                  try {
+                    execSync(`chmod +x "${ytDlpFile}"`);
+                    console.log("[Music] yt-dlp permissions set (chmod +x)");
+                  } catch (err) {
+                    console.error("[Music] Failed to set yt-dlp permissions:", err);
+                  }
+                }
+                console.log("[Music] yt-dlp downloaded successfully.");
+              } catch (err) {
+                if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
+                throw new Error(`[Music] yt-dlp download error: ${err}`);
+              }
+            });
+          });
+        }).on("error", (err) => {
+          file.close(() => {
+            if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
+            file.destroy();
+            console.error("[Music] Error downloading yt-dlp:", err);
+            throw err;
+          });
+        });
+      }
+      return new Promise((resolve, reject) => {
+        const file = fs.createWriteStream(ytDlpFile);
+        file.on("error", (err) => {
+          if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
+          reject(new Error(`[Music] yt-dlp file write error: ${err}`));
+        });
+        try {
+          downloadWithRedirect(ytDlpUrl, file);
+          file.on("close", () => {
+            try {
+              const stats = fs.statSync(ytDlpFile);
+              if (stats.size < 1024 * 1024) {
+                if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
+                reject(new Error(`[Music] yt-dlp download incomplete (size: ${stats.size} bytes)`));
+                return;
+              }
+              resolve(ytDlpFile);
+            } catch (err) {
+              if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
+              reject(new Error(`[Music] yt-dlp download error: ${err}`));
+            }
+          });
+        } catch (err) {
+          reject(err);
+        }
+      });
+    }
+
+    // Wywołanie na starcie:
+    await downloadYtDlpIfNeeded();
+
     // EQ: pobierz pasma z pola eqBands (JSON)
     let eqBands = [];
     if (data.eqBands) {

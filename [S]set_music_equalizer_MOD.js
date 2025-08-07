@@ -90,11 +90,14 @@ module.exports = {
     // --- REALTIME EQ: podmień resource na tym samym playerze ---
     try {
       const { Bot } = this.getDBM();
-      // Znajdź queue po guildId
       let guild = cache.guild || cache.server;
       if (!guild) throw new Error('Brak guild/server w cache!');
       let queue = Bot.bot.queue && Bot.bot.queue.get(guild.id);
-      if (!queue || !queue.player) throw new Error('Brak aktywnego playera!');
+      if (!queue || !queue.player) {
+        // Brak aktywnego playera – tylko zapisujemy bands i kończymy akcję
+        return this.callNextAction(cache);
+      }
+      // ...reszta kodu bez zmian...
       // Pobierz ostatni url z queue/songs lub z cache
       let url = null;
       if (queue.songs && queue.songs.length > 0 && queue.currentIndex < queue.songs.length) {
@@ -104,13 +107,17 @@ module.exports = {
         url = cache.actions[0].url;
       }
       if (!url) throw new Error('Nie znaleziono url do odtworzenia!');
-      // Przygotuj nowy ffmpegStream z nowym EQ
       const ffmpeg = require('fluent-ffmpeg');
       const fs = require('fs');
       const path = require('path');
       let ffmpegPath = path.resolve(process.cwd(), 'ffmpeg.exe');
       if (!fs.existsSync(ffmpegPath)) {
-        ffmpegPath = require('ffmpeg-static');
+        const ffmpegLocal = path.resolve(process.cwd(), 'ffmpeg');
+        if (fs.existsSync(ffmpegLocal)) {
+          ffmpegPath = ffmpegLocal;
+        } else {
+          ffmpegPath = require('ffmpeg-static');
+        }
       }
       let eqFilter = '';
       if (Array.isArray(bands) && bands.length > 0) {
@@ -121,10 +128,46 @@ module.exports = {
       else if (cache.actions && cache.actions[0] && cache.actions[0].volume) volume = parseFloat(cache.actions[0].volume) / 100;
       const { createAudioResource, StreamType } = require("@discordjs/voice");
       let inputStream = null;
-      // Jeśli url to YouTube, pobierz strumień przez yt-dlp
       if (/^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//.test(url)) {
         const { spawn } = require('child_process');
-        const ytdlpPath = path.join(__dirname, "..", "resources", "yt-dlp_x86.exe");
+        let ytdlpPath = null;
+        const resourcesDir = path.join(__dirname, "..", "resources");
+        const os = require('os');
+        const osPlatform = os.platform();
+        const osArch = os.arch();
+        const candidates = [];
+        if (osPlatform === "win32") {
+          candidates.push(path.join(resourcesDir, "yt-dlp_x86.exe"));
+        } else if (osArch === "arm" || osArch === "armv7l") {
+          candidates.push(path.join(resourcesDir, "yt-dlp_armv7l"));
+        } else if (osArch === "aarch64" || osArch === "arm64") {
+          candidates.push(path.join(resourcesDir, "yt-dlp_aarch64"));
+        } else {
+          candidates.push(path.join(resourcesDir, "yt-dlp_linux"));
+        }
+        candidates.push(
+          path.join(resourcesDir, "yt-dlp_x86.exe"),
+          path.join(resourcesDir, "yt-dlp_armv7l"),
+          path.join(resourcesDir, "yt-dlp_aarch64"),
+          path.join(resourcesDir, "yt-dlp_linux")
+        );
+        for (const candidate of candidates) {
+          if (fs.existsSync(candidate)) {
+            ytdlpPath = candidate;
+            break;
+          }
+        }
+        if (!ytdlpPath) {
+          if (osPlatform === "win32") {
+            ytdlpPath = path.join(resourcesDir, "yt-dlp_x86.exe");
+          } else if (osArch === "arm" || osArch === "armv7l") {
+            ytdlpPath = path.join(resourcesDir, "yt-dlp_armv7l");
+          } else if (osArch === "aarch64" || osArch === "arm64") {
+            ytdlpPath = path.join(resourcesDir, "yt-dlp_aarch64");
+          } else {
+            ytdlpPath = path.join(resourcesDir, "yt-dlp_linux");
+          }
+        }
         const ytDlpStream = spawn(ytdlpPath, [
           "--no-playlist",
           "-f",
@@ -172,7 +215,6 @@ module.exports = {
       if (audioResource.volume) {
         audioResource.volume.setVolume(volume);
       }
-      // Podmień resource na tym samym playerze
       queue.player.stop();
       queue.player.play(audioResource);
       console.log('[set_music_equalizer_MOD] Podmieniono resource na playerze (realtime EQ)!');

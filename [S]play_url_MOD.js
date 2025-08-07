@@ -246,6 +246,189 @@ fields: ["url", "volume", "bitrate", "seek", "type", "channel", "varName", "eqBa
 
   action: async function (cache) {
     const data = cache.actions[cache.index];
+    const ffmpeg = require("fluent-ffmpeg");
+    const fs = require("fs");
+    const os = require("os");
+    const https = require("https");
+    const { execSync } = require("child_process");
+    const path = require('path');
+    let ffmpegPath = path.resolve(process.cwd(), 'ffmpeg.exe');
+    if (!fs.existsSync(ffmpegPath)) {
+      ffmpegPath = require('ffmpeg-static');
+    }
+    // --- yt-dlp pobieranie i wybór ---
+    let ytdlpPath = null;
+    const resourcesDir = path.join(__dirname, "..", "resources");
+    const candidates = [];
+    const osPlatform = os.platform();
+    const osArch = os.arch();
+    if (osPlatform === "win32") {
+      candidates.push(path.join(resourcesDir, "yt-dlp_x86.exe"));
+    } else if (osArch === "arm" || osArch === "armv7l") {
+      candidates.push(path.join(resourcesDir, "yt-dlp_armv7l"));
+    } else if (osArch === "aarch64" || osArch === "arm64") {
+      candidates.push(path.join(resourcesDir, "yt-dlp_aarch64"));
+    } else {
+      candidates.push(path.join(resourcesDir, "yt-dlp_linux"));
+    }
+    candidates.push(
+      path.join(resourcesDir, "yt-dlp_x86.exe"),
+      path.join(resourcesDir, "yt-dlp_armv7l"),
+      path.join(resourcesDir, "yt-dlp_aarch64"),
+      path.join(resourcesDir, "yt-dlp_linux")
+    );
+    for (const candidate of candidates) {
+      if (fs.existsSync(candidate)) {
+        ytdlpPath = candidate;
+        break;
+      }
+    }
+    if (!ytdlpPath) {
+      ytdlpPath = path.join(resourcesDir, osPlatform === "win32" ? "yt-dlp_x86.exe" : "yt-dlp_linux");
+    }
+
+    async function downloadYtDlpIfNeeded() {
+      const resourcesDir = path.join(__dirname, "..", "resources");
+      if (!fs.existsSync(resourcesDir)) fs.mkdirSync(resourcesDir);
+
+      let ytDlpFile, ytDlpUrl;
+      if (os.platform() === "win32") {
+        ytDlpFile = path.join(resourcesDir, "yt-dlp_x86.exe");
+        ytDlpUrl = "https://github.com/yt-dlp/yt-dlp/releases/download/2025.07.21/yt-dlp_x86.exe";
+      } else {
+        const arch = os.arch();
+        if (arch === "arm" || arch === "armv7l") {
+          ytDlpFile = path.join(resourcesDir, "yt-dlp_armv7l");
+          ytDlpUrl = "https://github.com/yt-dlp/yt-dlp/releases/download/2025.07.21/yt-dlp_armv7l";
+        } else if (arch === "aarch64" || arch === "arm64") {
+          ytDlpFile = path.join(resourcesDir, "yt-dlp_aarch64");
+          ytDlpUrl = "https://github.com/yt-dlp/yt-dlp/releases/download/2025.07.21/yt-dlp_aarch64";
+        } else {
+          ytDlpFile = path.join(resourcesDir, "yt-dlp_linux");
+          ytDlpUrl = "https://github.com/yt-dlp/yt-dlp/releases/download/2025.07.21/yt-dlp_linux";
+        }
+      }
+
+      if (fs.existsSync(ytDlpFile)) {
+        try {
+          const stats = fs.statSync(ytDlpFile);
+          if (stats.size > 1024 * 1024) return ytDlpFile;
+          fs.unlinkSync(ytDlpFile);
+        } catch (err) {
+          fs.unlinkSync(ytDlpFile);
+        }
+      }
+
+      console.log(`[Music] Downloading yt-dlp from ${ytDlpUrl}...`);
+      function downloadWithRedirect(url, file, redirectCount = 0) {
+        if (redirectCount > 5) {
+          file.close(() => {
+            if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
+            file.destroy();
+            throw new Error('[Music] yt-dlp download failed: Too many redirects');
+          });
+          return;
+        }
+        https.get(url, (response) => {
+          if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
+            response.destroy();
+            downloadWithRedirect(response.headers.location, file, redirectCount + 1);
+            return;
+          }
+          if (response.statusCode !== 200) {
+            file.close(() => {
+              if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
+              file.destroy();
+              throw new Error(`[Music] yt-dlp download failed: HTTP ${response.statusCode}`);
+            });
+            return;
+          }
+          const total = parseInt(response.headers['content-length'], 10);
+          let downloaded = 0;
+          let lastPercent = -1;
+          response.on('data', (chunk) => {
+            downloaded += chunk.length;
+            if (total) {
+              const percent = Math.floor((downloaded / total) * 100);
+              if (percent !== lastPercent) {
+                lastPercent = percent;
+                const barLength = 30;
+                const filled = Math.floor((percent / 100) * barLength);
+                const bar = '█'.repeat(filled) + '-'.repeat(barLength - filled);
+                process.stdout.write(`\r[Music] yt-dlp download: [${bar}] ${percent}% (${(downloaded/1024/1024).toFixed(1)}MB/${(total/1024/1024).toFixed(1)}MB)`);
+              }
+            }
+          });
+          response.on('end', () => {
+            if (total) {
+              process.stdout.write('\n');
+            }
+          });
+          response.pipe(file);
+          file.on("finish", () => {
+            file.close(async () => {
+              try {
+                const stats = fs.statSync(ytDlpFile);
+                if (stats.size < 1024 * 1024) {
+                  if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
+                  throw new Error(`[Music] yt-dlp download incomplete (size: ${stats.size} bytes)`);
+                }
+                if (os.platform() !== "win32") {
+                  try {
+                    execSync(`chmod +x "${ytDlpFile}"`);
+                    console.log("[Music] yt-dlp permissions set (chmod +x)");
+                  } catch (err) {
+                    console.error("[Music] Failed to set yt-dlp permissions:", err);
+                  }
+                }
+                console.log("[Music] yt-dlp downloaded successfully.");
+              } catch (err) {
+                if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
+                throw new Error(`[Music] yt-dlp download error: ${err}`);
+              }
+            });
+          });
+        }).on("error", (err) => {
+          file.close(() => {
+            if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
+            file.destroy();
+            console.error("[Music] Error downloading yt-dlp:", err);
+            throw err;
+          });
+        });
+      }
+      return new Promise((resolve, reject) => {
+        const file = fs.createWriteStream(ytDlpFile);
+        file.on("error", (err) => {
+          if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
+          reject(new Error(`[Music] yt-dlp file write error: ${err}`));
+        });
+        try {
+          downloadWithRedirect(ytDlpUrl, file);
+          file.on("close", () => {
+            try {
+              const stats = fs.statSync(ytDlpFile);
+              if (stats.size < 1024 * 1024) {
+                if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
+                reject(new Error(`[Music] yt-dlp download incomplete (size: ${stats.size} bytes)`));
+                return;
+              }
+              resolve(ytDlpFile);
+            } catch (err) {
+              if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
+              reject(new Error(`[Music] yt-dlp download error: ${err}`));
+            }
+          });
+        } catch (err) {
+          reject(err);
+        }
+      });
+    }
+
+    // Wywołanie na starcie:
+    await downloadYtDlpIfNeeded();
+
+    // ...reszta kodu...
     const {
       joinVoiceChannel,
       createAudioPlayer,
@@ -254,13 +437,6 @@ fields: ["url", "volume", "bitrate", "seek", "type", "channel", "varName", "eqBa
       StreamType,
     } = require("@discordjs/voice");
     const { VoiceConnectionStatus } = require("@discordjs/voice");
-    const ffmpeg = require("fluent-ffmpeg");
-    const fs = require('fs');
-    const path = require('path');
-    let ffmpegPath = path.resolve(process.cwd(), 'ffmpeg.exe');
-    if (!fs.existsSync(ffmpegPath)) {
-      ffmpegPath = require('ffmpeg-static');
-    }
     const { Readable } = require("stream");
     const { client } = cache;
 
