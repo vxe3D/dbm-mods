@@ -2,7 +2,7 @@ module.exports = {
   name: "Play Music",
   section: "# SHDZ - Music",
   meta: {
-    version: "3.0.0",
+    version: "3.2.0",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -39,7 +39,7 @@ module.exports = {
       <a href="https://discord.gg/9HYB4n3Dz4" class="vcstatus-discord" target="_blank">Discord</a>
     </div>
     <div class="vcstatus-box-fixed vcstatus-box-right" style="top: 22px; right: 15px;">
-      <span class="vcstatus-version">v3.0.0</span>
+      <span class="vcstatus-version">v3.2.0</span>
     </div>
     <style>
       .vcstatus-author-label {
@@ -272,7 +272,6 @@ module.exports = {
         specificSpan.setAttribute("title", url);
         specificSpan.addEventListener("click", (e) => {
           e.stopImmediatePropagation();
-          console.log(`Launching URL: [${url}] in your default browser.`);
           try {
             require("child_process").execSync(`start ${url}`);
           } catch (err) {
@@ -284,14 +283,11 @@ module.exports = {
   },
 
   async action(cache) {
+  console.log('[Play Music] Start action');
     const data = cache.actions[cache.index];
 
     const ffmpeg = require("fluent-ffmpeg");
-    const fs = require("fs");
-    const os = require("os");
-    const https = require("https");
-    const { execSync } = require("child_process");
-
+    const { Readable } = require("stream");
     const server = cache.server;
     const { Bot, Files } = this.getDBM();
     const Mods = this.getMods();
@@ -303,193 +299,41 @@ module.exports = {
       AudioPlayerStatus,
       VoiceConnectionStatus,
     } = require("@discordjs/voice");
-    const { spawn } = require("child_process");
     const path = require("path");
-    // Wybór odpowiedniego pliku yt-dlp na podstawie platformy i architektury
-    let ytdlpPath = null;
-    const resourcesDir = path.join(__dirname, "..", "resources");
-    const candidates = [];
-    const osPlatform = os.platform();
-    const osArch = os.arch();
-    if (osPlatform === "win32") {
-      candidates.push(path.join(resourcesDir, "yt-dlp_x86.exe"));
-    } else if (osArch === "arm" || osArch === "armv7l") {
-      candidates.push(path.join(resourcesDir, "yt-dlp_armv7l"));
-    } else if (osArch === "aarch64" || osArch === "arm64") {
-      candidates.push(path.join(resourcesDir, "yt-dlp_aarch64"));
-    } else {
-      candidates.push(path.join(resourcesDir, "yt-dlp_linux"));
-    }
-    // Fallback: sprawdź wszystkie pliki po kolei
-    candidates.push(
-      path.join(resourcesDir, "yt-dlp_x86.exe"),
-      path.join(resourcesDir, "yt-dlp_armv7l"),
-      path.join(resourcesDir, "yt-dlp_aarch64"),
-      path.join(resourcesDir, "yt-dlp_linux")
-    );
-    for (const candidate of candidates) {
-      if (fs.existsSync(candidate)) {
-        ytdlpPath = candidate;
-        break;
-      }
-    }
-    // Jeśli nie znaleziono, domyślnie na Windows x86
-    if (!ytdlpPath) {
-      ytdlpPath = path.join(resourcesDir, osPlatform === "win32" ? "yt-dlp_x86.exe" : "yt-dlp_linux");
-    }
+    const youtubedl = require("yt-dlp-exec");
 
-    async function downloadYtDlpIfNeeded() {
-      const resourcesDir = path.join(__dirname, "..", "resources");
-      if (!fs.existsSync(resourcesDir)) fs.mkdirSync(resourcesDir);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    // region Dalszy kod
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      let ytDlpFile, ytDlpUrl;
-      if (os.platform() === "win32") {
-        ytDlpFile = path.join(resourcesDir, "yt-dlp_x86.exe");
-        ytDlpUrl = "https://github.com/yt-dlp/yt-dlp/releases/download/2025.07.21/yt-dlp_x86.exe";
-      } else {
-        const arch = os.arch();
-        if (arch === "arm" || arch === "armv7l") {
-          ytDlpFile = path.join(resourcesDir, "yt-dlp_armv7l");
-          ytDlpUrl = "https://github.com/yt-dlp/yt-dlp/releases/download/2025.07.21/yt-dlp_armv7l";
-        } else if (arch === "aarch64" || arch === "arm64") {
-          ytDlpFile = path.join(resourcesDir, "yt-dlp_aarch64");
-          ytDlpUrl = "https://github.com/yt-dlp/yt-dlp/releases/download/2025.07.21/yt-dlp_aarch64";
-        } else {
-          ytDlpFile = path.join(resourcesDir, "yt-dlp_linux");
-          ytDlpUrl = "https://github.com/yt-dlp/yt-dlp/releases/download/2025.07.21/yt-dlp_linux";
-        }
-      }
-
-      if (fs.existsSync(ytDlpFile)) {
-        try {
-          const stats = fs.statSync(ytDlpFile);
-          if (stats.size > 1024 * 1024) return ytDlpFile;
-          fs.unlinkSync(ytDlpFile);
-        } catch (err) {
-          fs.unlinkSync(ytDlpFile);
-        }
-      }
-
-      console.log(`[Music] Downloading yt-dlp from ${ytDlpUrl}...`);
-      function downloadWithRedirect(url, file, redirectCount = 0) {
-        if (redirectCount > 5) {
-          file.close(() => {
-            if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
-            file.destroy();
-            throw new Error('[Music] yt-dlp download failed: Too many redirects');
-          });
-          return;
-        }
-        https.get(url, (response) => {
-          if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
-            // Follow redirect
-            response.destroy();
-            downloadWithRedirect(response.headers.location, file, redirectCount + 1);
-            return;
-          }
-          if (response.statusCode !== 200) {
-            file.close(() => {
-              if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
-              file.destroy();
-              throw new Error(`[Music] yt-dlp download failed: HTTP ${response.statusCode}`);
-            });
-            return;
-          }
-          // Progress bar setup
-          const total = parseInt(response.headers['content-length'], 10);
-          let downloaded = 0;
-          let lastPercent = -1;
-          response.on('data', (chunk) => {
-            downloaded += chunk.length;
-            if (total) {
-              const percent = Math.floor((downloaded / total) * 100);
-              if (percent !== lastPercent) {
-                lastPercent = percent;
-                const barLength = 30;
-                const filled = Math.floor((percent / 100) * barLength);
-                const bar = '█'.repeat(filled) + '-'.repeat(barLength - filled);
-                // Wymuszenie nadpisywania linii na Windows przez \r na początku
-                process.stdout.write(`\r[Music] yt-dlp download: [${bar}] ${percent}% (${(downloaded/1024/1024).toFixed(1)}MB/${(total/1024/1024).toFixed(1)}MB)`);
-              }
-            }
-          });
-          response.on('end', () => {
-            if (total) {
-              process.stdout.write('\n');
-            }
-          });
-          response.pipe(file);
-          file.on("finish", () => {
-            file.close(async () => {
-              // Check file size after download
-              try {
-                const stats = fs.statSync(ytDlpFile);
-                if (stats.size < 1024 * 1024) {
-                  if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
-                  throw new Error(`[Music] yt-dlp download incomplete (size: ${stats.size} bytes)`);
-                }
-                if (os.platform() !== "win32") {
-                  try {
-                    execSync(`chmod +x "${ytDlpFile}"`);
-                    console.log("[Music] yt-dlp permissions set (chmod +x)");
-                  } catch (err) {
-                    console.error("[Music] Failed to set yt-dlp permissions:", err);
-                  }
-                }
-                console.log("[Music] yt-dlp downloaded successfully.");
-              } catch (err) {
-                if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
-                throw new Error(`[Music] yt-dlp download error: ${err}`);
-              }
-            });
-          });
-        }).on("error", (err) => {
-          file.close(() => {
-            if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
-            file.destroy();
-            console.error("[Music] Error downloading yt-dlp:", err);
-            throw err;
-          });
-        });
-      }
-      return new Promise((resolve, reject) => {
-        const file = fs.createWriteStream(ytDlpFile);
-        file.on("error", (err) => {
-          if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
-          reject(new Error(`[Music] yt-dlp file write error: ${err}`));
-        });
-        try {
-          downloadWithRedirect(ytDlpUrl, file);
-          file.on("close", () => {
-            try {
-              const stats = fs.statSync(ytDlpFile);
-              if (stats.size < 1024 * 1024) {
-                if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
-                reject(new Error(`[Music] yt-dlp download incomplete (size: ${stats.size} bytes)`));
-                return;
-              }
-              resolve(ytDlpFile);
-            } catch (err) {
-              if (fs.existsSync(ytDlpFile)) fs.unlinkSync(ytDlpFile);
-              reject(new Error(`[Music] yt-dlp download error: ${err}`));
-            }
-          });
-        } catch (err) {
-          reject(err);
-        }
-      });
-    }
-
-    // Wywołanie na starcie:
-    await downloadYtDlpIfNeeded();
-
-    // EQ: pobierz pasma z pola eqBands (JSON)
+    // EQ: pobierz pasma z dynamicznej zmiennej lub z pola eqBands (JSON)
     let eqBands = [];
-    if (data.eqBands) {
+    let eqBandsRaw = undefined;
+    if (data.eqBandsStorage && data.eqBandsVar) {
+      const eqType = parseInt(data.eqBandsStorage, 10);
+      const eqVar = this.evalMessage(data.eqBandsVar, cache);
+      eqBandsRaw = this.getVariable(eqType, eqVar, cache);
+    }
+    if (eqBandsRaw) {
+      try {
+        if (typeof eqBandsRaw === 'string') {
+          eqBands = JSON.parse(eqBandsRaw);
+        } else if (Array.isArray(eqBandsRaw) && eqBandsRaw.length === 1 && typeof eqBandsRaw[0] === 'string') {
+          // Obsługa: [ '[{...}]' ]
+          eqBands = JSON.parse(eqBandsRaw[0]);
+        } else {
+          eqBands = eqBandsRaw;
+        }
+      } catch (e) {
+        eqBands = [];
+        console.warn('[EQ] Błąd parsowania eqBandsRaw:', e);
+      }
+    } else if (data.eqBands) {
       try {
         eqBands = JSON.parse(this.evalMessage(data.eqBands, cache));
       } catch (e) {
         eqBands = [];
+        console.warn('[EQ] Błąd parsowania data.eqBands:', e);
       }
     }
     function buildEqFilter(bands) {
@@ -503,7 +347,7 @@ module.exports = {
     }
     const eqFilter = buildEqFilter(eqBands);
 
-    if (cache.interaction) {
+    if (cache.interaction && !cache.interaction.replied && !cache.interaction.deferred) {
       try {
         await cache.interaction.deferReply({ flags: 64 });
       } catch (err) {
@@ -516,17 +360,32 @@ module.exports = {
       const cookiesarray = JSON.parse(this.evalMessage(data.cookies, cache));
       agent = ytdl.createAgent(cookiesarray);
     }
-    const voiceChannel = await this.getVoiceChannelFromData(
+    let voiceChannel = await this.getVoiceChannelFromData(
       data.voiceChannel,
       data.varName,
       cache
     );
+    if (!voiceChannel) {
+      // Pobierz kanał, na którym aktualnie znajduje się bot
+      const botMember = server.members.cache.get(Bot.bot.user.id);
+      if (botMember && botMember.voice && botMember.voice.channel) {
+        voiceChannel = botMember.voice.channel;
+      }
+    }
+    if (!voiceChannel) {
+      console.error('[Play Music] Brak wybranego kanału głosowego i bot nie jest na żadnym kanale.');
+      if (cache.interaction && !cache.interaction.replied && !cache.interaction.deferred) {
+        await cache.interaction.reply({ content: 'Nie wybrano kanału głosowego i bot nie jest na żadnym kanale!', ephemeral: true });
+      }
+      return this.callNextAction(cache);
+    }
 
     if (!Bot.bot.queue) Bot.bot.queue = new Map();
 
     const volume = parseInt(this.evalMessage(data.volume, cache), 10) || 80;
-    const leaveOnEnd = data.leaveOnEnd;
-    const leaveOnEmpty = data.leaveOnEmpty;
+  // Obsługa checkboxów leaveOnEnd i leaveOnEmpty (mogą być stringiem lub booleanem)
+  const leaveOnEnd = data.leaveOnEnd === true || data.leaveOnEnd === "true" || data.leaveOnEnd === "on";
+  const leaveOnEmpty = data.leaveOnEmpty === true || data.leaveOnEmpty === "true" || data.leaveOnEmpty === "on";
     const autoDeafen = (Files.data.settings.autoDeafen ?? "true") === "true";
     const leaveVoiceTimeout = Files.data.settings.leaveVoiceTimeout ?? "10";
     let seconds = parseInt(leaveVoiceTimeout, 10);
@@ -534,7 +393,7 @@ module.exports = {
     if (leaveVoiceTimeout === "" || !isFinite(seconds)) seconds = 0;
     if (seconds > 0) seconds *= 1000;
 
-    const query = this.evalMessage(data.query, cache);
+  const query = this.evalMessage(data.query, cache);
 
     const serverQueue = Bot.bot.queue.get(server.id);
 
@@ -543,12 +402,27 @@ module.exports = {
     if (ytpl.validateID(query, { agent })) {
       let playlist;
       try {
+        console.log('[Play Music] Detected playlist, fetching playlist info...');
         playlist = await ytpl(query, { agent });
+        console.log('[Play Music] Playlist info fetched:', playlist && playlist.items && playlist.items.length, 'items');
       } catch (error) {
-        console.log(error);
+        console.error('[Play Music] Error fetching playlist:', error);
         return this.callNextAction(cache);
       }
-
+  let requestedById = null;
+      if (cache.interaction) {
+        if (cache.interaction.user && cache.interaction.user.id) {
+          requestedById = cache.interaction.user.id;
+        } else if (cache.interaction.member && cache.interaction.member.user && cache.interaction.member.user.id) {
+          requestedById = cache.interaction.member.user.id;
+        }
+      }
+      if (!requestedById && cache.getUser && cache.getUser()) {
+        requestedById = cache.getUser().id;
+      }
+      if (!requestedById && Bot && Bot.bot && Bot.bot.user && Bot.bot.user.id) {
+        requestedById = Bot.bot.user.id;
+      }
       songs = playlist.items.map((item) => ({
         title: item.title,
         thumbnail: item.thumbnail,
@@ -557,40 +431,39 @@ module.exports = {
         duration: item.duration
           .split(":")
           .reduce((acc, time) => 60 * acc + Number(time)),
-        requestedBy: cache.getUser && cache.getUser() ? cache.getUser().id : null,
+        requestedBy: requestedById,
       }));
+      console.log('[Play Music] Songs array for playlist:', songs);
     } else {
-      const getInfo = () => {
-        return new Promise((resolve, reject) => {
-          const ytDlp = spawn(ytdlpPath, ["--dump-json", "--no-playlist", query]);
-          let json = "";
-          ytDlp.stdout.on("data", (data) => {
-            json += data.toString();
-          });
-          ytDlp.stderr.on("data", (data) => {
-          });
-          ytDlp.on("close", (code) => {
-            if (code === 0) {
-              try {
-                const info = JSON.parse(json);
-                resolve(info);
-              } catch (e) {
-                reject(e);
-              }
-            } else {
-              reject(new Error("yt-dlp exited with code " + code));
-            }
-          });
-        });
-      };
       let songInfo;
       try {
-        songInfo = await getInfo();
+        console.log('[Play Music] Detected single track, fetching info...');
+        songInfo = await youtubedl(query, {
+          dumpSingleJson: true,
+          noPlaylist: true,
+          preferFreeFormats: true,
+          noCheckCertificates: true,
+          addHeader: ["referer:youtube.com", "user-agent:googlebot"],
+        });
+        console.log('[Play Music] Song info:', songInfo);
       } catch (error) {
-        console.log(error);
+        console.error('[Play Music] Error fetching song info:', error);
         return this.callNextAction(cache);
       }
-
+      let requestedById2 = null;
+      if (cache.interaction) {
+        if (cache.interaction.user && cache.interaction.user.id) {
+          requestedById2 = cache.interaction.user.id;
+        } else if (cache.interaction.member && cache.interaction.member.user && cache.interaction.member.user.id) {
+          requestedById2 = cache.interaction.member.user.id;
+        }
+      }
+      if (!requestedById2 && cache.getUser && cache.getUser()) {
+        requestedById2 = cache.getUser().id;
+      }
+      if (!requestedById2 && Bot && Bot.bot && Bot.bot.user && Bot.bot.user.id) {
+        requestedById2 = Bot.bot.user.id;
+      }
       songs.push({
         title: songInfo.title,
         thumbnail: songInfo.thumbnail,
@@ -599,116 +472,132 @@ module.exports = {
         duration: songInfo.duration,
         description: songInfo.description,
         views: songInfo.view_count,
-        requestedBy: cache.getUser && cache.getUser() ? cache.getUser().id : null,
+        requestedBy: requestedById2,
       });
     }
 
     if (!serverQueue) {
+      // Sprawdź, czy istnieje aktywne połączenie głosowe
+      let connection = null;
+      let existingQueue = Bot.bot.queue.get(server.id);
+      if (existingQueue && existingQueue.connection && existingQueue.connection.state.status !== 'destroyed') {
+        connection = existingQueue.connection;
+      } else {
+        try {
+          console.log('[Play Music] Joining voice channel:', voiceChannel && voiceChannel.id);
+          connection = joinVoiceChannel({
+            channelId: voiceChannel.id,
+            guildId: server.id,
+            adapterCreator: server.voiceAdapterCreator,
+            selfDeaf: autoDeafen,
+          });
+          console.log('[Play Music] Voice connection established');
+        } catch (err) {
+          console.error('[Play Music] Error joining voice channel:', err);
+          return this.callNextAction(cache);
+        }
+      }
+
       const queueData = {
-        connection: null,
+        connection: connection,
         player: createAudioPlayer(),
         songs: [],
         currentIndex: 0,
-        repeatMode: 0,
+        repeatMode: 0, // 0 = off, 1 = loop one, 2 = loop queue
+        leaveTimeout: null,
+        loopCollector: null,
+        cleanedUp: false,
       };
-
       Bot.bot.queue.set(server.id, queueData);
-      queueData.songs.push(...songs);
-
-      let connection;
-      try {
-        connection = joinVoiceChannel({
-          channelId: voiceChannel.id,
-          guildId: server.id,
-          adapterCreator: server.voiceAdapterCreator,
-          selfDeaf: autoDeafen,
-        });
-      } catch {
-        console.log("Could not join voice channel");
-        queueData.player.stop();
-        queueData.player.removeAllListeners();
-        Bot.bot.queue.delete(server.id);
-        return this.callNextAction(cache);
+      // --- Loop Collector: synchronizuj repeatMode z queue.loopQueue/loopOne ustawianymi przez inne akcje ---
+      if (!queueData.loopCollector) {
+        queueData.loopCollector = setInterval(() => {
+          const extQueue = Bot.bot.queue.get(server.id);
+          if (!extQueue) return;
+          // Sprawdź flagi loopQueue/loopOne ustawiane przez inne akcje
+          if (extQueue.loopOne) {
+            if (queueData.repeatMode !== 1) {
+              queueData.repeatMode = 1;
+              console.log(`[Music] [Collector] repeatMode set to 1 (loop one) for guild ${server.id}`);
+            }
+          } else if (extQueue.loopQueue) {
+            if (queueData.repeatMode !== 2) {
+              queueData.repeatMode = 2;
+              console.log(`[Music] [Collector] repeatMode set to 2 (loop queue) for guild ${server.id}`);
+            }
+          } else {
+            if (queueData.repeatMode !== 0) {
+              queueData.repeatMode = 0;
+              console.log(`[Music] [Collector] repeatMode set to 0 (no loop) for guild ${server.id}`);
+            }
+          }
+        }, 1000); // Sprawdzaj co sekundę
       }
-
-      queueData.connection = connection;
+      queueData.songs.push(...songs);
       connection.subscribe(queueData.player);
 
-      const ytDlpStream = spawn(ytdlpPath, [
-        "--no-playlist",
-        "-f",
-        "bestaudio[ext=webm]/bestaudio",
-        "--quiet",
-        "-o",
-        "-",
-        queueData.songs[queueData.currentIndex].url,
-      ]);
-      let stream = ytDlpStream.stdout;
-      if (eqFilter) {
-        let ffmpegPath = path.resolve(process.cwd(), 'ffmpeg.exe');
-        if (!fs.existsSync(ffmpegPath)) ffmpegPath = require('ffmpeg-static');
-        let ffmpegInstance = ffmpeg().input(stream).setFfmpegPath(ffmpegPath).audioFilters(eqFilter).format('webm');
-        ffmpegInstance.on('error', (err, stdout, stderr) => {
-          if (
-            (err && (err.code === 'ERR_STREAM_PREMATURE_CLOSE' || err.message?.includes('Premature close'))) ||
-            (err && err.outputStreamError && (err.outputStreamError.code === 'ERR_STREAM_PREMATURE_CLOSE' || err.outputStreamError.message?.includes('Premature close')))
-          ) {
-            console.warn('[Music] ffmpegInstance: Premature close (non-fatal, suppressed)');
-            return;
-          }
-          console.error('[Music] ffmpegInstance error:', err);
-        });
-        const ffmpegStream = ffmpegInstance.pipe();
-        ffmpegStream.on('error', (err) => {
-          if (
-            (err && (err.code === 'ERR_STREAM_PREMATURE_CLOSE' || err.message?.includes('Premature close')))
-          ) {
-            console.warn('[Music] ffmpegStream: Premature close (non-fatal, suppressed)');
-            return;
-          }
-          console.error('[Music] ffmpegStream error:', err);
-        });
-        stream = ffmpegStream;
-      }
-      const resource = createAudioResource(stream, { inlineVolume: true });
-      resource.volume.setVolume(volume / 100);
-      queueData.player.play(resource);
-
-      queueData.player.on(AudioPlayerStatus.Idle, async () => {
-        let nextSongUrl;
-        if (queueData.repeatMode === 1) {
-          nextSongUrl = queueData.songs[queueData.currentIndex].url;
-        } else if (queueData.repeatMode === 2 && queueData.songs.length > 0) {
-          queueData.currentIndex =
-            (queueData.currentIndex + 1) % queueData.songs.length;
-          nextSongUrl = queueData.songs[queueData.currentIndex].url;
-        } else {
-          queueData.currentIndex += 1;
-          if (queueData.currentIndex < queueData.songs.length) {
-            nextSongUrl = queueData.songs[queueData.currentIndex].url;
-          } else {
-            if (leaveOnEnd) {
-              connection.disconnect();
-            }
-            return;
-          }
+      // Helper to clean up and disconnect
+      function cleanupAndLeave() {
+        if (queueData.cleanedUp) {
+          return;
         }
+        queueData.cleanedUp = true;
+        // Wyłącz collector przy czyszczeniu
+        if (queueData.loopCollector) {
+          clearInterval(queueData.loopCollector);
+          queueData.loopCollector = null;
+        }
+        try {
+          if (queueData.connection && queueData.connection.state.status !== 'destroyed') {
+            queueData.connection.disconnect();
+            queueData.connection.destroy();
+          }
+        } catch (e) {
+          console.warn('[Music] cleanupAndLeave error:', e);
+        }
+        try {
+          queueData.player.stop();
+          queueData.player.removeAllListeners();
+        } catch (e) {
+          console.warn('[Music] cleanupAndLeave player error:', e);
+        }
+        Bot.bot.queue.delete(server.id);
+      }
 
-        const nextYtDlpStream = spawn(ytdlpPath, [
-          "--no-playlist",
-          "-f",
-          "bestaudio[ext=webm]/bestaudio",
-          "--quiet",
-          "-o",
-          "-",
-          nextSongUrl,
-        ]);
-        let nextStream = nextYtDlpStream.stdout;
+
+      const playSong = async (songUrl) => {
+        console.log('[Play Music] playSong() called for url:', songUrl);
+        let ytdlpStream;
+        try {
+          ytdlpStream = youtubedl.exec(songUrl, {
+            output: '-',
+            format: 'bestaudio[ext=webm]/bestaudio/best',
+            quiet: true,
+            noPlaylist: true,
+          }, { stdio: ['ignore', 'pipe', 'ignore'] });
+        } catch (err) {
+          console.error('[Play Music] yt-dlp-exec failed:', err);
+          if (cache.interaction && !cache.interaction.replied && !cache.interaction.deferred) {
+            await cache.interaction.reply({ content: 'Nie udało się pobrać piosenki!', ephemeral: true });
+          }
+          cleanupAndLeave();
+          return;
+        }
+        let stream = ytdlpStream.stdout;
+        let streamError = false;
+        ytdlpStream.on('error', async (err) => {
+          console.error('[Play Music] yt-dlp-exec stream error:', err);
+          streamError = true;
+          if (cache.interaction && !cache.interaction.replied && !cache.interaction.deferred) {
+            await cache.interaction.reply({ content: 'Błąd pobierania piosenki!', ephemeral: true });
+          }
+          cleanupAndLeave();
+        });
         if (eqFilter) {
           let ffmpegPath = path.resolve(process.cwd(), 'ffmpeg.exe');
-          if (!fs.existsSync(ffmpegPath)) ffmpegPath = require('ffmpeg-static');
-          let ffmpegInstance = ffmpeg().input(nextStream).setFfmpegPath(ffmpegPath).audioFilters(eqFilter).format('webm');
-          ffmpegInstance.on('error', (err, stdout, stderr) => {
+          try { if (!require('fs').existsSync(ffmpegPath)) ffmpegPath = require('ffmpeg-static'); } catch (e) { ffmpegPath = require('ffmpeg-static'); }
+          let ffmpegInstance = ffmpeg().input(stream).setFfmpegPath(ffmpegPath).audioFilters(eqFilter).format('webm');
+          ffmpegInstance.on('error', async (err, stdout, stderr) => {
             if (
               (err && (err.code === 'ERR_STREAM_PREMATURE_CLOSE' || err.message?.includes('Premature close'))) ||
               (err && err.outputStreamError && (err.outputStreamError.code === 'ERR_STREAM_PREMATURE_CLOSE' || err.outputStreamError.message?.includes('Premature close')))
@@ -717,9 +606,14 @@ module.exports = {
               return;
             }
             console.error('[Music] ffmpegInstance error:', err);
+            streamError = true;
+            if (cache.interaction && !cache.interaction.replied && !cache.interaction.deferred) {
+              await cache.interaction.reply({ content: 'Błąd przetwarzania piosenki!', ephemeral: true });
+            }
+            cleanupAndLeave();
           });
           const ffmpegStream = ffmpegInstance.pipe();
-          ffmpegStream.on('error', (err) => {
+          ffmpegStream.on('error', async (err) => {
             if (
               (err && (err.code === 'ERR_STREAM_PREMATURE_CLOSE' || err.message?.includes('Premature close')))
             ) {
@@ -727,50 +621,125 @@ module.exports = {
               return;
             }
             console.error('[Music] ffmpegStream error:', err);
+            streamError = true;
+            if (cache.interaction && !cache.interaction.replied && !cache.interaction.deferred) {
+              await cache.interaction.reply({ content: 'Błąd przetwarzania piosenki!', ephemeral: true });
+            }
+            cleanupAndLeave();
           });
-          nextStream = ffmpegStream;
+          stream = ffmpegStream;
         }
-        const nextResource = createAudioResource(nextStream, {
-          inlineVolume: true,
-        });
-        nextResource.volume.setVolume(volume / 100);
-        queueData.player.play(nextResource);
+        // Sprawdź czy stream istnieje i nie ma błędu
+        if (!stream || streamError) {
+          console.error('[Play Music] Brak poprawnego streama audio!');
+          if (cache.interaction && !cache.interaction.replied && !cache.interaction.deferred) {
+            await cache.interaction.reply({ content: 'Nie udało się pobrać lub przetworzyć piosenki!', ephemeral: true });
+          }
+          cleanupAndLeave();
+          return;
+        }
+        const resource = createAudioResource(stream, { inlineVolume: true });
+        resource.volume.setVolume(volume / 100);
+        queueData.player.play(resource);
+        console.log('[Play Music] playSong() resource created and started');
+      };
+
+  await playSong(queueData.songs[queueData.currentIndex].url);
+
+      queueData.player.on(AudioPlayerStatus.Idle, async () => {
+  console.log('[Play Music] AudioPlayerStatus.Idle event');
+        // repeatMode: 0 = off, 1 = repeat one, 2 = repeat all
+        // If there are no songs, always clean up or reset
+        if (!queueData.songs || queueData.songs.length === 0) {
+          console.log('[Play Music] No songs in queue, cleaning up and leaving');
+          cleanupAndLeave();
+          return;
+        }
+
+        if (queueData.repeatMode === 1) {
+          // Repeat current song (loop one)
+          if (queueData.currentIndex < queueData.songs.length) {
+            const nextSongUrl = queueData.songs[queueData.currentIndex].url;
+            console.log('[Play Music] Repeat one, playing again:', nextSongUrl);
+            playSong(nextSongUrl);
+            return;
+          } else {
+            // If index is out of range, treat as queue end
+            console.log('[Play Music] Repeat one, index out of range, cleaning up');
+            cleanupAndLeave();
+            return;
+          }
+        } else if (queueData.repeatMode === 2) {
+          // Repeat queue (loop all)
+          if (queueData.songs.length > 0) {
+            queueData.currentIndex = (queueData.currentIndex + 1) % queueData.songs.length;
+            const nextSongUrl = queueData.songs[queueData.currentIndex].url;
+            console.log('[Play Music] Repeat queue, next song:', nextSongUrl);
+            playSong(nextSongUrl);
+            return;
+          } else {
+            console.log('[Play Music] Repeat queue, no songs, cleaning up');
+            cleanupAndLeave();
+            return;
+          }
+        } else {
+          queueData.currentIndex += 1;
+          if (queueData.currentIndex < queueData.songs.length) {
+            const nextSongUrl = queueData.songs[queueData.currentIndex].url;
+            console.log('[Play Music] Next song:', nextSongUrl);
+            playSong(nextSongUrl);
+            return;
+          } else {
+            console.log('[Play Music] End of queue, cleaning up');
+            cleanupAndLeave();
+            return;
+          }
+        }
       });
 
-      if (leaveOnEmpty) {
-        Bot.bot.on("voiceStateUpdate", (oldState, newState) => {
+      // Only one listener per server for leaveOnEmpty
+      if (leaveOnEmpty && !connection._leaveOnEmptyListener) {
+        connection._leaveOnEmptyListener = true;
+        const leaveOnEmptyHandler = (oldState, newState) => {
           if (oldState.guild.id !== server.id) return;
-
           const botChannel = connection.joinConfig.channelId;
           if (!botChannel) return;
-
           const botVoiceChannel = server.channels.cache.get(botChannel);
           if (botVoiceChannel && botVoiceChannel.members.size === 1) {
-            setTimeout(() => {
+            if (queueData.leaveTimeout) clearTimeout(queueData.leaveTimeout);
+            queueData.leaveTimeout = setTimeout(() => {
               if (botVoiceChannel.members.size === 1) {
-                connection.disconnect();
+                cleanupAndLeave();
               }
             }, seconds);
+          } else if (queueData.leaveTimeout) {
+            clearTimeout(queueData.leaveTimeout);
+            queueData.leaveTimeout = null;
           }
-        });
+        };
+        Bot.bot.on("voiceStateUpdate", leaveOnEmptyHandler);
+        connection._leaveOnEmptyHandler = leaveOnEmptyHandler;
       }
 
-      Bot.bot.on("voiceStateUpdate", (oldState, newState) => {
-        if (
-          oldState.channelId &&
-          !newState.channelId &&
-          oldState.member.id === Bot.bot.user.id &&
-          oldState.guild.id === server.id
-        ) {
-          connection.disconnect();
-        }
-      });
+      // Only one listener per server for bot disconnect
+      if (!connection._botDisconnectListener) {
+        connection._botDisconnectListener = true;
+        const botDisconnectHandler = (oldState, newState) => {
+          if (
+            oldState.channelId &&
+            !newState.channelId &&
+            oldState.member.id === Bot.bot.user.id &&
+            oldState.guild.id === server.id
+          ) {
+            cleanupAndLeave();
+          }
+        };
+        Bot.bot.on("voiceStateUpdate", botDisconnectHandler);
+        connection._botDisconnectHandler = botDisconnectHandler;
+      }
 
       connection.on(VoiceConnectionStatus.Disconnected, () => {
-        connection.destroy();
-        queueData.player.stop();
-        queueData.player.removeAllListeners();
-        Bot.bot.queue.delete(server.id);
+        cleanupAndLeave();
       });
     } else if (data.type === "1") {
       const currentSong = serverQueue.songs[serverQueue.currentIndex];
