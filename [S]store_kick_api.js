@@ -12,7 +12,7 @@ module.exports = {
     downloadURL: "https://www.npmjs.com/package/@nekiro/kick-api",
   },
 
-  fields: ["option", "username", "infoKey", "storage", "varName", "client_id", "client_secret"],
+  fields: ["option", "username", "infoKey", "storage", "varName", "client_id", "client_secret", "reUse", "debugMode"],
 
   subtitle(data) {
     let optLabel = '';
@@ -26,7 +26,9 @@ module.exports = {
       id: 'ID', username: 'Username', avatar: 'Avatar', bio: 'Bio', followers: 'Followers',
       verified: 'Verified', vod_enabled: 'Vod Enabled?', can_host: 'Can Host?', is_banned: 'Is Banned?',
       subscription_enabled: 'Subscription Enabled?', title: 'Title', category: 'Category',
-      startedAt: 'Started At', url: 'URL', isLive: 'Store (true/false)', has_mature_content: 'Has Mature Content?', channel_id: 'Channel ID', started_at: 'Started At', stream_title: 'Stream Title', viewer_count: 'Viewer Count', thumbnail: 'Thumbnail', language: 'Language',
+      startedAt: 'Started At', url: 'URL', isLive: 'Store (true/false)', has_mature_content: 'Has Mature Content?', 
+      channel_id: 'Channel ID', started_at: 'Started At', stream_title: 'Stream Title', 
+      viewer_count: 'Viewer Count', thumbnail: 'Thumbnail', language: 'Language',
     };
 
     let keyLabel = data.infoKey ? ` | ${infoKeyText[data.infoKey] || data.infoKey}` : '';
@@ -180,38 +182,62 @@ module.exports = {
       }
     </style>
 
-<div style="padding:10px;">
-  <div style="width:48%;float:left;">
-    <span class="dbminputlabel">Option</span>
-    <select id="option" class="round" style="width:100%;">
-      <option value="isStreamerLive">Is Streamer Live?</option>
-      <option value="getStreamInfo">Get Stream Info</option>
-      <option value="getChannelInfo">Get Channel Info</option>
-    </select>
-  </div>
-  <div style="width:48%;float:right;">
-    <span class="dbminputlabel">Info Key</span>
-    <select id="infoKey" class="round" style="width:100%;"></select>
-  </div>
-  <div style="clear:both;"></div><br>
-  <div style="width:48%;float:left;">
-    <span class="dbminputlabel">KICK.com | Username</span>
-    <input id="username" class="round" type="text" placeholder="Insert your KICK Username">
-  </div>
-  <div style="width:48%;float:right;">
-    <store-in-variable dropdownLabel="Store In" selectId="storage" variableContainerId="varNameContainer" variableInputId="varName" selectWidth="100%" variableInputWidth="100%"></store-in-variable>
-  </div>
-  <div style="clear:both;"></div><br>
-  <div style="width:48%;float:left;">
-    <span class="dbminputlabel">Kick Client ID</span>
-  <input id="client_id" class="round" type="password" placeholder="Insert your Kick Client ID">
-  </div>
-  <div style="width:48%;float:right;">
-    <span class="dbminputlabel">Kick Client Secret</span>
-  <input id="client_secret" class="round" type="password" placeholder="Insert your Kick Client Secret">
-  </div>
-  <div style="clear:both;"></div>
-</div><br>
+    <tab-system id="tabs" style="margin-top: 10px;">
+      <tab label="Main" icon="cogs">
+        <div style="padding:0 0 0 0;">
+          <div style="width:48%;float:left;">
+            <span class="dbminputlabel">Option</span>
+            <select id="option" class="round" style="width:100%;">
+              <option value="isStreamerLive">Is Streamer Live?</option>
+              <option value="getStreamInfo">Get Stream Info</option>
+              <option value="getChannelInfo">Get Channel Info</option>
+            </select>
+          </div>
+          <div style="width:48%;float:right;">
+            <span class="dbminputlabel">Info Key</span>
+            <select id="infoKey" class="round" style="width:100%;"></select>
+          </div>
+          <div style="clear:both;"></div><br>
+          <div style="width:48%;float:left;">
+            <span class="dbminputlabel">KICK.com | Username</span>
+            <input id="username" class="round" type="text" placeholder="Insert your KICK Username">
+          </div>
+          <div style="width:48%;float:right;">
+            <store-in-variable dropdownLabel="Store In" selectId="storage" variableContainerId="varNameContainer" variableInputId="varName" selectWidth="100%" variableInputWidth="100%"></store-in-variable>
+          </div>
+          <div style="clear:both;"></div>
+          <div style="width:48%;float:left; margin-top: -50px;">
+            <label for="reUse"><span class="dbminputlabel">Re-Use Previously Stored</span></label>
+            <select id="reUse" class="round">
+              <option value="1" selected>Allow</option>
+              <option value="0">Disallow</option>
+            </select>
+            <p style="margin-left: 4px;">Toggles re-use of previously stored API result for the same parameters.</p>
+          </div>
+          <div style="clear:both;"></div>
+        </div>
+      </tab>
+      <tab label="Settings" icon="settings">
+        <div style="width:48%;float:left;margin-top: 0px;">
+          <span class="dbminputlabel">Kick Client ID</span>
+          <input id="client_id" class="round" type="password" placeholder="Insert your Kick Client ID">
+        </div>
+        <div style="width:48%;float:right;margin-top: 0px;">
+          <span class="dbminputlabel">Kick Client Secret</span>
+          <input id="client_secret" class="round" type="password" placeholder="Insert your Kick Client Secret">
+        </div>
+        <div style="clear:both;"></div>
+        <div style="width:48%;float:left;margin-top: 10px;">
+          <label for="debugMode"><span class="dbminputlabel">Debug Mode</span></label>
+          <select id="debugMode" class="round">
+            <option value="1">Enabled</option>
+            <option value="0" selected>Disabled</option>
+          </select>
+          <p style="margin-left: 4px;">Enables printing to console, disable to remove all messages. Turn on to see errors.</p>
+        </div>
+        <div style="clear:both;"></div>
+      </tab>
+    </tab-system><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
     <div class="vcstatus-warning">
       <span style="color:#ff0000">⚠️ <b>Uwaga!</b></span> <span style="color:#ffffff">Jeśli nie działa ci ta funkcja, spróbuj ponownie zainstalować moduły!</span><br>
       <span style="color: #00ffd5ff">🧩 <b>@johannmorales/kick.js</b></span> <span style="color: #ffffff">|</span> <span style="color: #00ffd5ff"><b>@nekiro/kick-api</b></span> <span style="color:#ffffff">| To moduły do zainstalowania!</span><br>
@@ -280,58 +306,206 @@ module.exports = {
     const varName = this.evalMessage(data.varName, cache);
     const client_id = this.evalMessage(data.client_id, cache);
     const client_secret = this.evalMessage(data.client_secret, cache);
+    const reUse = parseInt(data.reUse, 10);
+    const debugMode = parseInt(data.debugMode, 10);
+
+    // Uproszczony cacheKey: tylko option+username (jak w DBM Mods: url)
+    function normalizeKey(str) {
+      return String(str || "").replace(/\s+/g, "_").toLowerCase().trim();
+    }
+    const cacheKey = normalizeKey(`kickapi_${username}`); // cache na usera, całość danych
+
+    // Logowanie wszystkich kluczy globalnych (tylko w debugMode)
+    if (debugMode) {
+      try {
+        const globals = this.getDBM().Files.data.globals || {};
+        console.log('[KickAPI] Global variable keys:', Object.keys(globals));
+      } catch (e) {
+        console.log('[KickAPI] Błąd przy pobieraniu kluczy globalnych:', e);
+      }
+    }
+
+    // Odczyt cache: jeśli istnieje, użyj i nie rób requesta, wyciągnij infoKey z obiektu
+    if (reUse === 1) {
+      let cachedObj;
+      let cacheError;
+      try {
+        cachedObj = this.getVariable(1, cacheKey, cache);
+      } catch (err) {
+        cacheError = err;
+      }
+      if (typeof cachedObj !== 'undefined') {
+        if (debugMode) console.log(`[KickAPI] Using cached object for ${cacheKey}`);
+        let value = cachedObj;
+        if (option === "isStreamerLive") {
+          value = !!cachedObj?.stream?.is_live;
+        } else if (option === "getStreamInfo") {
+          const mapped = {
+            category: cachedObj.category?.name || null,
+            channel_id: cachedObj.broadcaster_user_id || null,
+            has_mature_content: cachedObj.stream?.is_mature || false,
+            language: cachedObj.stream?.language || null,
+            started_at: cachedObj.stream?.start_time || null,
+            stream_title: cachedObj.stream_title || null,
+            thumbnail: cachedObj.stream?.thumbnail || null,
+            viewer_count: cachedObj.stream?.viewer_count || 0
+          };
+          value = infoKey ? infoKey.split('.').reduce((obj,key)=>obj?.[key], mapped) : mapped;
+          if(typeof value === 'object' && value !== null) value = JSON.stringify(value);
+        } else if (option === "getChannelInfo") {
+          if(infoKey) {
+            switch(infoKey) {
+              case 'id': value = cachedObj.id; break;
+              case 'username': value = cachedObj.slug; break;
+              case 'is_banned': value = cachedObj.is_banned; break;
+              case 'vod_enabled': value = cachedObj.vod_enabled; break;
+              case 'subscription_enabled': value = cachedObj.subscription_enabled; break;
+              case 'followers': value = cachedObj.followers_count; break;
+              case 'verified': value = cachedObj.verified; break;
+              case 'can_host': value = cachedObj.can_host; break;
+              case 'bio': value = cachedObj.user?.bio; break;
+              case 'avatar': value = cachedObj.user?.profile_pic; break;
+              default: value = infoKey.split('.').reduce((obj,key)=>obj?.[key], cachedObj);
+            }
+          } else value = cachedObj;
+          if(typeof value === 'object' && value !== null) value = JSON.stringify(value);
+        }
+        Actions.storeValue(value, storage, varName, cache);
+        Actions.callNextAction(cache);
+        return;
+      } else if (debugMode) {
+        console.log(`[KickAPI] No cached result found for ${cacheKey}`);
+      }
+    }
 
     const { client: KickClient } = require('@nekiro/kick-api');
-
-    const api = new KickClient({
-      clientId: client_id,
-      clientSecret: client_secret,
-    });
-
+    let apiError500 = false;
+    let apiObj = undefined;
+    let value = undefined;
     try {
-      if(option === "isStreamerLive") {
-        const channel = await api.channels.getChannel(username);
-        const isLive = !!channel?.stream?.is_live;
-        Actions.storeValue(isLive, storage, varName, cache);
-      } else if(option === "getStreamInfo") {
-          const streamInfo = await api.channels.getChannel(username);
-          const mapped = {
-              category: streamInfo.category?.name || null,
-              channel_id: streamInfo.broadcaster_user_id || null,
-              has_mature_content: streamInfo.stream?.is_mature || false,
-              language: streamInfo.stream?.language || null,
-              started_at: streamInfo.stream?.start_time || null,
-              stream_title: streamInfo.stream_title || null,
-              thumbnail: streamInfo.stream?.thumbnail || null,
-              viewer_count: streamInfo.stream?.viewer_count || 0
-          };
-          let value = infoKey ? infoKey.split('.').reduce((obj,key)=>obj?.[key], mapped) : mapped;
-          if(typeof value === 'object' && value !== null) value = JSON.stringify(value);
-          Actions.storeValue(value, storage, varName, cache);
+      const api = new KickClient({
+        clientId: client_id,
+        clientSecret: client_secret,
+      });
+      if(option === "isStreamerLive" || option === "getStreamInfo") {
+        if (debugMode) console.log(`[KickAPI] Request: getChannel | username: ${username}`);
+        apiObj = await api.channels.getChannel(username);
       } else if(option === "getChannelInfo") {
+        if (debugMode) console.log(`[KickAPI] Request: getProfile | username: ${username}`);
         const { getProfile } = require("@johannmorales/kick.js");
-        const profile = await getProfile(username);
-        let value;
+        apiObj = await getProfile(username);
+      }
+      // Wyciągnij value z apiObj
+      if(option === "isStreamerLive") {
+        value = !!apiObj?.stream?.is_live;
+        if (debugMode) console.log(`[KickAPI] isStreamerLive for ${username}:`, value);
+      } else if(option === "getStreamInfo") {
+        const mapped = {
+          category: apiObj.category?.name || null,
+          channel_id: apiObj.broadcaster_user_id || null,
+          has_mature_content: apiObj.stream?.is_mature || false,
+          language: apiObj.stream?.language || null,
+          started_at: apiObj.stream?.start_time || null,
+          stream_title: apiObj.stream_title || null,
+          thumbnail: apiObj.stream?.thumbnail || null,
+          viewer_count: apiObj.stream?.viewer_count || 0
+        };
+        value = infoKey ? infoKey.split('.').reduce((obj,key)=>obj?.[key], mapped) : mapped;
+        if(typeof value === 'object' && value !== null) value = JSON.stringify(value);
+        if (debugMode) console.log(`[KickAPI] getStreamInfo for ${username}:`, value);
+      } else if(option === "getChannelInfo") {
         if(infoKey) {
           switch(infoKey) {
-            case 'id': value = profile.id; break;
-            case 'username': value = profile.slug; break;
-            case 'is_banned': value = profile.is_banned; break;
-            case 'vod_enabled': value = profile.vod_enabled; break;
-            case 'subscription_enabled': value = profile.subscription_enabled; break;
-            case 'followers': value = profile.followers_count; break;
-            case 'verified': value = profile.verified; break;
-            case 'can_host': value = profile.can_host; break;
-            case 'bio': value = profile.user?.bio; break;
-            case 'avatar': value = profile.user?.profile_pic; break;
-            default: value = infoKey.split('.').reduce((obj,key)=>obj?.[key], profile);
+            case 'id': value = apiObj.id; break;
+            case 'username': value = apiObj.slug; break;
+            case 'is_banned': value = apiObj.is_banned; break;
+            case 'vod_enabled': value = apiObj.vod_enabled; break;
+            case 'subscription_enabled': value = apiObj.subscription_enabled; break;
+            case 'followers': value = apiObj.followers_count; break;
+            case 'verified': value = apiObj.verified; break;
+            case 'can_host': value = apiObj.can_host; break;
+            case 'bio': value = apiObj.user?.bio; break;
+            case 'avatar': value = apiObj.user?.profile_pic; break;
+            default: value = infoKey.split('.').reduce((obj,key)=>obj?.[key], apiObj);
           }
-        } else value = profile;
+        } else value = apiObj;
         if(typeof value === 'object' && value !== null) value = JSON.stringify(value);
-        Actions.storeValue(value, storage, varName, cache);
+        if (debugMode) console.log(`[KickAPI] getChannelInfo for ${username}:`, value);
       }
     } catch(err) {
+      if (debugMode) {
+        console.error('[KickAPI] Error:', err?.stack || err);
+        if (err && err.message && err.message.includes('500')) {
+          apiError500 = true;
+          console.error('[KickAPI] 500 Internal Server Error details:');
+          console.error('  Option:', option);
+          console.error('  Username:', username);
+          console.error('  InfoKey:', infoKey);
+          console.error('  Client ID:', client_id);
+          console.error('  Client Secret:', client_secret ? '[provided]' : '[not set]');
+          console.error('  Full error object:', err);
+        }
+      }
+      // Jeśli jest 500, spróbuj użyć cache jeśli istnieje
+      if (apiError500 && reUse === 1) {
+        let cachedObj;
+        try {
+          cachedObj = this.getVariable(1, cacheKey, cache);
+        } catch (e) {}
+        if (typeof cachedObj !== 'undefined') {
+          if (debugMode) console.log(`[KickAPI] Using cached object after 500 for ${cacheKey}`);
+          let value = cachedObj;
+          if (option === "isStreamerLive") {
+            value = !!cachedObj?.stream?.is_live;
+          } else if (option === "getStreamInfo") {
+            const mapped = {
+              category: cachedObj.category?.name || null,
+              channel_id: cachedObj.broadcaster_user_id || null,
+              has_mature_content: cachedObj.stream?.is_mature || false,
+              language: cachedObj.stream?.language || null,
+              started_at: cachedObj.stream?.start_time || null,
+              stream_title: cachedObj.stream_title || null,
+              thumbnail: cachedObj.stream?.thumbnail || null,
+              viewer_count: cachedObj.stream?.viewer_count || 0
+            };
+            value = infoKey ? infoKey.split('.').reduce((obj,key)=>obj?.[key], mapped) : mapped;
+            if(typeof value === 'object' && value !== null) value = JSON.stringify(value);
+          } else if (option === "getChannelInfo") {
+            if(infoKey) {
+              switch(infoKey) {
+                case 'id': value = cachedObj.id; break;
+                case 'username': value = cachedObj.slug; break;
+                case 'is_banned': value = cachedObj.is_banned; break;
+                case 'vod_enabled': value = cachedObj.vod_enabled; break;
+                case 'subscription_enabled': value = cachedObj.subscription_enabled; break;
+                case 'followers': value = cachedObj.followers_count; break;
+                case 'verified': value = cachedObj.verified; break;
+                case 'can_host': value = cachedObj.can_host; break;
+                case 'bio': value = cachedObj.user?.bio; break;
+                case 'avatar': value = cachedObj.user?.profile_pic; break;
+                default: value = infoKey.split('.').reduce((obj,key)=>obj?.[key], cachedObj);
+              }
+            } else value = cachedObj;
+            if(typeof value === 'object' && value !== null) value = JSON.stringify(value);
+          }
+          Actions.storeValue(value, storage, varName, cache);
+          Actions.callNextAction(cache);
+          return;
+        }
+      }
       Actions.storeValue('KickAPI error: ' + (err?.message || String(err)), storage, varName, cache);
+      Actions.callNextAction(cache);
+      return;
+    }
+    Actions.storeValue(value, storage, varName, cache);
+    // Zapisz do global cache tylko jeśli nie było 500
+    if (reUse === 1 && !apiError500 && typeof apiObj !== 'undefined') {
+      Actions.storeValue(apiObj, 1, cacheKey, cache);
+      if (debugMode) {
+        const globals = this.getDBM().Files.data.globals || {};
+        console.log(`[KickAPI] Saved to global cache: ${cacheKey}`);
+        console.log('[KickAPI] Global variable keys after save:', Object.keys(globals));
+      }
     }
     Actions.callNextAction(cache);
   },
