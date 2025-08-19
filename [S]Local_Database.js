@@ -2,7 +2,7 @@ module.exports = {
     name: '[S] SQLite - Local Database',
     section: '# SHDZ - Utilities',
     meta: {
-        version: "3.0.0",
+        version: "3.2.0",
         author: "vxed_",
         authorUrl: "https://github.com/vxe3D/dbm-mods",
     },
@@ -11,6 +11,8 @@ module.exports = {
             store: 'Store',
             update: 'Update/Save',
             delete: 'Delete',
+            count: 'Count Values',
+            checkvar: 'Check Variable'
         };
         const opLabel = opMap[data.dboperation] || data.dboperation;
         return `[SQLite - DB] ${opLabel}`;
@@ -21,16 +23,160 @@ module.exports = {
         return [data.varName, 'Database'];
     },
 
-fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery', 'searchByIndex', 'storeKey', 'storeCollection', 'tableName', 'storage', 'varName', 'deleteCollection', 'deleteColumnsToClear', 'deleteKey', 'getColumn', 'conditionColumn', 'conditionValue', 'countColumn'],
+fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery', 'searchByIndex', 'storeKey', 'storeCollection', 'debugMode', 'tableName', 'storage', 'varName', 'deleteCollection', 'deleteColumnsToClear', 'deleteKey', 'getColumn', 'conditionColumn', 'conditionValue', 'countColumn', 'comparison', 'branch', 'checkvarConditionColumn', 'checkvarGetColumn', 'checkvarConditionValue', 'checkvarComparison', 'checkvarValue'],
 
     html() {
-        return `
+    return `
+    <div class="vcstatus-box-fixed vcstatus-box-left" style="top: 2px;">
+      <div class="vcstatus-author"><span class="vcstatus-author-label">Autor:</span> <span class="vcstatus-author-name">vxed_</span></div>
+      <a href="https://discord.gg/9HYB4n3Dz4" class="vcstatus-discord" target="_blank">Discord</a>
+    </div>
+    <div class="vcstatus-box-fixed vcstatus-box-right" style="top: 22px; right: 15px;">
+      <span class="vcstatus-version">v3.2.0</span>
+    </div>
+    <style>
+      .vcstatus-author-label {
+        color: #BDBDBD;
+      }
+      .vcstatus-author-name {
+        color: #9040d1ff;
+      }
+      :root {
+        --vcstatus-box-width: 64px;
+        --vcstatus-box-height: 28px;
+        --vcstatus-box-left-width: 100px;
+        --vcstatus-box-left-height: 58px;
+        --vcstatus-author-font-size: 14px;
+        --vcstatus-discord-font-size: 14px;
+        --vcstatus-author-margin-top: 0px;
+        --vcstatus-discord-margin-top: -2px;
+        --vcstatus-box-left-offset: 16px;
+        --vcstatus-author-margin-left: 2px;
+        --vcstatus-discord-margin-left: 5px;
+      }
+      .vcstatus-box-fixed {
+        position: fixed;
+        top: 2px;
+        z-index: 9999;
+        padding: 5px 8px 5px 8px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: bold;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+        border: 1px solid #23272a;
+        background: linear-gradient(90deg, #23243a 0%, #3a3b5a 100%);
+        color: #fff;
+        min-width: 120px;
+        max-width: 320px;
+        display: flex;
+        flex-direction: column;
+        margin-top: 5px;
+        align-items: flex-start;
+        gap: 4px;
+      }
+      .vcstatus-box-right {
+        right: 18px;
+        justify-content: center;
+        color: #ff4d4d;
+        align-items: center;
+        flex-direction: row;
+        width: var(--vcstatus-box-width);
+        min-width: var(--vcstatus-box-width);
+        max-width: var(--vcstatus-box-width);
+        padding: 0;
+        flex-shrink: 0;
+        font-size: 16px;
+        height: var(--vcstatus-box-height);
+        margin-top: -0.5px;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+      .vcstatus-version {
+        color: #9040d1ff;
+        font-weight: bold;
+        font-size: 18px;
+        margin: 0;
+        padding: 0;
+        line-height: 1;
+        letter-spacing: 0;
+        white-space: nowrap;
+        min-width: 0;
+        max-width: 100%;
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .vcstatus-box-left {
+        left: var(--vcstatus-box-left-offset);
+        width: var(--vcstatus-box-left-width);
+        min-width: var(--vcstatus-box-left-width);
+        max-width: var(--vcstatus-box-left-width);
+        height: var(--vcstatus-box-left-height);
+      }
+      .vcstatus-author {
+        color: #ff4d4d;
+        font-weight: bold;
+        font-size: var(--vcstatus-author-font-size);
+        margin-bottom: 2px;
+        margin-top: var(--vcstatus-author-margin-top);
+        margin-left: var(--vcstatus-author-margin-left);
+      }
+      .vcstatus-discord {
+        color: #5865F2;
+        background: #23272a;
+        border-radius: 5px;
+        padding: 2px 10px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: var(--vcstatus-discord-font-size);
+        margin-top: var(--vcstatus-discord-margin-top);
+        margin-left: var(--vcstatus-discord-margin-left);
+        transition: background 0.2s, color 0.2s;
+        box-shadow: 0 1px 4px rgba(88,101,242,0.08);
+      }
+      .vcstatus-discord:hover {
+        background: #5865F2;
+        color: #fff;
+        text-decoration: underline;
+      }
+      .vcstatus-warning {
+        background: linear-gradient(90deg, #4a3252ff 0%, #885697ff 100%);
+        border: 1px solid #140e16ff;
+        color: #222;
+        padding: 10px 14px 10px 14px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        font-size: 13px;
+        box-shadow: 0 2px 8px rgba(255,85,85,0.08);
+        margin-top: 5px;
+      }
+      .dbminputlabel {
+        color: #8754ffff;
+        font-weight: bold;
+        margin-bottom: 4px;
+        display: inline-block;
+      }
+      input.round {
+        border-radius: 6px;
+        border: 1px solid #aaa;
+        padding: 6px 10px;
+        font-size: 14px;
+        margin-top: 2px;
+        background: #21232B;
+        transition: border-color 0.2s;
+      }
+      input.round:focus {
+        border-color: #b595ffff;
+        outline: none;
+      }
+    </style>
 
-        <tab-system id="tabs" style="margin-top: 10px;">
+        <tab-system id="tabs" style="margin-top: -35px;">
             <tab label="SQLite" icon="database">
                 <div style="margin-bottom: 12px;">
                     <span class="dbminputlabel">Operation</span>
                     <select id="dboperation" class="round">
+                        <option value="checkvar">Check Variable</option>
                         <option value="store">Store</option>
                         <option value="update">Update/Save</option>
                         <option value="delete">Delete</option>
@@ -39,6 +185,38 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                 <div id="countFieldsDiv" style="margin-bottom: 10px; display:none;">
                     <span class="dbminputlabel">Column to count values</span>
                     <input id="countColumn" class="round" type="text" placeholder="ex. Age">
+                </div>
+                <div id="checkVarFieldsDiv" style="margin-bottom: 10px; display:none; width: 100%; overflow: hidden;">
+                    <div style="float: left; width: 48%;">
+                        <span class="dbminputlabel">Column to match</span>
+                        <input id="checkvarConditionColumn" class="round" type="text" placeholder="ex. ID">
+                        <span class="dbminputlabel" style="margin-top: 4px; display: inline-block;">Column to check</span>
+                        <input id="checkvarGetColumn" class="round" type="text" placeholder="ex. Age">
+                    </div>
+                    <div style="float: right; width: 48%;">
+                        <span class="dbminputlabel">Column value to match</span>
+                        <input id="checkvarConditionValue" class="round" type="text" placeholder="ex. 123456789">
+                        <span class="dbminputlabel" style="margin-top: 4px; display: inline-block;">Comparison Type</span>
+                        <select id="checkvarComparison" class="round">
+                            <option value="0">Exists</option>
+                            <option value="1" selected>Equals</option>
+                            <option value="2">Equals Exactly</option>
+                            <option value="3">Less Than</option>
+                            <option value="4">Greater Than</option>
+                            <option value="5">Includes</option>
+                            <option value="6">Matches Regex</option>
+                            <option value="7">Starts With</option>
+                            <option value="8">Ends With</option>
+                            <option value="9">Length Equals</option>
+                            <option value="10">Length is Greater Than</option>
+                            <option value="11">Length is Less Than</option>
+                        </select>
+                        <span class="dbminputlabel" style="margin-top: 4px; display: inline-block;">Value to Compare to</span>
+                        <input id="checkvarValue" style="margin-bottom: -5px;" class="round" type="text" name="is-eval" placeholder="Value (optional)">
+                    </div>
+                    <div style="clear: both;"></div>
+                    <hr class="subtlebar">
+                    <conditional-input id="branch"></conditional-input>
                 </div>
                 </div>
                 <div id="updateFieldsDiv" style="margin-bottom: 10px; display:none;">
@@ -107,7 +285,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                     <a href="https://github.com/sqlitebrowser/sqlitebrowser/releases/download/v3.13.1/DB.Browser.for.SQLite-v3.13.1-win64.msi" target="_blank" style="color:#4ea1ff;cursor:pointer;text-decoration:underline;font-weight:bold;margin-left: 10px;">Polecany program do DB</a>
                     <input id="collection" class="round" type="text" placeholder="ex. Age,Name">
                     <span class="dbminputlabel" style="margin-top: 4px; display: inline-block;">Value to update</span>
-                    <input id="key" class="round" type="text" placeholder="ex. 1,20,Test">
+                    <input id="key" class="round" type="text" placeholder="ex. 1,20,Test | ex. +1 or -1">
                 </div>
                 <div id="storeFieldsDiv" style="margin-bottom: 10px; display:none;">
                     <span class="dbminputlabel">Column(s) to store</span>
@@ -238,14 +416,14 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                     <hr class="subtlebar" style="margin-top: 8px; margin-bottom: 8px; width: 100%;">
                     <span class="dbminputlabel">Column to match</span>
                     <input id="conditionColumn" class="round" type="text" placeholder="ex. ID">
-                    <span class="dbmininputlabel" style="margin-top: 4px; display: inline-block;">Column value to match</span>
-                    <input id="conditionValue" class="round" type="text" placeholder="ex. 594974899513327617">
+                    <span class="dbminputlabel" style="margin-top: 4px; display: inline-block;">Column value to match</span>
+                    <input id="conditionValue" class="round" type="text" placeholder="ex. 594974899513327617 or [next]">
                 </div>
             </tab>
 
             <tab label="Settings" icon="settings">
                 <div style="margin-bottom: 10px;">
-                    <span class="dbminputlabel">Table name
+                    <span class="dbminputlabel">File name
                       <help-icon dialogTitle="[Local Database] How to use this function" dialogWidth="640" dialogHeight="500">
                         <div style="padding: 16px;">
                             <!-- Pierwsze okienko -->
@@ -288,9 +466,18 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                         </div>
                       </help-icon>
                     </span>
-                    <input id="tableName" class="round" type="text" placeholder="ex. users">
-                    <br>
-                    <store-in-variable dropdownLabel="Store In" selectId="storage" variableContainerId="varNameContainer" variableInputId="varName"></store-in-variable>
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                        <div style="flex: 1; float: left;">
+                            <input id="tableName" class="round" type="text" placeholder="ex. users">
+                        </div>
+                        <div style="float: right;">
+                            <dbm-checkbox id="debugMode" selectWidth="100%" variableInputWidth="100%" label="Debug Mode"></dbm-checkbox>
+                        </div>
+                    </div>
+                    <div id="storeInVariableDiv">
+                        <br>
+                        <store-in-variable dropdownLabel="Store In" selectId="storage" variableContainerId="varNameContainer" variableInputId="varName"></store-in-variable>
+                    </div>
                 </div>
             </tab>
         </tab-system>
@@ -302,6 +489,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
     //////////////////////////////////////////////////
 
     init() {
+        let debugMode = false;
         const { document } = this;
         function updateVisibility(id, visible) {
             const el = document.getElementById(id);
@@ -309,15 +497,29 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
         }
         function updateFields() {
             const op = document.getElementById('dboperation').value;
-            // Hide all field groups first
             updateVisibility('updateFieldsDiv', false);
             updateVisibility('getColumnDiv', false);
             updateVisibility('storeFieldsDiv', false);
             updateVisibility('deleteFieldsDiv', false);
             updateVisibility('updateConditionDiv', false);
             updateVisibility('countFieldsDiv', false);
+            updateVisibility('checkVarFieldsDiv', false);
 
-            // Show only relevant fields for each operation
+            const debugCheckbox = document.getElementById('debugMode');
+            debugMode = debugCheckbox && debugCheckbox.checked;
+            const data = window.currentActionData || {};
+            data.debugMode = debugMode;
+            window.currentActionData = data;
+
+            const storeInVarDiv = document.getElementById('storeInVariableDiv');
+            if (storeInVarDiv) {
+                if (op === 'store' || op === 'count') {
+                    storeInVarDiv.style.display = '';
+                } else {
+                    storeInVarDiv.style.display = 'none';
+                }
+            }
+
             if (op === 'update') {
                 updateVisibility('updateFieldsDiv', true);
                 updateVisibility('updateConditionDiv', true);
@@ -329,12 +531,23 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                 updateVisibility('deleteFieldsDiv', true);
             } else if (op === 'count') {
                 updateVisibility('countFieldsDiv', true);
+            } else if (op === 'checkvar') {
+                updateVisibility('checkVarFieldsDiv', true);
             }
         }
         document.getElementById('dboperation').addEventListener('change', updateFields);
         updateFields();
 
-        // Obsługa kliknięcia w Guide (updateHelpBtn)
+        const debugCheckbox = document.getElementById('debugMode');
+        if (debugCheckbox) {
+          debugCheckbox.addEventListener('change', function() {
+            debugMode = debugCheckbox.checked;
+            const data = window.currentActionData || {};
+            data.debugMode = debugMode;
+            window.currentActionData = data;
+          });
+        }
+
         const helpBtn = document.getElementById('updateHelpBtn');
         const helpIcon = document.getElementById('updateHelpIcon');
         if (helpBtn && helpIcon) {
@@ -349,36 +562,38 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
     //////////////////////////////////////////////////
 
     async action(cache) {
-
         const data = cache.actions[cache.index];
         const dboperation = data.dboperation;
         const tableNameRaw = this.evalMessage(data.tableName, cache);
         let tableName = tableNameRaw && tableNameRaw.trim() !== '' ? tableNameRaw.trim() : 'db';
-        // Wymuszamy rozszerzenie .sqlite
         if (!tableName.endsWith('.sqlite')) tableName += '.sqlite';
-        // Pobierz odpowiednie pola w zależności od operacji
         let columnsRaw, valuesRaw;
         if (dboperation === 'store') {
-            columnsRaw = this.evalMessage(data.storeCollection, cache); // Pole: kolumny do store
-            valuesRaw = this.evalMessage(data.storeKey, cache); // Wartości do store
+            columnsRaw = this.evalMessage(data.storeCollection, cache);
+            valuesRaw = this.evalMessage(data.storeKey, cache);
         } else if (dboperation === 'delete') {
-            columnsRaw = this.evalMessage(data.deleteCollection, cache); // Pole: kolumny do delete
-            valuesRaw = this.evalMessage(data.deleteKey, cache); // Wartości do delete
+            columnsRaw = this.evalMessage(data.deleteCollection, cache);
+            valuesRaw = this.evalMessage(data.deleteKey, cache);
         } else {
-            columnsRaw = this.evalMessage(data.collection, cache); // Pole: kolumny do update/save
-            valuesRaw = this.evalMessage(data.key, cache); // Wartości do update/save
+            columnsRaw = this.evalMessage(data.collection, cache);
+            valuesRaw = this.evalMessage(data.key, cache);
         }
-        const conditionColumn = this.evalMessage(data.conditionColumn, cache); // Kolumna warunku
-        const conditionValue = this.evalMessage(data.conditionValue, cache); // Wartość warunku
+        const conditionColumn = this.evalMessage(data.conditionColumn, cache);
+        const conditionValue = this.evalMessage(data.conditionValue, cache);
         const fs = require('fs');
         const path = require('path');
         const sqlite3 = require('sqlite3').verbose();
         const dbDir = path.join(process.cwd(), 'Database');
         const countColumn = this.evalMessage(data.countColumn, cache);
+
+        let debugMode = false;
+        if (typeof data.debugMode === 'boolean') debugMode = data.debugMode;
+        else if (typeof data.debugMode === 'string') debugMode = data.debugMode === 'true';
+
         if (!fs.existsSync(dbDir)) {
             try {
                 fs.mkdirSync(dbDir, { recursive: true });
-                console.log(`[sqlite3] Utworzono folder Database: ${dbDir}`);
+                if (debugMode) console.log(`[sqlite3] Utworzono folder Database: ${dbDir}`);
             } catch (err) {
                 console.error(`[sqlite3] Nie można utworzyć folderu Database: ${dbDir}`, err);
             }
@@ -387,23 +602,18 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
         let db = new sqlite3.Database(dbPath);
         let output;
 
-        // Dynamiczne kolumny i wartości
         let columns = columnsRaw ? columnsRaw.split(',').map(c => c.trim()).filter(Boolean) : [];
         let values = [];
         if (valuesRaw) {
-            // LOG: Raw values before any processing
-            // Jeśli wygląda na pełną tablicę JSON, NIE rozbijaj!
             if (valuesRaw.trim().startsWith('[') && valuesRaw.trim().endsWith(']')) {
                 values = [valuesRaw.trim()];
-                console.log('[Local_Database] Detected full JSON array, saving as one string:', values[0]);
+                if (debugMode) console.log('[Local_Database] Detected full JSON array, saving as one string:', values[0]);
             } else if (valuesRaw.trim().startsWith('[{"freq":') && !valuesRaw.trim().endsWith('}]')) {
-                // Łącz po przecinku i dodaj zamknięcie tablicy
                 let joined = valuesRaw.trim();
                 if (!joined.endsWith('}]')) {
                     joined = joined + ']';
                 }
                 values = [joined];
-                // LOG: Joined JSON array string
             } else {
                 values = valuesRaw.split(',').map(v => {
                     if (Array.isArray(v) || (typeof v === 'object' && v !== null)) {
@@ -417,24 +627,19 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                 });
             }
         }
-        // LOG: Final columns and values before DB operation
-        // Dodaj kolumnę warunku jeśli jej nie ma w columns
         if (dboperation === 'update' && conditionColumn && !columns.includes(conditionColumn)) {
             columns.push(conditionColumn);
             values.push(conditionValue);
         }
 
-        // --- Nowa logika dla Update/Save ---
-        // Jeśli wybrano Update/Save, ale nie podano warunku, wykonaj INSERT (Save)
         let effectiveOperation = dboperation;
         if (dboperation === 'update') {
             const noCondition = (!conditionColumn || conditionColumn.trim() === '') && (!conditionValue || conditionValue.trim() === '');
             if (noCondition) {
-                effectiveOperation = 'save'; // Wymuś INSERT
+                effectiveOperation = 'save';
             }
         }
 
-        // DELETE: pobierz kolumny do wyczyszczenia
         let columnsToClear = [];
         if (dboperation === 'delete') {
             const columnsToClearRaw = this.evalMessage(data.deleteColumnsToClear, cache);
@@ -443,8 +648,6 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
             }
         }
 
-        // --- AUTOCREATE TABLE IF NOT EXISTS ---
-        // Zbierz wszystkie kolumny, które mogą być użyte do utworzenia tabeli
         let allColumns = [...columns];
         if (conditionColumn && !allColumns.includes(conditionColumn)) allColumns.push(conditionColumn);
         if (columnsToClear && Array.isArray(columnsToClear)) {
@@ -452,9 +655,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                 if (!allColumns.includes(col)) allColumns.push(col);
             });
         }
-        // Jeśli nie ma żadnych kolumn, domyślna kolumna 'id'
         if (allColumns.length === 0) allColumns = ['id'];
-        // Przygotuj CREATE TABLE IF NOT EXISTS
         const tableNameNoExt = tableName.replace('.sqlite','');
         const createCols = allColumns.map(col => `\`${col}\` TEXT`).join(', ');
         const createTableSQL = `CREATE TABLE IF NOT EXISTS \`${tableNameNoExt}\` (${createCols})`;
@@ -473,12 +674,10 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
             console.error('[sqlite3] DB CREATE TABLE Error:', err);
         }
 
-        // --- Funkcje pomocnicze ---
         async function insertWithAutoColumns(sql, values, columns, table) {
             return await new Promise((resolve, reject) => {
                 db.run(sql, values, async function(err) {
                     if (err && err.message && err.message.includes('no column named')) {
-                        // Extract missing column name
                         const match = err.message.match(/no column named ([^ ]+)/);
                         if (match) {
                             const missingCol = match[1];
@@ -516,7 +715,6 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
             return await new Promise((resolve, reject) => {
                 db.run(sql, values, async function(err) {
                     if (err && err.message && err.message.includes('no such column')) {
-                        // Extract missing column name
                         const match = err.message.match(/no such column: ([^ ]+)/);
                         if (match) {
                             const missingCol = match[1];
@@ -526,7 +724,6 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                                     console.error('[sqlite3] ALTER TABLE ERROR:', alterErr);
                                     reject(alterErr);
                                 } else {
-                                    // Retry update
                                     db.run(sql, values, function(retryErr) {
                                         if (retryErr) {
                                             console.error('[sqlite3] RETRY UPDATE ERROR:', retryErr);
@@ -551,29 +748,151 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
         }
 
         try {
-            switch (dboperation) {
-                case 'count': {
-                    // Liczenie ilości niepustych wartości w danej kolumnie
+            if (dboperation === 'checkvar') {
+                if (debugMode) console.log('[sqlite3] OPERATION: checkvar');
+                    const conditionColumn = this.evalMessage(data.checkvarConditionColumn, cache);
+                    const conditionValue = this.evalMessage(data.checkvarConditionValue, cache);
+                    const getColumn = this.evalMessage(data.checkvarGetColumn, cache);
+                    const compare = parseInt(data.checkvarComparison, 10);
+                    let val2 = data.checkvarValue;
+                    if (compare !== 6) val2 = this.evalIfPossible(val2, cache);
+                    if (val2 === "true") val2 = true;
+                    if (val2 === "false") val2 = false;
+                    let result = false;
+                    let val1;
+                    if (debugMode) console.log('[sqlite3] CHECKVAR operation entered.', {
+                        conditionColumn,
+                        conditionValue,
+                        getColumn,
+                        compare,
+                        val2: data.checkvarValue
+                    });
+                    if (conditionColumn && getColumn && conditionValue) {
+                        if (debugMode) console.log('[sqlite3] CHECKVAR SQL:', `SELECT ${getColumn} FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`, [conditionValue]);
+                        const sql = `SELECT ${getColumn} FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
+                        const row = await new Promise((resolve, reject) => {
+                            db.get(sql, [conditionValue], (err, row) => {
+                                if (err) reject(err);
+                                else resolve(row);
+                            });
+                        });
+                        val1 = row ? row[getColumn] : undefined;
+                    } else {
+                        val1 = undefined;
+                    }
+                    // Check for missing data in val1 or val2
+                    if (val1 === undefined || val1 === null || val1 === '' || val2 === undefined || val2 === null || val2 === '') {
+                        const missingMsg = `[sqlite3] CHECKVAR: Brak danych w ${val1 === undefined || val1 === null || val1 === '' ? 'val1' : ''}${(val1 === undefined || val1 === null || val1 === '') && (val2 === undefined || val2 === null || val2 === '') ? ' i ' : ''}${val2 === undefined || val2 === null || val2 === '' ? 'val2' : ''}`;
+                        if (debugMode) console.log(missingMsg, { val1, val2 });
+                        this.storeValue(missingMsg, parseInt(data.storage, 10), this.evalMessage(data.varName, cache), cache);
+                        this.callNextAction(cache);
+                        return;
+                    }
+                    switch (compare) {
+                        case 0:
+                            result = val1 !== undefined && val1 !== null;
+                            break;
+                        case 1:
+                            result = val1 == val2;
+                            break;
+                        case 2:
+                            result = val1 === val2;
+                            break;
+                        case 3:
+                            result = val1 < val2;
+                            break;
+                        case 4:
+                            result = val1 > val2;
+                            break;
+                        case 5:
+                            let includesVal1 = val1;
+                            if (typeof includesVal1 !== "string" && !Array.isArray(includesVal1)) {
+                                includesVal1 = String(includesVal1);
+                            }
+                            if (typeof includesVal1?.includes === "function") {
+                                result = includesVal1.includes(val2);
+                            }
+                            break;
+                        case 6:
+                            if (typeof val1?.match === "function") {
+                                result = Boolean(val1.match(new RegExp("^" + val2 + "$", "i")));
+                            }
+                            break;
+                        case 7:
+                            if (typeof val1?.startsWith === "function") {
+                                result = Boolean(val1.startsWith(val2));
+                            }
+                            break;
+                        case 8:
+                            if (typeof val1?.endsWith === "function") {
+                                result = Boolean(val1.endsWith(val2));
+                            }
+                            break;
+                        case 9:
+                            if (typeof val1?.length === "number") {
+                                result = Boolean(val1.length === val2);
+                            }
+                            break;
+                        case 10:
+                            if (typeof val1?.length === "number") {
+                                result = Boolean(val1.length > val2);
+                            }
+                            break;
+                        case 11:
+                            if (typeof val1?.length === "number") {
+                                result = Boolean(val1.length < val2);
+                            }
+                            break;
+                    }
+                    this.executeResults(result, data?.branch ?? data, cache);
+                    if (debugMode) console.log('[sqlite3] CHECKVAR result:', result);
+            return;
+            } else if (dboperation === 'count') {
+                if (debugMode) console.log('[sqlite3] OPERATION: count');
+                    if (debugMode) console.log('[sqlite3] COUNT operation entered. countColumn:', countColumn);
                     if (countColumn && countColumn.trim() !== '') {
                         const sql = `SELECT COUNT(*) as cnt FROM ${tableName.replace('.sqlite','')} WHERE ${countColumn} IS NOT NULL AND ${countColumn} != ''`;
+                        if (debugMode) console.log('[sqlite3] COUNT SQL:', sql);
                         output = await new Promise((resolve, reject) => {
                             db.get(sql, [], (err, row) => {
                                 if (err) {
                                     console.error('[sqlite3] COUNT ERROR:', err);
                                     reject(err);
                                 } else {
+                                    if (debugMode) console.log('[sqlite3] COUNT row:', row);
                                     resolve(row ? row.cnt : 0);
                                 }
                             });
                         });
+                        if (debugMode) console.log('[sqlite3] COUNT output:', output);
                     } else {
                         output = '[sqlite3] COUNT: No column specified.';
+                        if (debugMode) console.log('[sqlite3] COUNT output:', output);
                     }
-                    break;
-                }
-                case 'update': {
-                    // Jeśli nie podano warunku, wykonaj INSERT (Save)
-                    if (!conditionColumn || !conditionValue) {
+            // end count
+            } else if (dboperation === 'update') {
+                if (debugMode) console.log('[sqlite3] OPERATION: update');
+                    if (debugMode) console.log('[sqlite3] UPDATE operation entered.', {
+                        columns,
+                        values,
+                        conditionColumn,
+                        conditionValue
+                    });
+                    let nextValue = null;
+                      if (conditionValue && typeof conditionValue === 'string' && conditionValue.trim() === '[next]') {
+                        const sql = `SELECT MAX(CAST(${conditionColumn} AS INTEGER)) as maxval FROM ${tableName.replace('.sqlite','')}`;
+                        const row = await new Promise((resolve, reject) => {
+                            db.get(sql, [], (err, row) => {
+                                if (err) reject(err);
+                                else resolve(row);
+                            });
+                        });
+                        let maxval = row && row.maxval !== undefined && row.maxval !== null ? Number(row.maxval) : 0;
+                        nextValue = String(maxval + 1);
+                    }
+                    const effectiveConditionValue = nextValue !== null ? nextValue : conditionValue;
+                    if (!conditionColumn || !effectiveConditionValue) {
+                        if (debugMode) console.log('[sqlite3] UPDATE: No condition, will insert.', { columns, values });
                         if (columns.length > 0 && values.length > 0) {
                             const placeholders = columns.map(() => '?').join(', ');
                             const insertSql = `INSERT INTO ${tableName.replace('.sqlite','')} (${columns.join(', ')}) VALUES (${placeholders})`;
@@ -581,19 +900,37 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                             output = String(output);
                         } else {
                             output = '[sqlite3] SAVE: Missing columns or values.';
-                            console.log(output);
+                            if (debugMode) console.log(output);
                         }
                     } else if (columns.length > 0 && values.length > 0) {
-                        // Walidacja kolumny warunku
+                        if (debugMode) console.log('[sqlite3] UPDATE: With condition', { columns, values, conditionColumn, effectiveConditionValue });
                         if (!/^[\w]+$/.test(conditionColumn)) {
                             output = '[sqlite3] UPDATE: Kolumna warunku musi być poprawną nazwą.';
-                            console.log(output);
-                            break;
+                            if (debugMode) console.log(output);
+                            // break usunięty, bo nie jest już w switch/case
                         }
-                        // Sprawdź czy istnieje rekord z podaną wartością warunku
+                        for (let i = 0; i < columns.length; i++) {
+                            if (debugMode) console.log('[sqlite3] UPDATE: Arithmetic check', { col: columns[i], val: values[i] });
+                            const col = columns[i];
+                            let val = values[i];
+                            if (typeof val === 'string' && (/^[+-]\d+$/.test(val.trim()))) {
+                                const sql = `SELECT ${col} FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
+                                const row = await new Promise((resolve, reject) => {
+                                    db.get(sql, [effectiveConditionValue], (err, row) => {
+                                        if (err) reject(err);
+                                        else resolve(row);
+                                    });
+                                });
+                                let current = row && row[col] !== undefined && row[col] !== null ? Number(row[col]) : 0;
+                                let diff = Number(val);
+                                if (!isNaN(current) && !isNaN(diff)) {
+                                    values[i] = String(current + diff);
+                                }
+                            }
+                        }
                         const checkSql = `SELECT COUNT(*) as cnt FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
                         const checkExists = await new Promise((resolve, reject) => {
-                            db.get(checkSql, [conditionValue], (err, row) => {
+                            db.get(checkSql, [effectiveConditionValue], (err, row) => {
                                 if (err) {
                                     output = String(output);
                                     console.error('[sqlite3] CHECK EXISTS ERROR:', err);
@@ -604,36 +941,42 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                             });
                         });
                         if (!checkExists) {
-                            // Dodaj nowy rekord z podaną wartością warunku i resztą wartości
+                            if (debugMode) console.log('[sqlite3] UPDATE: No record exists, will insert.', { insertColumns, insertValues });
                             let insertColumns = [...columns];
                             let insertValues = [...values];
                             if (!insertColumns.includes(conditionColumn)) {
                                 insertColumns.push(conditionColumn);
-                                insertValues.push(conditionValue);
+                                insertValues.push(effectiveConditionValue);
                             } else {
                                 output = String(output);
                                 const idx = insertColumns.indexOf(conditionColumn);
-                                insertValues[idx] = conditionValue;
+                                insertValues[idx] = effectiveConditionValue;
                             }
                             const placeholders = insertColumns.map(() => '?').join(', ');
                             const insertSql = `INSERT INTO ${tableName.replace('.sqlite','')} (${insertColumns.join(', ')}) VALUES (${placeholders})`;
                             output = await insertWithAutoColumns(insertSql, insertValues, insertColumns, tableName.replace('.sqlite',''));
                         } else {
-                            // Wykonaj UPDATE jak dotychczas
+                            if (debugMode) console.log('[sqlite3] UPDATE: Record exists, will update.', { setClause, updateValues });
                             const setClause = columns.filter(col => col !== conditionColumn).map((col, i) => `${col}=?`).join(', ');
                             const updateValues = columns.filter(col => col !== conditionColumn).map((col, i) => values[columns.indexOf(col)]);
-                            updateValues.push(conditionValue);
+                            updateValues.push(effectiveConditionValue);
                             output = String(output);
                             const sql = `UPDATE ${tableName.replace('.sqlite','')} SET ${setClause} WHERE ${conditionColumn}=?`;
                             output = await updateWithAutoColumns(sql, updateValues, columns, tableName.replace('.sqlite',''));
                         }
                     } else {
+                        if (debugMode) console.log('[sqlite3] UPDATE: Missing columns or values.');
                         output = '[sqlite3] UPDATE: Missing columns or values.';
-                        console.log(output);
+                        if (debugMode) console.log(output);
                     }
-                    break;
-                }
-                case 'store': {
+            // end update
+            } else if (dboperation === 'store') {
+                if (debugMode) console.log('[sqlite3] OPERATION: store');
+                    if (debugMode) console.log('[sqlite3] STORE operation entered.', {
+                        getColumn: data.getColumn,
+                        conditionColumn,
+                        values
+                    });
                     const getColumnRaw = this.evalMessage(data.getColumn, cache);
                     const getColumn = getColumnRaw && getColumnRaw.trim() !== '' ? getColumnRaw.trim() : null;
                     if (getColumn && conditionColumn && values.length > 0) {
@@ -651,7 +994,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                                             if (err2) {
                                                 console.error('[sqlite3] DEBUG: Błąd przy pobieraniu wszystkich rekordów:', err2);
                                             } else {
-                                                console.log('[sqlite3] DEBUG: Wszystkie rekordy w tabeli:', rows2);
+                                                if (debugMode) console.log('[sqlite3] DEBUG: Wszystkie rekordy w tabeli:', rows2);
                                             }
                                         });
                                         resolve('Brak danych');
@@ -664,6 +1007,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                             });
                         });
                     } else if (getColumn && (!conditionColumn || values.length === 0)) {
+                        if (debugMode) console.log('[sqlite3] STORE: getColumn only', { getColumn });
                         const sql = `SELECT ${getColumn} FROM ${tableName.replace('.sqlite','')}`;
                         output = await new Promise((resolve, reject) => {
                             db.all(sql, [], (err, rows) => {
@@ -676,6 +1020,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                             });
                         });
                     } else if (!getColumn && conditionColumn && values.length > 0) {
+                        if (debugMode) console.log('[sqlite3] STORE: conditionColumn only', { conditionColumn, value: values[0] });
                         const sql = `SELECT * FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
                         output = await new Promise((resolve, reject) => {
                             db.get(sql, [values[0]], (err, row) => {
@@ -688,8 +1033,9 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                             });
                         });
                     } else {
+                        if (debugMode) console.log('[sqlite3] STORE: get all records');
                         const sql = `SELECT * FROM ${tableName.replace('.sqlite','')}`;
-                        console.log('[sqlite3] STORE GET ALL RECORDS SQL:', sql);
+                        if (debugMode) console.log('[sqlite3] STORE GET ALL RECORDS SQL:', sql);
                         output = await new Promise((resolve, reject) => {
                             db.all(sql, [], (err, rows) => {
                                 if (err) {
@@ -701,10 +1047,16 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                             });
                         });
                     }
-                    break;
-                }
-                case 'delete': {
+            // end store
+            } else if (dboperation === 'delete') {
+                if (debugMode) console.log('[sqlite3] OPERATION: delete');
+                    if (debugMode) console.log('[sqlite3] DELETE operation entered.', {
+                        columns,
+                        values,
+                        columnsToClear
+                    });
                     if (columnsToClear.length > 0 && columns.length === 0) {
+                        if (debugMode) console.log('[sqlite3] DELETE: Clear all columns', { columnsToClear });
                         const setClause = columnsToClear.map(col => `${col}=NULL`).join(', ');
                         const sql = `UPDATE ${tableName.replace('.sqlite','')} SET ${setClause}`;
                         output = await new Promise((resolve, reject) => {
@@ -718,8 +1070,10 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                             });
                         });
                     } else if (columns.length > 0 && values.length > 0) {
+                        if (debugMode) console.log('[sqlite3] DELETE: With where', { columns, values, columnsToClear });
                         const where = columns.map((col, i) => `${col}=?`).join(' AND ');
                         if (columnsToClear.length > 0) {
+                            if (debugMode) console.log('[sqlite3] DELETE: Update set NULL with where', { setClause, where });
                             const setClause = columnsToClear.map(col => `${col}=NULL`).join(', ');
                             const sql = `UPDATE ${tableName.replace('.sqlite','')} SET ${setClause} WHERE ${where}`;
                             output = await new Promise((resolve, reject) => {
@@ -733,6 +1087,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                                 });
                             });
                         } else {
+                            if (debugMode) console.log('[sqlite3] DELETE: Delete with where', { where });
                             const sql = `DELETE FROM ${tableName.replace('.sqlite','')} WHERE ${where}`;
                             output = await new Promise((resolve, reject) => {
                                 db.run(sql, values, function(err) {
@@ -746,9 +1101,10 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                             });
                         }
                     }
-                    break;
-                }
-            } // <-- This closes the switch statement
+            // end delete
+            } else {
+                if (debugMode) console.log('[sqlite3] OPERATION: unknown or not matched:', dboperation);
+            }
         } catch (err) {
             console.error('[sqlite3] DB Error:', err);
             output = `[sqlite3] Error: ${err.message}`;
