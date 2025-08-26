@@ -171,7 +171,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
       }
     </style>
 
-        <tab-system id="tabs" style="margin-top: -35px;">
+        <tab-system id="tabs" style="margin-top: -15px;">
             <tab label="SQLite" icon="database">
                 <div style="margin-bottom: 12px;">
                     <span class="dbminputlabel">Operation</span>
@@ -345,7 +345,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                     <input id="storeCollection" class="round" type="text" placeholder="ex. Age,Name">
                     <br>
                     <span class="dbminputlabel">Value(s) to store</span>
-                    <input id="storeKey" class="round" type="text" placeholder="ex. 1,20,Test">
+                    <input id="storeKey" class="round" type="text" placeholder="ex. 1,20,Test or [all]">
                     <hr class="subtlebar" style="margin-top: 8px; margin-bottom: 4px; width: 100%;">
                     <span class="dbminputlabel" style="margin-top: 4px; display: inline-block;">Column to get</span>
                     <input id="getColumn" class="round" type="text" placeholder="ex. Age">
@@ -602,6 +602,23 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
         let db = new sqlite3.Database(dbPath);
         let output;
 
+        async function ensureTableExists(db, tableName, columns) {
+            if (!columns || columns.length === 0) columns = ['id']; // minimum column
+            const tableNoExt = tableName.replace('.sqlite','');
+            const createCols = columns.map(col => `\`${col}\` TEXT`).join(', ');
+            const createTableSQL = `CREATE TABLE IF NOT EXISTS \`${tableNoExt}\` (${createCols})`;
+            return new Promise((resolve, reject) => {
+                db.run(createTableSQL, [], function(err) {
+                    if (err) {
+                        console.error('[sqlite3] CREATE TABLE ERROR:', err);
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                });
+            });
+        }
+
         let columns = columnsRaw ? columnsRaw.split(',').map(c => c.trim()).filter(Boolean) : [];
         let values = [];
         if (valuesRaw) {
@@ -747,6 +764,90 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
             });
         }
 
+        async function handleMissingTableOrColumn(err, sql, values, table, column) {
+            if (err && err.message.includes('no such column')) {
+                const match = err.message.match(/no such column: ([^ ]+)/);
+                if (match) {
+                    const missingCol = match[1];
+                    const alterSQL = `ALTER TABLE ${table} ADD COLUMN ${missingCol} TEXT DEFAULT '0'`;
+                    await new Promise((resolve, reject) => {
+                        db.run(alterSQL, (alterErr) => {
+                            if (alterErr) {
+                                console.error('[sqlite3] ALTER TABLE ERROR:', alterErr);
+                                reject(alterErr);
+                            } else {
+                                console.log(`[sqlite3] Column '${missingCol}' added to table '${table}' with default value '0'.`);
+                                resolve();
+                            }
+                        });
+                    });
+                    // Retry the original query after adding the column
+                    return await new Promise((resolve, reject) => {
+                        db.get(sql, values, (retryErr, row) => {
+                            if (retryErr) {
+                                console.error('[sqlite3] RETRY ERROR:', retryErr);
+                                reject(retryErr);
+                            } else {
+                                resolve(row);
+                            }
+                        });
+                    });
+                }
+            } else if (err && err.message.includes('no such table')) {
+                const createTableSQL = `CREATE TABLE IF NOT EXISTS ${table} (${column} TEXT DEFAULT '0')`;
+                await new Promise((resolve, reject) => {
+                    db.run(createTableSQL, (createErr) => {
+                        if (createErr) {
+                            console.error('[sqlite3] CREATE TABLE ERROR:', createErr);
+                            reject(createErr);
+                        } else {
+                            console.log(`[sqlite3] Table '${table}' created with column '${column}' and default value '0'.`);
+                            resolve();
+                        }
+                    });
+                });
+                // Retry the original query after creating the table
+                return await new Promise((resolve, reject) => {
+                    db.get(sql, values, (retryErr, row) => {
+                        if (retryErr) {
+                            console.error('[sqlite3] RETRY ERROR:', retryErr);
+                            reject(retryErr);
+                        } else {
+                            resolve(row);
+                        }
+                    });
+                });
+            }
+            throw err; // Re-throw if not a missing column or table error
+        }
+
+        // Wrap database operations to handle missing tables or columns dynamically
+        try {
+            if (dboperation === 'store') {
+                const getColumnRaw = this.evalMessage(data.getColumn, cache);
+                const getColumn = getColumnRaw && getColumnRaw.trim() !== '' ? getColumnRaw.trim() : null;
+                if (getColumn && conditionColumn && values.length > 0) {
+                    const sql = `SELECT ${getColumn} FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
+                    output = await new Promise((resolve, reject) => {
+                        db.get(sql, [values[0]], async (err, row) => {
+                            if (err) {
+                                try {
+                                    const result = await handleMissingTableOrColumn(err, sql, [values[0]], tableName.replace('.sqlite', ''), getColumn);
+                                    resolve(result ? result[getColumn] : '0');
+                                } catch (finalErr) {
+                                    reject(finalErr);
+                                }
+                            } else {
+                                resolve(row ? row[getColumn] : '0');
+                            }
+                        });
+                    });
+                }
+            }
+        } catch (err) {
+            console.error('[sqlite3] Final Error:', err);
+        }
+
         try {
             if (dboperation === 'checkvar') {
                 if (debugMode) console.log('[sqlite3] OPERATION: checkvar');
@@ -872,103 +973,124 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
             // end count
             } else if (dboperation === 'update') {
                 if (debugMode) console.log('[sqlite3] OPERATION: update');
-                    if (debugMode) console.log('[sqlite3] UPDATE operation entered.', {
-                        columns,
-                        values,
-                        conditionColumn,
-                        conditionValue
+                if (debugMode) console.log('[sqlite3] UPDATE operation entered.', {
+                    columns,
+                    values,
+                    conditionColumn,
+                    conditionValue
+                });
+
+                let nextValue = null;
+                if (conditionValue && typeof conditionValue === 'string' && conditionValue.trim() === '[next]') {
+                    const sql = `SELECT MAX(CAST(${conditionColumn} AS INTEGER)) as maxval FROM ${tableName.replace('.sqlite','')}`;
+                    const row = await new Promise((resolve, reject) => {
+                        db.get(sql, [], (err, row) => {
+                            if (err) reject(err);
+                            else resolve(row);
+                        });
                     });
-                    let nextValue = null;
-                      if (conditionValue && typeof conditionValue === 'string' && conditionValue.trim() === '[next]') {
-                        const sql = `SELECT MAX(CAST(${conditionColumn} AS INTEGER)) as maxval FROM ${tableName.replace('.sqlite','')}`;
-                        const row = await new Promise((resolve, reject) => {
-                            db.get(sql, [], (err, row) => {
-                                if (err) reject(err);
-                                else resolve(row);
-                            });
-                        });
-                        let maxval = row && row.maxval !== undefined && row.maxval !== null ? Number(row.maxval) : 0;
-                        nextValue = String(maxval + 1);
-                    }
-                    const effectiveConditionValue = nextValue !== null ? nextValue : conditionValue;
-                    if (!conditionColumn || !effectiveConditionValue) {
-                        if (debugMode) console.log('[sqlite3] UPDATE: No condition, will insert.', { columns, values });
-                        if (columns.length > 0 && values.length > 0) {
-                            const placeholders = columns.map(() => '?').join(', ');
-                            const insertSql = `INSERT INTO ${tableName.replace('.sqlite','')} (${columns.join(', ')}) VALUES (${placeholders})`;
-                            output = await insertWithAutoColumns(insertSql, values, columns, tableName.replace('.sqlite',''));
-                            output = String(output);
-                        } else {
-                            output = '[sqlite3] SAVE: Missing columns or values.';
-                            if (debugMode) console.log(output);
-                        }
-                    } else if (columns.length > 0 && values.length > 0) {
-                        if (debugMode) console.log('[sqlite3] UPDATE: With condition', { columns, values, conditionColumn, effectiveConditionValue });
-                        if (!/^[\w]+$/.test(conditionColumn)) {
-                            output = '[sqlite3] UPDATE: Kolumna warunku musi być poprawną nazwą.';
-                            if (debugMode) console.log(output);
-                            // break usunięty, bo nie jest już w switch/case
-                        }
-                        for (let i = 0; i < columns.length; i++) {
-                            if (debugMode) console.log('[sqlite3] UPDATE: Arithmetic check', { col: columns[i], val: values[i] });
-                            const col = columns[i];
-                            let val = values[i];
-                            if (typeof val === 'string' && (/^[+-]\d+$/.test(val.trim()))) {
-                                const sql = `SELECT ${col} FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
-                                const row = await new Promise((resolve, reject) => {
-                                    db.get(sql, [effectiveConditionValue], (err, row) => {
-                                        if (err) reject(err);
-                                        else resolve(row);
-                                    });
-                                });
-                                let current = row && row[col] !== undefined && row[col] !== null ? Number(row[col]) : 0;
-                                let diff = Number(val);
-                                if (!isNaN(current) && !isNaN(diff)) {
-                                    values[i] = String(current + diff);
-                                }
-                            }
-                        }
-                        const checkSql = `SELECT COUNT(*) as cnt FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
-                        const checkExists = await new Promise((resolve, reject) => {
-                            db.get(checkSql, [effectiveConditionValue], (err, row) => {
-                                if (err) {
-                                    output = String(output);
-                                    console.error('[sqlite3] CHECK EXISTS ERROR:', err);
-                                    reject(err);
-                                } else {
-                                    resolve(row && row.cnt > 0);
-                                }
-                            });
-                        });
-                        if (!checkExists) {
-                            if (debugMode) console.log('[sqlite3] UPDATE: No record exists, will insert.', { insertColumns, insertValues });
-                            let insertColumns = [...columns];
-                            let insertValues = [...values];
-                            if (!insertColumns.includes(conditionColumn)) {
-                                insertColumns.push(conditionColumn);
-                                insertValues.push(effectiveConditionValue);
-                            } else {
-                                output = String(output);
-                                const idx = insertColumns.indexOf(conditionColumn);
-                                insertValues[idx] = effectiveConditionValue;
-                            }
-                            const placeholders = insertColumns.map(() => '?').join(', ');
-                            const insertSql = `INSERT INTO ${tableName.replace('.sqlite','')} (${insertColumns.join(', ')}) VALUES (${placeholders})`;
-                            output = await insertWithAutoColumns(insertSql, insertValues, insertColumns, tableName.replace('.sqlite',''));
-                        } else {
-                            if (debugMode) console.log('[sqlite3] UPDATE: Record exists, will update.', { setClause, updateValues });
-                            const setClause = columns.filter(col => col !== conditionColumn).map((col, i) => `${col}=?`).join(', ');
-                            const updateValues = columns.filter(col => col !== conditionColumn).map((col, i) => values[columns.indexOf(col)]);
-                            updateValues.push(effectiveConditionValue);
-                            output = String(output);
-                            const sql = `UPDATE ${tableName.replace('.sqlite','')} SET ${setClause} WHERE ${conditionColumn}=?`;
-                            output = await updateWithAutoColumns(sql, updateValues, columns, tableName.replace('.sqlite',''));
-                        }
+                    let maxval = row && row.maxval !== undefined && row.maxval !== null ? Number(row.maxval) : 0;
+                    nextValue = String(maxval + 1);
+                }
+                const effectiveConditionValue = nextValue !== null ? nextValue : conditionValue;
+
+                // ✅ DYNAMIC TABLE CREATION
+                await ensureTableExists(db, tableName, [...columns, conditionColumn]);
+
+                if (!conditionColumn || !effectiveConditionValue) {
+                    // No condition, INSERT
+                    if (columns.length > 0 && values.length > 0) {
+                        const placeholders = columns.map(() => '?').join(', ');
+                        const insertSql = `INSERT INTO ${tableName.replace('.sqlite','')} (${columns.join(', ')}) VALUES (${placeholders})`;
+                        output = await insertWithAutoColumns(insertSql, values, columns, tableName.replace('.sqlite',''));
+                        output = String(output);
                     } else {
-                        if (debugMode) console.log('[sqlite3] UPDATE: Missing columns or values.');
-                        output = '[sqlite3] UPDATE: Missing columns or values.';
+                        output = '[sqlite3] SAVE: Missing columns or values.';
                         if (debugMode) console.log(output);
                     }
+                } else if (columns.length > 0 && values.length > 0) {
+                    if (debugMode) console.log('[sqlite3] UPDATE: With condition', { columns, values, conditionColumn, effectiveConditionValue });
+                    if (!/^[\w]+$/.test(conditionColumn)) {
+                        output = '[sqlite3] UPDATE: Kolumna warunku musi być poprawną nazwą.';
+                        if (debugMode) console.log(output);
+                    }
+
+                    async function ensureColumnExists(db, tableName, column) {
+                        if (!column) return;
+                        const tableNoExt = tableName.replace('.sqlite','');
+                        const sql = `ALTER TABLE \`${tableNoExt}\` ADD COLUMN \`${column}\` TEXT DEFAULT '0'`;
+                        return new Promise((resolve) => {
+                            db.run(sql, [], () => resolve()); // ignorujemy błąd, jeśli kolumna już istnieje
+                        });
+                    }
+
+                    // Arithmetic check
+                    for (let i = 0; i < columns.length; i++) {
+                        const col = columns[i];
+                        await ensureColumnExists(db, tableName, col); // ✅ dodajemy kolumnę jeśli brak
+                        if (debugMode) console.log('[sqlite3] UPDATE: Arithmetic check', { col, val: values[i] });
+                        let val = values[i];
+                        if (typeof val === 'string' && (/^[+-]\d+$/.test(val.trim()))) {
+                            const sql = `SELECT ${col} FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
+                            const row = await new Promise((resolve, reject) => {
+                                db.get(sql, [effectiveConditionValue], (err, row) => {
+                                    if (err) reject(err);
+                                    else resolve(row);
+                                });
+                            });
+                            let current = row && row[col] !== undefined && row[col] !== null ? Number(row[col]) : 0;
+                            let diff = Number(val);
+                            if (!isNaN(current) && !isNaN(diff)) {
+                                values[i] = String(current + diff);
+                            }
+                        }
+                    }
+
+                    // Check if record exists
+                    const checkSql = `SELECT COUNT(*) as cnt FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
+                    const checkExists = await new Promise((resolve, reject) => {
+                        db.get(checkSql, [effectiveConditionValue], (err, row) => {
+                            if (err) {
+                                output = String(output);
+                                console.error('[sqlite3] CHECK EXISTS ERROR:', err);
+                                reject(err);
+                            } else {
+                                resolve(row && row.cnt > 0);
+                            }
+                        });
+                    });
+
+                    if (!checkExists) {
+                        // INSERT fallback
+                        let insertColumns = [...columns];
+                        let insertValues = [...values];
+                        if (!insertColumns.includes(conditionColumn)) {
+                            insertColumns.push(conditionColumn);
+                            insertValues.push(effectiveConditionValue);
+                        } else {
+                            output = String(output);
+                            const idx = insertColumns.indexOf(conditionColumn);
+                            insertValues[idx] = effectiveConditionValue;
+                        }
+                        if (debugMode) console.log('[sqlite3] UPDATE: No record exists, will insert.', { insertColumns, insertValues });
+                        const placeholders = insertColumns.map(() => '?').join(', ');
+                        const insertSql = `INSERT INTO ${tableName.replace('.sqlite','')} (${insertColumns.join(', ')}) VALUES (${placeholders})`;
+                        output = await insertWithAutoColumns(insertSql, insertValues, insertColumns, tableName.replace('.sqlite',''));
+                    } else {
+                        // UPDATE existing record
+                        const setClause = columns.filter(col => col !== conditionColumn).map((col, i) => `${col}=?`).join(', ');
+                        const updateValues = columns.filter(col => col !== conditionColumn).map((col, i) => values[columns.indexOf(col)]);
+                        updateValues.push(effectiveConditionValue);
+                        if (debugMode) console.log('[sqlite3] UPDATE: Record exists, will update.', { setClause, updateValues });
+                        output = String(output);
+                        const sql = `UPDATE ${tableName.replace('.sqlite','')} SET ${setClause} WHERE ${conditionColumn}=?`;
+                        output = await updateWithAutoColumns(sql, updateValues, columns, tableName.replace('.sqlite',''));
+                    }
+                } else {
+                    if (debugMode) console.log('[sqlite3] UPDATE: Missing columns or values.');
+                    output = '[sqlite3] UPDATE: Missing columns or values.';
+                    if (debugMode) console.log(output);
+                }
             // end update
             } else if (dboperation === 'store') {
                 if (debugMode) console.log('[sqlite3] OPERATION: store');
@@ -979,30 +1101,42 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                     });
                     const getColumnRaw = this.evalMessage(data.getColumn, cache);
                     const getColumn = getColumnRaw && getColumnRaw.trim() !== '' ? getColumnRaw.trim() : null;
-                    if (getColumn && conditionColumn && values.length > 0) {
-                        const sql = `SELECT ${getColumn} FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
+
+                    if (values.length > 0 && values[0] === '[all]') {
+                        if (debugMode) console.log('[sqlite3] STORE: Fetching all users as JSON table');
+                        const sql = `SELECT * FROM ${tableName.replace('.sqlite', '')}`;
                         output = await new Promise((resolve, reject) => {
-                            db.get(sql, [values[0]], (err, row) => {
+                            db.all(sql, [], (err, rows) => {
                                 if (err) {
-                                    console.error('[sqlite3] STORE GET ERROR:', err);
+                                    console.error('[sqlite3] STORE GET ALL USERS ERROR:', err);
                                     reject(err);
                                 } else {
-                                    if (!row) {
-                                        console.warn('[sqlite3] STORE GET: Brak rekordu dla warunku', conditionColumn, '=', values[0]);
-                                        const debugSql = `SELECT * FROM ${tableName.replace('.sqlite','')}`;
-                                        db.all(debugSql, [], (err2, rows2) => {
-                                            if (err2) {
-                                                console.error('[sqlite3] DEBUG: Błąd przy pobieraniu wszystkich rekordów:', err2);
-                                            } else {
-                                                if (debugMode) console.log('[sqlite3] DEBUG: Wszystkie rekordy w tabeli:', rows2);
-                                            }
+                                    const jsonTable = {};
+                                    rows.forEach((row, index) => {
+                                        Object.keys(row).forEach((key) => {
+                                            if (!jsonTable[key]) jsonTable[key] = {};
+                                            jsonTable[key][index + 1] = row[key];
                                         });
-                                        resolve('Brak danych');
-                                    } else if (row[getColumn] === undefined || row[getColumn] === null || row[getColumn] === '') {
-                                        resolve('Brak danych');
-                                    } else {
-                                        resolve(row[getColumn]);
+                                    });
+                                    // Convert the JSON table to a string for message usage
+                                    const jsonString = JSON.stringify(jsonTable, null, 2); // Pretty-print with 2 spaces
+                                    resolve(jsonString);
+                                }
+                            });
+                        });
+                    } else if (getColumn && conditionColumn && values.length > 0) {
+                        const sql = `SELECT ${getColumn} FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
+                        output = await new Promise((resolve, reject) => {
+                            db.get(sql, [values[0]], async (err, row) => {
+                                if (err) {
+                                    try {
+                                        const result = await handleMissingTableOrColumn(err, sql, [values[0]], tableName.replace('.sqlite', ''), getColumn);
+                                        resolve(result ? result[getColumn] : '0');
+                                    } catch (finalErr) {
+                                        reject(finalErr);
                                     }
+                                } else {
+                                    resolve(row ? row[getColumn] : '0');
                                 }
                             });
                         });
