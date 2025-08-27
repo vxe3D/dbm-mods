@@ -2,7 +2,7 @@ module.exports = {
   name: "Edit Button",
   section: "Message Control",
   meta: {
-    version: "3.0.0",
+    version: "3.5.0",
     preciseCheck: true,
     author: "Shadow & vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -37,7 +37,7 @@ module.exports = {
       <a href="https://discord.gg/9HYB4n3Dz4" class="vcstatus-discord" target="_blank">Discord</a>
     </div>
     <div class="vcstatus-box-fixed vcstatus-box-right" style="top: 22px; right: 15px;">
-      <span class="vcstatus-version">v3.0.0</span>
+      <span class="vcstatus-version">v3.5.0</span>
     </div>
     <style>
       .vcstatus-author-label {
