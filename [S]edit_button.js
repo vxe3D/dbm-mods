@@ -324,37 +324,57 @@ module.exports = {
       if (sourceButton === "current" && interaction) {
         const message = interaction.message;
         const newComponents = message.components.map((row) => {
-          return new ActionRowClass().addComponents(
-            row.components.map((button) => {
-              if (button.customId === interaction.customId) {
-                const buttonBuilder = new ButtonClass().setLabel(
-                  newLabel && newLabel.trim().length ? newLabel : button.label
-                );
+          // --- 1. Najpierw sprawdzamy accessory ---
+          if (row.accessory && row.accessory.customId === interaction.customId) {
+            const buttonBuilder = new ButtonClass()
+              .setLabel(newLabel?.trim() ? newLabel : row.accessory.label || "Button")
+              .setStyle(styleMap[newStyle?.toUpperCase()] || styleMap.PRIMARY)
+              .setDisabled(disabled === "true");
 
-                if (styleMap[newStyle?.toUpperCase()]) {
-                  buttonBuilder.setStyle(styleMap[newStyle.toUpperCase()]);
-                } else {
-                  buttonBuilder.setStyle(styleMap.PRIMARY);
-                }
+            if (newEmoji) buttonBuilder.setEmoji(newEmoji);
+            if (newStyle === "LINK" && newURL) buttonBuilder.setURL(newURL);
+            else buttonBuilder.setCustomId(row.accessory.customId);
 
-                if (newEmoji) {
-                  buttonBuilder.setEmoji(newEmoji);
-                }
+            row.accessory = buttonBuilder;
+            return row;
+          }
 
-                if (newStyle === "LINK" && newURL) {
-                  buttonBuilder.setURL(newURL);
-                } else {
-                  buttonBuilder.setCustomId(button.customId);
-                }
+          // --- 2. Jeśli accessory nie ma, mapujemy zwykłe components ---
+          if (row.components && row.components.length > 0) {
+            const updatedComponents = row.components.map((btn) => {
+              if (btn.customId === interaction.customId) {
+                const buttonBuilder = ButtonClass.from(btn)
+                  .setLabel(newLabel?.trim() ? newLabel : btn.label || "Button")
+                  .setStyle(styleMap[newStyle?.toUpperCase()] || styleMap.PRIMARY)
+                  .setDisabled(disabled === "true");
 
-                buttonBuilder.setDisabled(disabled === "true");
+                if (newEmoji) buttonBuilder.setEmoji(newEmoji);
+                if (newStyle === "LINK" && newURL) buttonBuilder.setURL(newURL);
+                else buttonBuilder.setCustomId(btn.customId);
 
                 return buttonBuilder;
               }
-              return fromButton(button);
-            })
-          );
+              return ButtonClass.from(btn);
+            });
+
+            return new ActionRowClass().addComponents(updatedComponents);
+          }
+
+          // --- 3. Jeśli nic nie pasuje, zwracamy row bez zmian ---
+          return row;
         });
+
+        // Log po zakończeniu map
+        console.log("/-------------------------------------------------------");
+        console.log("[Edit Button] current label:", interaction.message.components.map(r => r.components.map(b => b.label)));
+        console.log("[Edit Button] current accessory:", interaction.message.components.map(r => r.accessory?.label));
+        console.log("[Edit Button] newLabel:", newLabel);
+        console.log("[Edit Button] newEmoji:", newEmoji);
+        console.log("[Edit Button] disabled:", disabled);
+        console.log("[Edit Button] newStyle:", newStyle);
+        console.log("[Edit Button] newURL:", newURL);
+        console.log("[Edit Button] Components ready to send:", newComponents.map(c => c.toJSON()));
+        console.log("/-------------------------------------------------------");
 
         await message.edit({ components: newComponents });
       } else if (sourceButton === "byId") {
@@ -364,11 +384,15 @@ module.exports = {
             .fetch({ limit: 50 })
             .catch(() => null);
           if (!messages) continue;
+
           foundMessage = messages.find((msg) =>
             msg.components.some((row) =>
+              // sprawdzamy accessory lub components
+              (row.accessory && row.accessory.customId === buttonId) ||
               row.components.some((button) => button.customId === buttonId)
             )
           );
+
           if (foundMessage) break;
         }
       }
@@ -379,37 +403,57 @@ module.exports = {
       }
 
       const newComponents = foundMessage.components.map((row) => {
-        return new ActionRowClass().addComponents(
-          row.components.map((button) => {
-            if (button.customId === buttonId) {
-              const buttonBuilder = new ButtonClass().setLabel(
-                newLabel && newLabel.trim().length ? newLabel : button.label
-              );
+        // --- 1. Najpierw sprawdzamy accessory ---
+        if (row.accessory && row.accessory.customId === buttonId) {
+          const buttonBuilder = new ButtonClass()
+            .setLabel(newLabel?.trim() ? newLabel : row.accessory.label || "Button")
+            .setStyle(styleMap[newStyle?.toUpperCase()] || styleMap.PRIMARY)
+            .setDisabled(disabled === "true");
 
-              if (styleMap[newStyle?.toUpperCase()]) {
-                buttonBuilder.setStyle(styleMap[newStyle.toUpperCase()]);
-              } else {
-                buttonBuilder.setStyle(styleMap.PRIMARY);
-              }
+          if (newEmoji) buttonBuilder.setEmoji(newEmoji);
+          if (newStyle === "LINK" && newURL) buttonBuilder.setURL(newURL);
+          else buttonBuilder.setCustomId(row.accessory.customId);
 
-              if (newEmoji) {
-                buttonBuilder.setEmoji(newEmoji);
-              }
+          row.accessory = buttonBuilder;
+          return row;
+        }
 
-              if (newStyle === "LINK" && newURL) {
-                buttonBuilder.setURL(newURL);
-              } else {
-                buttonBuilder.setCustomId(button.customId);
-              }
+        // --- 2. Jeśli accessory nie ma, mapujemy zwykłe components ---
+        if (row.components && row.components.length > 0) {
+          const updatedComponents = row.components.map((btn) => {
+            if (btn.customId === buttonId) {
+              const buttonBuilder = ButtonClass.from(btn)
+                .setLabel(newLabel?.trim() ? newLabel : btn.label || "Button")
+                .setStyle(styleMap[newStyle?.toUpperCase()] || styleMap.PRIMARY)
+                .setDisabled(disabled === "true");
 
-              buttonBuilder.setDisabled(disabled === "true");
+              if (newEmoji) buttonBuilder.setEmoji(newEmoji);
+              if (newStyle === "LINK" && newURL) buttonBuilder.setURL(newURL);
+              else buttonBuilder.setCustomId(btn.customId);
 
               return buttonBuilder;
             }
-            return fromButton(button);
-          })
-        );
+            return ButtonClass.from(btn);
+          });
+
+          return new ActionRowClass().addComponents(updatedComponents);
+        }
+
+        // --- 3. Jeśli nic nie pasuje, zwracamy row bez zmian ---
+        return row;
       });
+
+      // Log po zakończeniu map
+      console.log("/-------------------------------------------------------");
+      console.log("[Edit Button] current label:", foundMessage.components.map(r => r.components.map(b => b.label)));
+      console.log("[Edit Button] current accessory:", foundMessage.components.map(r => r.accessory?.label));
+      console.log("[Edit Button] newLabel:", newLabel);
+      console.log("[Edit Button] newEmoji:", newEmoji);
+      console.log("[Edit Button] disabled:", disabled);
+      console.log("[Edit Button] newStyle:", newStyle);
+      console.log("[Edit Button] newURL:", newURL);
+      console.log("[Edit Button] Components ready to send:", newComponents.map(c => c.toJSON()));
+      console.log("/-------------------------------------------------------");
 
       await foundMessage.edit({ components: newComponents });
 
