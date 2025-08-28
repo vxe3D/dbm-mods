@@ -2,7 +2,7 @@ module.exports = {
     name: '[S] SQLite - Local Database',
     section: '# SHDZ - Utilities',
     meta: {
-        version: "3.2.0",
+        version: "3.3.0",
         author: "vxed_",
         authorUrl: "https://github.com/vxe3D/dbm-mods",
     },
@@ -32,7 +32,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
       <a href="https://discord.gg/9HYB4n3Dz4" class="vcstatus-discord" target="_blank">Discord</a>
     </div>
     <div class="vcstatus-box-fixed vcstatus-box-right" style="top: 22px; right: 15px;">
-      <span class="vcstatus-version">v3.2.0</span>
+      <span class="vcstatus-version">v3.3.0</span>
     </div>
     <style>
       .vcstatus-author-label {
@@ -153,15 +153,12 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
       .dbminputlabel {
         color: #8754ffff;
         font-weight: bold;
-        margin-bottom: 4px;
-        display: inline-block;
       }
       input.round {
         border-radius: 6px;
         border: 1px solid #aaa;
         padding: 6px 10px;
         font-size: 14px;
-        margin-top: 2px;
         background: #21232B;
         transition: border-color 0.2s;
       }
@@ -222,7 +219,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                 <div id="updateFieldsDiv" style="margin-bottom: 10px; display:none;">
                     <span class="dbminputlabel">Column to update</span>
                     <span class="dbminputlabel"><b>Jak używać? - <u>Update/Save</u></b>
-                      <help-icon dialogTitle="[Local Database] How to use this function" dialogWidth="640" dialogHeight="700">
+                      <help-icon dialogTitle="[Local Database] How to use this function" dialogWidth="640" dialogHeight="800">
                         <div style="padding: 16px;">
                             <!-- Pierwsze okienko -->
                             <div style="background-color:rgba(0, 0, 0, 0.41); border: 2px solid rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 5px; margin-bottom: 10px;">
@@ -239,6 +236,10 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                             <div style="display: flex; gap: 20px;">  
                                 <ul style="flex: 1;  padding-left: 20px; margin: 0;">
                                 <li>W tym polu zamieszczasz dane które chcesz wprowadzić do tej kolumny</li>
+                                <br>
+                                <li>Za pomocą | ^+1 lub ^-1 | możesz zamieszczać elementy jako tablice, przydatne do np. zapisywania id osób gdy się robi dynamiczne permisje</li>
+                                <br>
+                                <li>Za pomocą | +1 lub -1 | możesz dodawać / odejmować wartości np. masz w bazie liczbe 3 to po wpisaniu -1 będziesz miał wynik 2 :)
                                 </ul>
                             </div>
                             </div>
@@ -262,7 +263,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                             </div>
                             <br><br>
                             <!-- Trzecie okienko -->
-                            <div style="background-color:rgba(0, 0, 0, 0.41); border: 2px solid rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 5px; margin-bottom: 10px; margin-top: 80px;">
+                            <div style="background-color:rgba(0, 0, 0, 0.41); border: 2px solid rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 5px; margin-bottom: 10px; margin-top: 70px;">
                             <b><span style="font-size: 15px;">⚠️ <u>W razie problemów...</span></b></u><br>
                             <div style="display: flex; gap: 20px;">  
                                 <ul style="flex: 1;  padding-left: 20px; margin: 0;">
@@ -271,7 +272,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                             </div>
                             </div>
                             <!-- Czwarte okienko -->
-                            <div style="background-color:rgba(0, 0, 0, 0.41); border: 2px solid rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 5px; margin-bottom: 10px; margin-top: 10px;">
+                            <div style="background-color:rgba(0, 0, 0, 0.41); border: 2px solid rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 5px; margin-top: 10px;">
                             <b><span style="font-size: 15px;">🚨 <u>Znalazłeś błąd?</span></b></u><br>
                             <div style="display: flex; gap: 20px;">  
                                 <ul style="flex: 1;  padding-left: 20px; margin: 0;">
@@ -285,7 +286,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                     <a href="https://github.com/sqlitebrowser/sqlitebrowser/releases/download/v3.13.1/DB.Browser.for.SQLite-v3.13.1-win64.msi" target="_blank" style="color:#4ea1ff;cursor:pointer;text-decoration:underline;font-weight:bold;margin-left: 10px;">Polecany program do DB</a>
                     <input id="collection" class="round" type="text" placeholder="ex. Age,Name">
                     <span class="dbminputlabel" style="margin-top: 4px; display: inline-block;">Value to update</span>
-                    <input id="key" class="round" type="text" placeholder="ex. 1,20,Test | ex. +1 or -1">
+                    <input id="key" class="round" type="text" placeholder="ex. 1,20,Test | ex. +1 or -1 | ex. ^+1 or ^-1">
                 </div>
                 <div id="storeFieldsDiv" style="margin-bottom: 10px; display:none;">
                     <span class="dbminputlabel">Column(s) to store</span>
@@ -882,71 +883,126 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                         val1 = undefined;
                     }
                     // Check for missing data in val1 or val2
-                    if (val1 === undefined || val1 === null || val1 === '' || val2 === undefined || val2 === null || val2 === '') {
-                        const missingMsg = `[sqlite3] CHECKVAR: Brak danych w ${val1 === undefined || val1 === null || val1 === '' ? 'val1' : ''}${(val1 === undefined || val1 === null || val1 === '') && (val2 === undefined || val2 === null || val2 === '') ? ' i ' : ''}${val2 === undefined || val2 === null || val2 === '' ? 'val2' : ''}`;
+                    if (val2 === undefined || val2 === null || val2 === '') {
+                        const missingMsg = `[sqlite3] CHECKVAR: Brak danych w val2`;
                         if (debugMode) console.log(missingMsg, { val1, val2 });
                         this.storeValue(missingMsg, parseInt(data.storage, 10), this.evalMessage(data.varName, cache), cache);
-                        this.callNextAction(cache);
-                        return;
                     }
                     switch (compare) {
-                        case 0:
+                        case 0: // exists
                             result = val1 !== undefined && val1 !== null;
                             break;
-                        case 1:
-                            result = val1 == val2;
-                            break;
-                        case 2:
-                            result = val1 === val2;
-                            break;
-                        case 3:
-                            result = val1 < val2;
-                            break;
-                        case 4:
-                            result = val1 > val2;
-                            break;
-                        case 5:
-                            let includesVal1 = val1;
-                            if (typeof includesVal1 !== "string" && !Array.isArray(includesVal1)) {
-                                includesVal1 = String(includesVal1);
+
+                        case 1: // ==
+                            if (typeof val1 === "string" && val1.includes(",")) {
+                                val1 = val1.split(",").map(s => s.trim());
                             }
-                            if (typeof includesVal1?.includes === "function") {
-                                result = includesVal1.includes(val2);
+                            result = Array.isArray(val1) ? val1.includes(String(val2)) : val1 == val2;
+                            break;
+
+                        case 2: // ===
+                            if (typeof val1 === "string" && val1.includes(",")) {
+                                val1 = val1.split(",").map(s => s.trim());
+                            }
+                            result = Array.isArray(val1) ? val1.includes(String(val2)) : val1 === val2;
+                            break;
+
+                        case 3: // <
+                            if (typeof val1 === "string" && val1.includes(",")) {
+                                val1 = val1.split(",").map(s => s.trim());
+                            }
+                            result = Array.isArray(val1) ? val1.some(v => Number(v) < Number(val2)) : val1 < val2;
+                            break;
+
+                        case 4: // >
+                            if (typeof val1 === "string" && val1.includes(",")) {
+                                val1 = val1.split(",").map(s => s.trim());
+                            }
+                            result = Array.isArray(val1) ? val1.some(v => Number(v) > Number(val2)) : val1 > val2;
+                            break;
+
+                        case 5: // includes
+                            if (typeof val1 === "string" && val1.includes(",")) {
+                                val1 = val1.split(",").map(s => s.trim());
+                            }
+                            if (Array.isArray(val1)) {
+                                result = val1.includes(String(val2));
+                            } else if (typeof val1?.includes === "function") {
+                                result = val1.includes(val2);
                             }
                             break;
-                        case 6:
-                            if (typeof val1?.match === "function") {
+
+                        case 6: // regex match
+                            if (typeof val1 === "string" && val1.includes(",")) {
+                                val1 = val1.split(",").map(s => s.trim());
+                            }
+                            if (Array.isArray(val1)) {
+                                result = val1.some(v => String(v).match(new RegExp("^" + val2 + "$", "i")));
+                            } else if (typeof val1?.match === "function") {
                                 result = Boolean(val1.match(new RegExp("^" + val2 + "$", "i")));
                             }
                             break;
-                        case 7:
-                            if (typeof val1?.startsWith === "function") {
+
+                        case 7: // startsWith
+                            if (typeof val1 === "string" && val1.includes(",")) {
+                                val1 = val1.split(",").map(s => s.trim());
+                            }
+                            if (Array.isArray(val1)) {
+                                result = val1.some(v => String(v).startsWith(val2));
+                            } else if (typeof val1?.startsWith === "function") {
                                 result = Boolean(val1.startsWith(val2));
                             }
                             break;
-                        case 8:
-                            if (typeof val1?.endsWith === "function") {
+
+                        case 8: // endsWith
+                            if (typeof val1 === "string" && val1.includes(",")) {
+                                val1 = val1.split(",").map(s => s.trim());
+                            }
+                            if (Array.isArray(val1)) {
+                                result = val1.some(v => String(v).endsWith(val2));
+                            } else if (typeof val1?.endsWith === "function") {
                                 result = Boolean(val1.endsWith(val2));
                             }
                             break;
-                        case 9:
-                            if (typeof val1?.length === "number") {
-                                result = Boolean(val1.length === val2);
+
+                        case 9: // length ===
+                            if (typeof val1 === "string" && val1.includes(",")) {
+                                val1 = val1.split(",").map(s => s.trim());
+                            }
+                            if (Array.isArray(val1)) {
+                                result = val1.length === Number(val2);
+                            } else if (typeof val1?.length === "number") {
+                                result = val1.length === val2;
                             }
                             break;
-                        case 10:
-                            if (typeof val1?.length === "number") {
-                                result = Boolean(val1.length > val2);
+
+                        case 10: // length >
+                            if (typeof val1 === "string" && val1.includes(",")) {
+                                val1 = val1.split(",").map(s => s.trim());
+                            }
+                            if (Array.isArray(val1)) {
+                                result = val1.length > Number(val2);
+                            } else if (typeof val1?.length === "number") {
+                                result = val1.length > val2;
                             }
                             break;
-                        case 11:
-                            if (typeof val1?.length === "number") {
-                                result = Boolean(val1.length < val2);
+
+                        case 11: // length <
+                            if (typeof val1 === "string" && val1.includes(",")) {
+                                val1 = val1.split(",").map(s => s.trim());
+                            }
+                            if (Array.isArray(val1)) {
+                                result = val1.length < Number(val2);
+                            } else if (typeof val1?.length === "number") {
+                                result = val1.length < val2;
                             }
                             break;
                     }
+                    if (debugMode) {
+                        const branch = result ? 'TRUE branch' : 'FALSE branch';
+                        console.log(`[sqlite3][DEBUG] CHECKVAR result: ${result} → odsyła na ${branch}`);
+                    }
                     this.executeResults(result, data?.branch ?? data, cache);
-                    if (debugMode) console.log('[sqlite3] CHECKVAR result:', result);
             return;
             } else if (dboperation === 'count') {
                 if (debugMode) console.log('[sqlite3] OPERATION: count');
@@ -1024,24 +1080,60 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                         });
                     }
 
-                    // Arithmetic check
+                    // Arithmetic / concat / append/remove check
                     for (let i = 0; i < columns.length; i++) {
                         const col = columns[i];
-                        await ensureColumnExists(db, tableName, col); // ✅ dodajemy kolumnę jeśli brak
-                        if (debugMode) console.log('[sqlite3] UPDATE: Arithmetic check', { col, val: values[i] });
+                        await ensureColumnExists(db, tableName, col);
                         let val = values[i];
-                        if (typeof val === 'string' && (/^[+-]\d+$/.test(val.trim()))) {
-                            const sql = `SELECT ${col} FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
-                            const row = await new Promise((resolve, reject) => {
-                                db.get(sql, [effectiveConditionValue], (err, row) => {
-                                    if (err) reject(err);
-                                    else resolve(row);
+
+                        if (debugMode) console.log(`[sqlite3][DEBUG] Processing column "${col}" with value:`, val);
+
+                        if (typeof val === 'string') {
+                            val = val.trim();
+
+                            // ✅ Append mode (^+value)
+                            if (val.startsWith('^+')) {
+                                const toAppend = val.slice(2);
+                                const sql = `SELECT ${col} FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
+                                const row = await new Promise((resolve, reject) => {
+                                    db.get(sql, [effectiveConditionValue], (err, row) => err ? reject(err) : resolve(row));
                                 });
-                            });
-                            let current = row && row[col] !== undefined && row[col] !== null ? Number(row[col]) : 0;
-                            let diff = Number(val);
-                            if (!isNaN(current) && !isNaN(diff)) {
-                                values[i] = String(current + diff);
+                                let current = row && row[col] != null ? String(row[col]) : '';
+                                if (debugMode) console.log(`[sqlite3][DEBUG] Append mode for "${col}": current="${current}", toAppend="${toAppend}"`);
+                                values[i] = current.length > 0 ? current + ', ' + toAppend : toAppend;
+                                if (debugMode) console.log(`[sqlite3][DEBUG] New value for "${col}":`, values[i]);
+                            } 
+
+                            // ✅ Remove mode (^-value)
+                            else if (val.startsWith('^-')) {
+                                const toRemove = val.slice(2);
+                                const sql = `SELECT ${col} FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
+                                const row = await new Promise((resolve, reject) => {
+                                    db.get(sql, [effectiveConditionValue], (err, row) => err ? reject(err) : resolve(row));
+                                });
+                                let current = row && row[col] != null ? String(row[col]) : '';
+                                if (current.length === 0) {
+                                    if (debugMode) console.log(`[sqlite3][DEBUG] Remove mode for "${col}": nothing to remove`);
+                                    values[i] = '';
+                                } else {
+                                    let items = current.split(',').map(s => s.trim());
+                                    const originalLength = items.length;
+                                    items = items.filter(v => v !== toRemove);
+                                    values[i] = items.join(', ');
+                                    if (debugMode) console.log(`[sqlite3][DEBUG] Remove mode for "${col}": removed="${toRemove}", before=${originalLength} items, after=${items.length} items, newValue="${values[i]}"`);
+                                }
+                            }
+
+                            // ✅ Arithmetic mode (+/-number)
+                            else if (/^[+-]\d+$/.test(val)) {
+                                const sql = `SELECT ${col} FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
+                                const row = await new Promise((resolve, reject) => {
+                                    db.get(sql, [effectiveConditionValue], (err, row) => err ? reject(err) : resolve(row));
+                                });
+                                let current = row && row[col] != null ? BigInt(row[col]) : 0n;
+                                let diff = BigInt(val);
+                                values[i] = (current + diff).toString();
+                                if (debugMode) console.log(`[sqlite3][DEBUG] Arithmetic mode for "${col}": current=${current}, diff=${diff}, newValue=${values[i]}`);
                             }
                         }
                     }
