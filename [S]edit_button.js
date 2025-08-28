@@ -2,7 +2,7 @@ module.exports = {
   name: "Edit Button",
   section: "Message Control",
   meta: {
-    version: "3.6.0",
+    version: "3.7.0",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -10,15 +10,21 @@ module.exports = {
       "https://github.com/vxe3D/dbm-mods",
   },
 
-  subtitle(data) {
-    if (data.sourceButton === "current") {
-      return "Edit Current Button";
-    } else if (data.sourceButton === "byId") {
-      return `Edit Button by ID (${data.buttonId || "No ID"})`;
-    } else {
-      return "Edit button";
-    }
-  },
+subtitle(data) {
+  let typeText = "";
+  let labelText = data.newLabel ? ` | ${data.newLabel}` : "";
+  let emojiText = data.newEmoji ? ` | ${data.newEmoji}` : "";
+
+  if (data.sourceButton === "current") {
+    typeText = "Current Button";
+  } else if (data.sourceButton === "byId") {
+    typeText = `Button by ID (${data.buttonId || "No ID"})`;
+  } else {
+    typeText = "Button";
+  }
+
+  return `${typeText}${labelText}${emojiText}`;
+},
 
   fields: [
     "sourceButton",
@@ -28,6 +34,8 @@ module.exports = {
     "newEmoji",
     "newURL",
     "disabled",
+    "channel",
+    "varName",
   ],
 
   html(isEvent, data) {
@@ -37,7 +45,7 @@ module.exports = {
         <a href="https://discord.gg/9HYB4n3Dz4" class="vcstatus-discord" target="_blank">Discord</a>
       </div>
       <div class="vcstatus-box-fixed vcstatus-box-right" style="top: 22px; right: 15px;">
-        <span class="vcstatus-version">v3.6.0</span>
+        <span class="vcstatus-version">v3.7.0</span>
       </div>
       <style>
         .vcstatus-author-label {
@@ -173,68 +181,69 @@ module.exports = {
         }
       </style>
 
-      <div>
-        <!-- Source Button i Button ID obok siebie -->
-        <div style="margin-top: 20px; width: 100%;">
-          <div style="float: left; width: 48%;">
-            <span class="dbminputlabel">Source Button</span>
-            <select id="sourceButton" class="round" style="width: 100%;">
-              <option value="current">Current Button</option>
-              <option value="byId">Button by ID</option>
-            </select>
-          </div>
+<div>
+  <!-- Wiersz 1: Source Button i Button ID -->
+  <div style="margin-top: 20px; width: 100%; display: flex; gap: 4%;">
+    <div style="flex: 1;">
+      <span class="dbminputlabel">Source Button</span>
+      <select id="sourceButton" class="round" style="width: 100%;">
+        <option value="current">Current Button</option>
+        <option value="byId">Button by ID</option>
+      </select>
+    </div>
 
-          <div id="buttonIdWrapper" style="float: right; width: 48%;">
-            <span class="dbminputlabel">Button ID</span>
-            <input id="buttonId" class="round" type="text" style="width: 100%; padding: 5px;">
-          </div>
+    <div id="buttonIdWrapper" style="flex: 1;">
+      <span class="dbminputlabel">Button ID</span>
+      <input id="buttonId" class="round" type="text" style="width: 100%; padding: 5px;">
+    </div>
+  </div>
 
-          <!-- Clearfix -->
-          <div style="clear: both;"></div>
-        </div>
+  <!-- Wiersz 2: Source Channel -->
+  <div id="sourceChannelWrapper" style="margin-top: 20px; width: 100%;">
+    <channel-input dropdownLabel="Source Channel" selectId="channel" variableContainerId="varNameContainer" variableInputId="varName"></channel-input>
+    <br><br>
+  </div>
 
-        <!-- Enable/Disable Button i New Button Style -->
-        <div style="margin-top: 20px; width: 100%;">
-          <div style="float: left; width: 48%;">
-            <span class="dbminputlabel">Enable/Disable Button</span>
-            <select id="disabled" class="round" style="width: 100%; padding: 5px;">
-              <option value="false" selected>Enable</option>
-              <option value="true">Disable</option>
-            </select>
-          </div>
+  <!-- Wiersz 3: Enable/Disable Button i New Button Style -->
+  <div style="margin-top: 20px; width: 100%; display: flex; gap: 4%;">
+    <div style="flex: 1;">
+      <span class="dbminputlabel">Enable/Disable Button</span>
+      <select id="disabled" class="round" style="width: 100%; padding: 5px;">
+        <option value="false" selected>Enable</option>
+        <option value="true">Disable</option>
+      </select>
+    </div>
 
-          <div style="float: right; width: 48%;">
-            <span class="dbminputlabel">New Button Style</span>
-            <select id="newStyle" class="round" style="width: 100%; padding: 5px;">
-              <option value="PRIMARY">Primary</option>
-              <option value="SECONDARY">Secondary</option>
-              <option value="SUCCESS">Success</option>
-              <option value="DANGER">Danger</option>
-              <option value="LINK">Link</option>
-            </select>
-          </div>
+    <div style="flex: 1;">
+      <span class="dbminputlabel">New Button Style</span>
+      <select id="newStyle" class="round" style="width: 100%; padding: 5px;">
+        <option value="PRIMARY">Primary</option>
+        <option value="SECONDARY">Secondary</option>
+        <option value="SUCCESS">Success</option>
+        <option value="DANGER">Danger</option>
+        <option value="LINK">Link</option>
+      </select>
+    </div>
+  </div>
 
-          <div style="clear: both;"></div>
-        </div>
+  <!-- Wiersz 4: New Button Name i Emoji -->
+  <div style="margin-top: 20px; display: flex; gap: 10px;">
+    <div style="flex: 1;">
+      <span class="dbminputlabel">New Button Name</span>
+      <input id="newLabel" class="round" type="text" style="width: 100%; padding: 5px;" placeholder="Leave blank for none...">
+    </div>
+    <div style="flex: 1;">
+      <span class="dbminputlabel">New Button Emoji</span>
+      <input id="newEmoji" class="round" type="text" style="width: 100%; padding: 5px;" placeholder="Leave blank for none...">
+    </div>
+  </div>
 
-        <!-- New Button Name i Emoji -->
-        <div style="margin-top: 20px; display: flex; gap: 10px;">
-          <div style="flex: 1;">
-            <span class="dbminputlabel">New Button Name</span>
-            <input id="newLabel" class="round" type="text" style="width: 100%; padding: 5px;" placeholder="Leave blank for none...">
-          </div>
-          <div style="flex: 1;">
-            <span class="dbminputlabel">New Button Emoji</span>
-            <input id="newEmoji" class="round" type="text" style="width: 100%; padding: 5px;" placeholder="Leave blank for none...">
-          </div>
-        </div>
-
-        <!-- New Link button -->
-        <div id="newLinkWrapper" style="margin-top: 20px; display: none;">
-          <span class="dbminputlabel">New Link button</span>
-          <input id="newURL" class="round" type="text" style="width: 100%; padding: 5px;" placeholder="https://example.com">
-        </div>
-      </div>
+  <!-- Wiersz 5: New Link button -->
+  <div id="newLinkWrapper" style="margin-top: 20px; display: none;">
+    <span class="dbminputlabel">New Link button</span>
+    <input id="newURL" class="round" type="text" style="width: 100%; padding: 5px;" placeholder="https://example.com">
+  </div>
+</div>
       `;
   },
 
@@ -245,15 +254,18 @@ module.exports = {
   init() {
     const sourceButton = document.getElementById("sourceButton");
     const buttonIdWrapper = document.getElementById("buttonIdWrapper");
+    const sourceChannelWrapper = document.getElementById("sourceChannelWrapper");
     const newStyle = document.getElementById("newStyle");
     const newLinkWrapper = document.getElementById("newLinkWrapper");
 
-    // Pokazywanie/ukrywanie Button ID
-    function toggleButtonId() {
+    // Pokazywanie/ukrywanie Button ID i Source Channel
+    function toggleSourceFields() {
       if (sourceButton.value === "current") {
-        buttonIdWrapper.style.display = "none"; // ukryj Button ID
+        buttonIdWrapper.style.display = "none";       
+        sourceChannelWrapper.style.display = "none";  
       } else {
-        buttonIdWrapper.style.display = "block"; // pokaż Button ID
+        buttonIdWrapper.style.display = "block";      
+        sourceChannelWrapper.style.display = "block"; 
       }
     }
 
@@ -262,16 +274,16 @@ module.exports = {
       if (newStyle.value === "LINK") {
         newLinkWrapper.style.display = "block"; // pokaż pole linku
       } else {
-        newLinkWrapper.style.display = "none"; // ukryj pole linku
+        newLinkWrapper.style.display = "none";  // ukryj pole linku
       }
     }
 
     // Nasłuchuj zmian
-    sourceButton.addEventListener("change", toggleButtonId);
+    sourceButton.addEventListener("change", toggleSourceFields);
     newStyle.addEventListener("change", toggleNewLink);
 
     // Wywołanie przy inicjalizacji
-    toggleButtonId();
+    toggleSourceFields();
     toggleNewLink();
   },
 
@@ -280,19 +292,9 @@ module.exports = {
   //---------------------------------------------------------------------
 
   async action(cache) {
-    const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-    const ActionRowClass = ActionRowBuilder;
-    const ButtonClass = ButtonBuilder;
-    const styleMap = {
-      PRIMARY: ButtonStyle.Primary,
-      SECONDARY: ButtonStyle.Secondary,
-      SUCCESS: ButtonStyle.Success,
-      DANGER: ButtonStyle.Danger,
-      LINK: ButtonStyle.Link,
-    };
-    const fromButton = (btn) => ButtonBuilder.from(btn);
-
+    const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
     const data = cache.actions[cache.index];
+
     const sourceButton = this.evalMessage(data.sourceButton, cache);
     const buttonId = this.evalMessage(data.buttonId, cache);
     const newLabel = this.evalMessage(data.newLabel, cache);
@@ -302,104 +304,132 @@ module.exports = {
     const disabled = this.evalMessage(data.disabled, cache);
 
     const interaction = cache.interaction;
-    if (interaction) {
-      await interaction.deferReply({ flags: 64 }).catch(() => {});
-    }
+    if (interaction) await interaction.deferReply({ flags: 64 }).catch(() => {});
 
     const guild = interaction?.guild || cache.message?.guild;
-    if (!guild) {
-      this.callNextAction(cache);
-      return;
-    }
+    if (!guild) return this.callNextAction(cache);
+
+    const styleMap = {
+      PRIMARY: ButtonStyle.Primary,
+      SECONDARY: ButtonStyle.Secondary,
+      SUCCESS: ButtonStyle.Success,
+      DANGER: ButtonStyle.Danger,
+      LINK: ButtonStyle.Link,
+    };
+
+    // Jedna funkcja do edycji buttona, zachowująca poprzednie wartości jeśli nowe nie są podane
+    const editButton = (btn, id) => {
+      // Sprawdzenie, czy to zwykły button lub accessory typu 2
+      if (btn.type !== 2 && !(btn.accessory && btn.accessory.type === 2)) return btn;
+
+      // Utworzenie obiektu ButtonBuilder z istniejącego buttona
+      let buttonObj = btn.type === 2 ? ButtonBuilder.from(btn) : new ButtonBuilder().setCustomId(btn.accessory.custom_id);
+
+      // Sprawdzenie czy to nasz target button
+      const targetId = btn.customId ?? btn.accessory?.custom_id;
+      if (targetId === id) {
+        // Label – jeśli nie podano nowego, zachowaj stary
+        const oldLabel = btn.label ?? btn.accessory?.label ?? null;
+        if (newLabel && newLabel.trim().length > 0) {
+          buttonObj.setLabel(newLabel.trim());
+        } else if (oldLabel) {
+          buttonObj.setLabel(oldLabel);
+        }
+
+        // Style – jeśli nie podano nowego, zachowaj stary
+        const currentStyle = btn.style ?? btn.accessory?.style ?? styleMap.PRIMARY;
+        const newStyleUpper = newStyle?.toUpperCase();
+        buttonObj.setStyle(newStyleUpper && newStyleUpper in styleMap ? styleMap[newStyleUpper] : currentStyle);
+
+        // Emoji – jeśli nie podano nowego, zachowaj stare
+        if (newEmoji && newEmoji.trim().length > 0) {
+          buttonObj.setEmoji(newEmoji);
+        } else if (btn.emoji ?? btn.accessory?.emoji) {
+          buttonObj.setEmoji(btn.emoji ?? btn.accessory?.emoji);
+        }
+
+        // URL – tylko dla LINK button
+        const oldURL = btn.url ?? btn.accessory?.url ?? null;
+        if (newStyleUpper === "LINK") {
+          if (newURL && newURL.trim().length > 0) {
+            buttonObj.setURL(newURL);
+          } else if (oldURL) {
+            buttonObj.setURL(oldURL);
+          }
+        }
+
+        // Disabled
+        buttonObj.setDisabled(disabled === "true");
+      }
+
+      return buttonObj;
+    };
+
+    // Funkcja do mapowania komponentów (rekurencyjnie)
+    const mapComponents = (components, targetId) => {
+      return components.map(row => {
+        if (row.accessory && row.accessory.type === 2) row.accessory = editButton(row.accessory, targetId);
+
+        if (row.type === 1 && Array.isArray(row.components)) {
+          row.components = row.components.map(child => {
+            if (child.accessory && child.accessory.type === 2) child.accessory = editButton(child.accessory, targetId);
+            if (child.type === 2) return editButton(child, targetId);
+            if (Array.isArray(child.components)) child.components = mapComponents(child.components, targetId);
+            return child;
+          });
+        }
+
+        if (row.type === 17 && Array.isArray(row.components)) {
+          row.components.forEach(innerRow => {
+            if (innerRow.type === 1 && Array.isArray(innerRow.components)) {
+              innerRow.components = innerRow.components.map(child => (child.type === 2 ? editButton(child, targetId) : child));
+            }
+            if (innerRow.type === 9 && innerRow.accessory && innerRow.accessory.type === 2) innerRow.accessory = editButton(innerRow.accessory, targetId);
+          });
+        }
+
+        return row;
+      });
+    };
 
     try {
       let foundMessage = null;
 
       if (sourceButton === "current" && interaction) {
         const message = interaction.message;
-
-        const newComponents = message.components.map((row) => {
-          // 1️⃣ SectionBlock accessory type 2
-          if (row.accessory && row.accessory.type === 2 && row.accessory.custom_id === interaction.custom_id) {
-            const btn = new ButtonClass()
-              .setLabel(newLabel?.trim() || row.accessory.label || "Button")
-              .setStyle(newStyle?.toUpperCase() === "LINK" ? styleMap.LINK : styleMap.PRIMARY)
-              .setCustomId(row.accessory.custom_id || interaction.customId)
-              .setDisabled(disabled === "true");
-            if (newEmoji) btn.setEmoji(newEmoji);
-            row.accessory = btn;
-          }
-
-          // 2️⃣ Container block (row.components)
-          if (row.components && row.components.length > 0) {
-            row.components = row.components.map((child) => {
-              if (child.accessory && child.accessory.type === 2 && child.accessory.custom_id === interaction.custom_id) {
-                const btn = new ButtonClass()
-                  .setLabel(newLabel?.trim() || child.accessory.label || "Button")
-                  .setStyle(newStyle?.toUpperCase() === "LINK" ? styleMap.LINK : styleMap.PRIMARY)
-                  .setCustomId(child.accessory.custom_id || interaction.customId)
-                  .setDisabled(disabled === "true");
-                if (newEmoji) btn.setEmoji(newEmoji);
-                child.accessory = btn;
-              }
-              else if (child.type === 2 && child.custom_id === interaction.custom_id) {
-                const btn = ButtonClass.from(child)
-                  .setLabel(newLabel?.trim() || child.label || "Button")
-                  .setStyle(newStyle?.toUpperCase() === "LINK" ? styleMap.LINK : styleMap.PRIMARY)
-                  .setCustomId(child.custom_id || interaction.customId)
-                  .setDisabled(disabled === "true");
-                if (newEmoji) btn.setEmoji(newEmoji);
-                return btn;
-              }
-              return child;
-            });
-          }
-
-          // 2️⃣b Type 17 → components → accessory type 2
-          if (row.type === 17 && Array.isArray(row.components)) {
-            row.components.forEach(innerRow => {
-              if (innerRow.type === 1 && Array.isArray(innerRow.components)) {
-                innerRow.components = innerRow.components.map(child => {
-                  if (child.type === 2 && child.custom_id === interaction.custom_id) {
-                    const btn = ButtonClass.from(child)
-                      .setLabel(newLabel?.trim() || child.label || "Button")
-                      .setStyle(newStyle?.toUpperCase() === "LINK" ? styleMap.LINK : styleMap.PRIMARY)
-                      .setCustomId(child.custom_id || interaction.customId)
-                      .setDisabled(disabled === "true");
-                    if (newEmoji) btn.setEmoji(newEmoji);
-                    return btn;
-                  }
-                  return child;
-                });
-              }
-            });
-          }
-
-          // 3️⃣ Standalone button (type 2) w ActionRow
-          if (row.type === 1 && row.components.length === 1 && row.components[0].type === 2 && row.components[0].customId === interaction.customId) {
-            const btn = ButtonClass.from(row.components[0])
-              .setLabel(newLabel?.trim() || row.components[0].label || "Button")
-              .setStyle(newStyle?.toUpperCase() === "LINK" ? styleMap.LINK : styleMap.PRIMARY)
-              .setCustomId(row.components[0].customId || interaction.customId)
-              .setDisabled(disabled === "true");
-            if (newEmoji) btn.setEmoji(newEmoji);
-            row.components[0] = btn;
-          }
-
-          return row;
-        });
-
+        const newComponents = mapComponents(message.components, interaction.customId);
         await message.edit({ components: newComponents });
       } else if (sourceButton === "byId") {
-        const channels = guild.channels.cache.filter(ch => ch.isTextBased ? ch.isTextBased() : ch.type === 'GUILD_TEXT');
         let foundMessage = null;
 
-        for (const channel of channels.values()) {
+        const targetChannel = await this.getChannelFromData(
+          data.channel,
+          data.varName,
+          cache
+        );
+
+        if (!targetChannel) {
+          console.error("[Edit Button] Target channel not found.");
+          return this.callNextAction(cache);
+        }
+
+        if (!targetChannel.isTextBased?.()) {
+          console.error(`[Edit Button] Channel is not text-based.`, { targetChannel });
+          return this.callNextAction(cache);
+        }
+
+        const channels = [targetChannel];
+
+        for (const channel of channels) {
           const messages = await channel.messages.fetch({ limit: 50 }).catch(() => null);
-          if (!messages) continue;
+          if (!messages) {
+            console.error(`[Edit Button] Cannot fetch messages in channel ${channel.id}`);
+            return this.callNextAction(cache);
+          }
 
           for (const msg of messages.values()) {
             if (!msg.components || msg.components.length === 0) continue;
+
             let found = false;
             for (const row of msg.components) {
               const rowJSON = row.toJSON ? row.toJSON() : row;
@@ -451,146 +481,24 @@ module.exports = {
         }
 
         if (!foundMessage) {
-          console.error(`[DEBUG] Button ${buttonId} not found in any messages.`);
-          this.callNextAction(cache);
-          return;
+          console.error(`[DEBUG] Button ${buttonId} not found in messages of channel ${targetChannel.id}.`);
+          return this.callNextAction(cache);
         }
 
-        const newComponents = foundMessage.components.map((row) => {
-          // 1️⃣ SectionBlock accessory type 2 (byId/fetch)
-          const rowJSON = row.toJSON ? row.toJSON() : row;
-
-          if (
-            rowJSON.accessory &&
-            rowJSON.accessory.type === 2 &&
-            (rowJSON.accessory.custom_id === buttonId || rowJSON.accessory.customId === buttonId)
-          ) {
-            const btn = new ButtonClass()
-              .setLabel(newLabel?.trim() || rowJSON.accessory.label || "Button")
-              .setStyle(newStyle?.toUpperCase() === "LINK" ? styleMap.LINK : styleMap.PRIMARY)
-              .setCustomId(rowJSON.accessory.custom_id || rowJSON.accessory.customId)
-              .setDisabled(disabled === "true");
-            if (newEmoji) btn.setEmoji(newEmoji);
-            if (newStyle?.toUpperCase() === "LINK" && newURL) btn.setURL(newURL);
-            row.accessory = btn;
-          }
-
-          // 2️⃣ Container block (row.components)
-          if (row.components && row.components.length > 0) {
-            row.components = row.components.map((child) => {
-              const childJSON = child.toJSON ? child.toJSON() : child;
-
-              // 1️⃣ accessory w child
-              if (childJSON.accessory && childJSON.accessory.type === 2 && childJSON.accessory.custom_id === buttonId) {
-                const btn = new ButtonClass()
-                  .setLabel(newLabel?.trim() || childJSON.accessory.label || "Button")
-                  .setStyle(newStyle?.toUpperCase() === "LINK" ? styleMap.LINK : styleMap.PRIMARY)
-                  .setCustomId(childJSON.accessory.custom_id)
-                  .setDisabled(disabled === "true");
-                if (newEmoji) btn.setEmoji(newEmoji);
-                if (newStyle === "LINK" && newURL) btn.setURL(newURL);
-                child.accessory = btn;
-                return child;
-              }
-
-              // 2️⃣ button jako child
-              if (childJSON.type === 2 && childJSON.custom_id === buttonId) {
-                const btn = ButtonClass.from(childJSON)
-                  .setLabel(newLabel?.trim() || childJSON.label || "Button")
-                  .setStyle(newStyle?.toUpperCase() === "LINK" ? styleMap.LINK : styleMap.PRIMARY)
-                  .setCustomId(childJSON.custom_id)
-                  .setDisabled(disabled === "true");
-
-                if (newEmoji) btn.setEmoji(newEmoji);
-                if (newStyle === "LINK" && newURL) btn.setURL(newURL);
-
-                return btn;
-              }
-
-              // 3️⃣ buttons wewnątrz ActionRow (grandChildren)
-              if (Array.isArray(childJSON.components)) {
-                child.components = childJSON.components.map((grandChild) => {
-                  const grandJSON = grandChild.toJSON ? grandChild.toJSON() : grandChild;
-
-                  if (grandJSON.type === 2 && grandJSON.custom_id === buttonId) {
-                    const btn = new ButtonClass()
-                      .setLabel(newLabel?.trim() || grandJSON.label || "Button")
-                      .setStyle(newStyle?.toUpperCase() === "LINK" ? styleMap.LINK : styleMap.PRIMARY)
-                      .setCustomId(grandJSON.custom_id)
-                      .setDisabled(disabled === "true");
-
-                    if (newEmoji) btn.setEmoji(newEmoji);
-                    if (newStyle === "LINK" && newURL) btn.setURL(newURL);
-
-                    return btn;
-                  }
-
-                  return grandChild;
-                });
-              }
-
-              return child;
-            });
-          }
-
-          // 2️⃣b Type 17 → components → accessory type 2
-          if (row.type === 17 && Array.isArray(row.components)) {
-            row.components.forEach(innerRow => {
-              if (innerRow.type === 1 && Array.isArray(innerRow.components)) {
-                innerRow.components = innerRow.components.map(child => {
-                  if (child.type === 2 && child.custom_id === buttonId) {
-                    const btn = ButtonClass.from(child)
-                      .setLabel(newLabel?.trim() || child.label || "Button")
-                      .setStyle(newStyle?.toUpperCase() === "LINK" ? styleMap.LINK : styleMap.PRIMARY)
-                      .setCustomId(child.custom_id)
-                      .setDisabled(disabled === "true");
-                    if (newEmoji) btn.setEmoji(newEmoji);
-                    if (newStyle === "LINK" && newURL) btn.setURL(newURL);
-                    return btn;
-                  }
-                  return child;
-                });
-              }
-            });
-          }
-
-          // 3️⃣ Standalone button (type 2) w ActionRow
-          if (row.type === 1 && row.components.length === 1 && row.components[0].type === 2 && row.components[0].custom_id === buttonId) {
-            const btn = ButtonClass.from(row.components[0])
-              .setLabel(newLabel?.trim() || row.components[0].label || "Button")
-              .setStyle(newStyle?.toUpperCase() === "LINK" ? styleMap.LINK : styleMap.PRIMARY)
-              .setCustomId(row.components[0].custom_id)
-              .setDisabled(disabled === "true");
-            if (newEmoji) btn.setEmoji(newEmoji);
-            if (newStyle === "LINK" && newURL) btn.setURL(newURL);
-            row.components[0] = btn;
-          }
-
-          return row;
-        });
-
+        const newComponents = mapComponents(foundMessage.components, buttonId);
         await foundMessage.edit({ components: newComponents });
-        this.callNextAction(cache);
-      }
-    } catch (err) {
-      if (err.message && err.message.includes("Link buttons must have a URL")) {
-        console.error("[Edit Button] LINK buttons must have a URL set.");
-      } else if (
-        err.message &&
-        (err.message.includes("expected to match a URL") ||
-          err.message.includes("Invalid URL") ||
-          err.message.includes("s.string().url()"))
-      ) {
-        console.error(
-          "[Edit Button] The URL provided is incorrect. Please make sure you are entering the correct URL."
-        );
-      } else {
-        console.error("[Edit Button] Error when editing button:", err);
       }
 
       this.callNextAction(cache);
+    } catch (err) {
+      console.error("[Edit Button] Error when editing button:", err);
+      this.callNextAction(cache);
     }
   },
+
+  //---------------------------------------------------------------------
+  // Action Bot Mod
+  //---------------------------------------------------------------------
 
   mod() {},
 };
