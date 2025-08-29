@@ -11,7 +11,12 @@ module.exports = {
 
   subtitle(data, presets) {
     const measurements = ["Milliseconds", "Seconds", "Minutes", "Hours"];
-    return `${data.time} ${measurements[parseInt(data.measurement, 10)]}`;
+    const timeText = `${data.time} ${measurements[parseInt(data.measurement, 10)]}`;
+    
+    const skipCount = parseInt(data.skipCount, 10);
+    const skipText = skipCount > 0 ? ` (Skip ${skipCount} action${skipCount > 1 ? 's' : ''})` : "";
+
+    return timeText + skipText;
   },
 
   fields: ["time", "measurement", "branchOption", "skipCount"],
