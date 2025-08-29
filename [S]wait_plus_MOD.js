@@ -220,26 +220,19 @@ module.exports = {
     const executeBranch = data.branchOption === "1";
     const skipCount = parseInt(data.skipCount, 10) || 0;
 
-    console.log(`[WaitPlus] Action index: ${cache.index}`);
-    console.log(`[WaitPlus] Time: ${time}ms`);
-    console.log(`[WaitPlus] Execute branch: ${executeBranch}`);
-    console.log(`[WaitPlus] Skip count: ${skipCount}`);
-
     if (!executeBranch || skipCount === 0) {
-      console.log(`[WaitPlus] No branch to execute, waiting before next action.`);
+      console.warn(`[WaitPlus] No branch to execute, waiting before next action.`);
       return setTimeout(() => this.callNextAction(cache), time).unref();
     }
 
     // Tworzymy cache dla dalszego flow (pomijamy skipCount akcji)
     const normalFlowCache = Object.assign({}, cache);
     normalFlowCache.index += skipCount;
-    console.log(`[WaitPlus] Skipping ${skipCount} action(s) immediately, continuing flow.`);
     this.callNextAction(normalFlowCache);
 
     // Po czasie aktywujemy **tylko pierwszą pominiętą akcję**
     setTimeout(() => {
       const skippedActionCache = Object.assign({}, cache, { index: cache.index + 1 });
-      console.log(`[WaitPlus] Time elapsed, executing first skipped action at index ${skippedActionCache.index}`);
       this.callNextAction(cache);
     }, time).unref();
   },
