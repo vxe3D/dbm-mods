@@ -2,7 +2,7 @@ module.exports = {
   name: "Send Components V2",
   section: "# SHDZ - Utilities",
   meta: {
-    version: "3.2.0",
+    version: "3.3.0",
     preciseCheck: true,
     author: "Shadow & vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -186,7 +186,7 @@ module.exports = {
       <a href="https://discord.gg/9HYB4n3Dz4" class="vcstatus-discord" target="_blank">Discord</a>
     </div>
     <div class="vcstatus-box-fixed vcstatus-box-right" style="top: 22px; right: 15px;">
-      <span class="vcstatus-version">v3.2.0</span>
+      <span class="vcstatus-version">v3.3.0</span>
     </div>
     <style>
       .vcstatus-author-label {
@@ -2569,6 +2569,13 @@ module.exports = {
                   tempVariables
                 );
               } else {
+                if (response.data?.tempVarName) {
+                  tempVariables[response.data.tempVarName] =
+                    interaction.values?.length === 1
+                      ? interaction.values[0]
+                      : interaction.values;
+                }
+
                 this.preformActionsFromSelectInteraction(
                   interaction,
                   response.data,
@@ -2618,7 +2625,12 @@ modInit(data) {
       this.prepareActions?.(actions);
 
       if (mode === "PERSISTENT" && typeof this.registerSelectMenuInteraction === "function") {
-        this.registerSelectMenuInteraction(id, { actions, mode });
+        this.registerSelectMenuInteraction(id, {
+          ...sel,
+          actions,
+          mode,
+          tempVarName: sel.containerTempVarName || sel.tempVarName,
+        });
       }
     }
   };
