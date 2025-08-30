@@ -226,7 +226,6 @@ module.exports = {
     const skipCount = parseInt(data.skipCount, 10) || 0;
 
     if (!executeBranch || skipCount === 0) {
-      console.warn(`[WaitPlus] No branch to execute, waiting before next action.`);
       return setTimeout(() => this.callNextAction(cache), time).unref();
     }
 
