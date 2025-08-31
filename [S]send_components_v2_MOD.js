@@ -2,7 +2,7 @@ module.exports = {
   name: "Send Components V2",
   section: "# SHDZ - Utilities",
   meta: {
-    version: "3.3.0",
+    version: "3.4.0",
     preciseCheck: true,
     author: "Shadow & vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -170,9 +170,9 @@ module.exports = {
     "actionDescriptionColor",
     "editMessage",
     "editMessageVarName",
-    "allowMentionRoles",
-    "allowMentionUsers",
-    "suppressNotifications"
+    "allowedMentionEveryone",
+    "allowedMentionRole",
+    "allowedMentionMember"
   ],
 
   //---------------------------------------------------------------------
@@ -186,7 +186,7 @@ module.exports = {
       <a href="https://discord.gg/9HYB4n3Dz4" class="vcstatus-discord" target="_blank">Discord</a>
     </div>
     <div class="vcstatus-box-fixed vcstatus-box-right" style="top: 22px; right: 15px;">
-      <span class="vcstatus-version">v3.3.0</span>
+      <span class="vcstatus-version">v3.4.0</span>
     </div>
     <style>
       .vcstatus-author-label {
@@ -1244,6 +1244,8 @@ module.exports = {
       <div style="display: flex; justify-content: space-between;">
          <dbm-checkbox style="float: left;" id="reply" label="Reply to Interaction if Possible" checked></dbm-checkbox>
 
+         <dbm-checkbox id="pinned" label="Pin Msg."></dbm-checkbox>
+
          <dbm-checkbox style="float: middle;" id="ephemeral" label="Make Reply Private (ephemeral)"></dbm-checkbox>
       </div>
 
@@ -1252,17 +1254,19 @@ module.exports = {
       <div style="display: flex; justify-content: space-between;">
         <dbm-checkbox id="tts" label="Text to Speech"></dbm-checkbox>
 
+        <dbm-checkbox id="overwrite" label="Overwrite Changes"></dbm-checkbox>
+
         <dbm-checkbox id="dontSend" label="Don't Send Message"></dbm-checkbox>
       </div>
 
       <br>
 
       <div style="display: flex; justify-content: space-between;">
-        <dbm-checkbox id="pinned" label="Pin Msg."></dbm-checkbox>
+        <dbm-checkbox id="allowedMentionEveryone" label="Allow Mention Everyone"></dbm-checkbox>
 
-        <dbm-checkbox id="overwrite" label="Overwrite Changes"></dbm-checkbox>
+        <dbm-checkbox id="allowedMentionRole" label="Allow Mention Role"></dbm-checkbox>
 
-        <dbm-checkbox id="suppressNotifications" label="Suppress Notifications"></dbm-checkbox>
+        <dbm-checkbox id="allowedMentionMember" label="Allow Mention Member"></dbm-checkbox>
       </div>
 
       <br>
@@ -2465,11 +2469,31 @@ module.exports = {
     const forceTargetChannel =
       forceTypes.includes(data.channel) &&
       (!interaction?.channel || interaction.channel.id !== inputChannelId);
+
+    const allowedMentions = { parse: [] };
+
+    function isChecked(value) {
+      return value === true || value === "true" || value === "1";
+    }
+
+    if (isChecked(data.allowedMentionEveryone)) {
+      allowedMentions.parse.push("everyone");
+    }
+
+    if (isChecked(data.allowedMentionRole)) {
+      allowedMentions.parse.push("roles");
+    }
+
+    if (isChecked(data.allowedMentionMember)) {
+      allowedMentions.parse.push("users");
+    }
+
     const messageData = {
       flags: MessageFlags.IsComponentsV2,
       components: finalComponents,
       files: attachments,
       tts: data.tts === "true",
+      allowedMentions,
     };
 
     if (String(data.ephemeral) === "true") {
