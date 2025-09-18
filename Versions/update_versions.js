@@ -83,23 +83,24 @@ let readmeContent = fs.existsSync(readmePath)
 
 const repoRawUrl = "https://github.com/vxe3D/dbm-mods/blob/main/";
 
-const actionsFiles = files.filter(f => f.fullPath.startsWith("actions/"));
-const eventsFiles = files.filter(f => f.fullPath.startsWith("events/"));
-
-function generateRows(arr) {
-  // Sortowanie: najnowszy plik (updateDate / createdDate) na górze
-  const sorted = arr.sort((a, b) => {
+// 🔽 sortujemy tutaj, przed przekazaniem do generateRows
+function sortFilesByDate(arr) {
+  return arr.sort((a, b) => {
     const va = data[a.displayName];
     const vb = data[b.displayName];
 
-    // Bierzemy updateDate, a jak go brak to createdDate
     const da = new Date(va.updateDate !== "undefined" ? va.updateDate : va.createdDate);
     const db = new Date(vb.updateDate !== "undefined" ? vb.updateDate : vb.createdDate);
 
-    return db - da; // sortowanie malejące (najnowszy pierwszy)
+    return db - da; // najnowszy pierwszy
   });
+}
 
-  return sorted.map(({ fullPath, displayName }) => {
+const actionsFiles = sortFilesByDate(files.filter(f => f.fullPath.startsWith("actions/")));
+const eventsFiles  = sortFilesByDate(files.filter(f => f.fullPath.startsWith("events/")));
+
+function generateRows(arr) {
+  return arr.map(({ fullPath, displayName }) => {
     const v = data[displayName];
     const fileUrl = `${repoRawUrl}${encodeURIComponent(fullPath.replace(/\\/g, "/"))}`;
     let display = displayName.replace(/^\[.*?\]/, "");
@@ -110,7 +111,7 @@ function generateRows(arr) {
     const updateDate = v.updateDate === "undefined" ? "Oczekuje na aktualizację" : v.updateDate;
     const displayLink = `[${display}](${fileUrl})`;
 
-    return `| <small>${displayLink}</small> | <small>${v.version}</small> | <small>${v.author}</small> | <small>${v.createdDate}</small> | <small>${updateDate}</small> | [🔗](${fileUrl}) |`;
+    return `| <small>${displayLink}</small> | <small>${v.version}</small> | <small>${v.author}</small> | <small>${v.createdDate}</small> | <small>${updateDate}</small> |`;
   }).join("\n");
 }
 
