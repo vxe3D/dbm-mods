@@ -87,22 +87,26 @@ const actionsFiles = files.filter(f => f.fullPath.startsWith("actions/"));
 const eventsFiles = files.filter(f => f.fullPath.startsWith("events/"));
 
 function generateRows(arr) {
-  return arr.map(({ fullPath, displayName }) => {
+  const sorted = arr.slice().sort((a, b) => {
+    const va = data[a.displayName];
+    const vb = data[b.displayName];
+    const dateA = (va.updateDate && va.updateDate !== "undefined") ? va.updateDate : va.createdDate;
+    const dateB = (vb.updateDate && vb.updateDate !== "undefined") ? vb.updateDate : vb.createdDate;
+    const dA = Date.parse(dateA.replace(/\./g, "-").replace(/\s+/, "T")) || 0;
+    const dB = Date.parse(dateB.replace(/\./g, "-").replace(/\s+/, "T")) || 0;
+    return dB - dA;
+  });
+  return sorted.map(({ fullPath, displayName }) => {
     const v = data[displayName];
     const fileUrl = `${repoRawUrl}${encodeURIComponent(fullPath.replace(/\\/g, "/"))}`;
 
-    // Usuń prefix [VX]
-    let display = displayName.replace(/^\[.*?\]/, "");
+    let display = displayName.replace(/^[.*?]/, "");
 
-    // Skróć do 19 znaków
     if (display.length > 19) {
       display = display.slice(0, 16) + "...";
     }
 
-    // Zastępczy tekst dla undefined
     const updateDate = v.updateDate === "undefined" ? "Oczekuje na aktualizację" : v.updateDate;
-
-    // Nazwa pliku jako link
     const displayLink = `[${display}](${fileUrl})`;
 
     return `| <small>${displayLink}</small> | <small>${v.version}</small> | <small>${v.author}</small> | <small>${v.createdDate}</small> | <small>${updateDate}</small> | [🔗](${fileUrl}) |`;
