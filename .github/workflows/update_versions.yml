@@ -1,0 +1,55 @@
+name: Update versions.json
+
+on:
+  push:
+    paths:
+      - '**/*.js'       # uruchamia workflow tylko przy zmianie plików .js
+    branches:
+      - main            # uruchamia workflow tylko dla gałęzi main
+
+jobs:
+  update_versions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Update versions.json
+        run: |
+          node -e "
+            const fs = require('fs');
+            const path = './versions.json';
+            const data = fs.existsSync(path) ? JSON.parse(fs.readFileSync(path)) : {};
+
+            const files = fs.readdirSync('./').filter(f => f.endsWith('.js'));
+            const now = new Date().toISOString().replace('T', ' ').slice(0,16);
+
+            files.forEach(file => {
+              if (!data[file]) {
+                data[file] = {
+                  version: '1.0.0',
+                  author: 'vxed_',
+                  createdDate: now,
+                  updateDate: 'undefined'
+                };
+              } else {
+                data[file].updateDate = now;
+              }
+            });
+
+            fs.writeFileSync(path, JSON.stringify(data, null, 2));
+          "
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add versions.json
+          git commit -m "Update versions.json [Automated]" || echo "No changes to commit"
+          git push
