@@ -4,7 +4,7 @@ module.exports = {
   requiresAudioLibraries: true,
   meta: {
     version: "3.2.0",
-    actionVersion: "3.5.0",
+    actionVersion: "3.4.0",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
