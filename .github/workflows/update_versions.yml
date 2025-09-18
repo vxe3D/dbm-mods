@@ -5,8 +5,9 @@ on:
     branches:
       - main
     paths:
-      - '**/*.js'
-      - '!Versions/**'   # wyklucza katalog Versions
+      - '**/*.js'               # wszystkie JS
+      - '!Versions/versions.json'       # wyklucza ten plik
+      - '!Versions/manual_versions.json' # wyklucza ten plik
 
 jobs:
   update_versions:
