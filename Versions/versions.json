@@ -36,10 +36,10 @@
     "updateDate": "undefined"
   },
   "[VX]Manage_role_for_All_members.js": {
-    "version": "3.0.0",
+    "version": "3.1.0",
     "author": "vxed",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "undefined"
+    "updateDate": "18.09.2025 09:36"
   },
   "[VX]SQLite_DB.js": {
     "version": "3.4.0",
@@ -159,6 +159,12 @@
     "version": "3.4.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
+    "updateDate": "undefined"
+  },
+  "[VX]store_server_info.js": {
+    "version": "3.3.0",
+    "author": "vxed_",
+    "createdDate": "18.09.2025 09:36",
     "updateDate": "undefined"
   }
 }
