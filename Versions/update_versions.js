@@ -89,10 +89,16 @@ function sortFilesByDate(arr) {
     const va = data[a.displayName];
     const vb = data[b.displayName];
 
-    const da = new Date(va.updateDate !== "undefined" ? va.updateDate : va.createdDate);
-    const db = new Date(vb.updateDate !== "undefined" ? vb.updateDate : vb.createdDate);
+    const getLastActive = (v) => {
+      if (Date.parse(v.updateDate)) return new Date(v.updateDate);
+      if (Date.parse(v.createdDate)) return new Date(v.createdDate);
+      return 0; // fallback, najstarsze
+    };
 
-    return db - da; // najnowszy pierwszy
+    const da = getLastActive(va);
+    const db = getLastActive(vb);
+
+    return db - da; // malejąco: najnowszy pierwszy
   });
 }
 
