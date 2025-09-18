@@ -90,8 +90,9 @@ const repoRawUrl = "https://github.com/vxe3D/dbm-mods/raw/main/";
 let tableRows = "";
 files.forEach(({ fullPath, displayName }) => {
   const v = data[displayName];
-  const downloadLink = `<a href="${repoRawUrl}${fullPath.replace(/\\/g, "/")}" download>🔗</a>`;
-  tableRows += `| ${displayName} | ${v.version} | ${v.author} | ${v.createdDate} | ${v.updateDate} | ${downloadLink} |\n`;
+  // Zwykły link do raw, użytkownik pobiera manualnie
+  const downloadLink = `[🔗](${repoRawUrl}${encodeURIComponent(fullPath.replace(/\\/g, "/"))})`;
+  tableRows += `| <small>${displayName}</small> | <small>${v.version}</small> | <small>${v.author}</small> | <small>${v.createdDate}</small> | <small>${v.updateDate}</small> | ${downloadLink} |\n`;
 });
 
 // Wstawienie tabeli między markerami w README
