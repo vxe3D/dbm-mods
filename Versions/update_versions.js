@@ -85,38 +85,28 @@ const repoRawUrl = "https://github.com/vxe3D/dbm-mods/blob/main/";
 
 // 🔹 generateRows zajmuje się filtrowaniem + sortowaniem
 function generateRows(prefix) {
-  // filtrujemy pliki wg katalogu (actions/ lub events/)
   const arr = files.filter(f => f.fullPath.startsWith(prefix));
 
-  // kopiujemy tablicę
-  const sorted = [...arr];
+  const sorted = [...arr].sort((a, b) => {
+    const va = data[a.displayName];
+    const vb = data[b.displayName];
 
-  // 🔹 przesuwamy najnowszy plik na początek
-  let newestIndex = -1;
-  let newestTime = 0;
-  sorted.forEach((file, i) => {
-    const v = data[file.displayName];
-    let t = 0;
-    if (v && v.updateDate && v.updateDate !== "undefined") t = new Date(v.updateDate).getTime();
-    else if (v && v.createdDate) t = new Date(v.createdDate).getTime();
-    if (t > newestTime) {
-      newestTime = t;
-      newestIndex = i;
-    }
+    const getTime = v => {
+      if (!v) return 0;
+      const d = v.updateDate && v.updateDate !== "undefined" ? new Date(v.updateDate) : v.createdDate ? new Date(v.createdDate) : null;
+      return d ? d.getTime() : 0;
+    };
+
+    return getTime(vb) - getTime(va);
   });
-
-  if (newestIndex > 0) {
-    const [newestFile] = sorted.splice(newestIndex, 1);
-    sorted.unshift(newestFile);
-  }
 
   return sorted.map(({ fullPath, displayName }) => {
     const v = data[displayName];
     const fileUrl = `${repoRawUrl}${encodeURIComponent(fullPath.replace(/\\/g, "/"))}`;
     let display = displayName.replace(/^\[.*?\]/, "");
-    if (display.length > 19) display = display.slice(0, 16) + "...";
+    if (display.length > 19) display = display.slice(0,16) + "...";
 
-    const updateDate = v.updateDate === "undefined" ? "Oczekuje na aktualizację" : v.updateDate;
+    const updateDate = v.updateDate && v.updateDate !== "undefined" ? v.updateDate : "Oczekuje na aktualizację";
     const displayLink = `[${display}](${fileUrl})`;
 
     return `| <small>${displayLink}</small> | <small>${v.version}</small> | <small>${v.author}</small> | <small>${v.createdDate}</small> | <small>${updateDate}</small> |`;
