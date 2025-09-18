@@ -2,10 +2,12 @@ name: Update versions.json
 
 on:
   push:
-    paths:
-      - '**/*.js'
     branches:
       - main
+    paths:
+      - '**/*.js'
+    paths-ignore:
+      - 'Versions/**'   # ignoruje zmiany w folderze Versions
 
 jobs:
   update_versions:
