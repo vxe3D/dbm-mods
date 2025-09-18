@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-// Ścieżka do versions.json (w tym samym katalogu co update_versions.js)
+// Ścieżka do versions.json
 const versionsPath = path.join(__dirname, "versions.json");
 
 // Wczytaj istniejący plik lub pusty obiekt
@@ -22,7 +22,7 @@ function getFilesFromDirs(dirs) {
     if (fs.existsSync(dirPath)) {
       fs.readdirSync(dirPath).forEach((file) => {
         if (file.endsWith(".js")) {
-          files.push(`${dirName}/${file}`);
+          files.push({ fullPath: `${dirName}/${file}`, displayName: file });
         }
       });
     }
@@ -33,9 +33,9 @@ function getFilesFromDirs(dirs) {
 // Pobieramy pliki tylko z actions i events
 const files = getFilesFromDirs(["actions", "events"]);
 
-// Aktualizacja versions.json
-files.forEach((file) => {
-  const filePath = path.join(repoRoot, file);
+// Aktualizacja versions.json (z krótką nazwą pliku)
+files.forEach(({ fullPath, displayName }) => {
+  const filePath = path.join(repoRoot, fullPath);
   const content = fs.readFileSync(filePath, "utf8");
 
   const versionMatch = content.match(/actionVersion:\s*["']([\d.]+)["']/);
@@ -44,16 +44,16 @@ files.forEach((file) => {
   const authorMatch = content.match(/author:\s*["']([^"']+)["']/);
   const author = authorMatch ? authorMatch[1] : "unknown";
 
-  if (!data[file]) {
+  if (!data[displayName]) {
     // Nowy plik
-    data[file] = {
+    data[displayName] = {
       version: actionVersion,
       author: author,
       createdDate: now,
       updateDate: "undefined",
     };
   } else {
-    const prev = data[file];
+    const prev = data[displayName];
     if (prev.version !== actionVersion || prev.author !== author) {
       prev.updateDate = now; // tylko gdy coś się zmieniło
     }
@@ -64,7 +64,7 @@ files.forEach((file) => {
 
 // Usuń wpisy plików, których już nie ma
 Object.keys(data).forEach((key) => {
-  if (!files.includes(key)) {
+  if (!files.some(f => f.displayName === key)) {
     console.log(`🗑 Usuwam wpis dla pliku: ${key}`);
     delete data[key];
   }
@@ -88,10 +88,10 @@ const tableHeader = `| Plik | Wersja | Autor | Utworzono | Zaktualizowano | Pobi
 const repoRawUrl = "https://github.com/vxe3D/dbm-mods/raw/main/";
 
 let tableRows = "";
-Object.keys(data).forEach((file) => {
-  const v = data[file];
-  const downloadLink = `[🔗](${repoRawUrl}${file.replace(/\\/g, "/")})`;
-  tableRows += `| ${file} | ${v.version} | ${v.author} | ${v.createdDate} | ${v.updateDate} | ${downloadLink} |\n`;
+files.forEach(({ fullPath, displayName }) => {
+  const v = data[displayName];
+  const downloadLink = `[🔗](${repoRawUrl}${fullPath.replace(/\\/g, "/")})`;
+  tableRows += `| ${displayName} | ${v.version} | ${v.author} | ${v.createdDate} | ${v.updateDate} | ${downloadLink} |\n`;
 });
 
 // Wstawienie tabeli między markerami w README
