@@ -3,9 +3,9 @@ name: Update versions.json
 on:
   push:
     paths:
-      - '**/*.js'       # uruchamia workflow tylko przy zmianie plików .js
+      - '**/*.js'
     branches:
-      - main            # uruchamia workflow tylko dla gałęzi main
+      - main
 
 jobs:
   update_versions:
@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          persist-credentials: true
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -24,10 +26,22 @@ jobs:
         run: |
           node -e "
             const fs = require('fs');
+
+            function walkSync(dir, filelist = []) {
+              fs.readdirSync(dir).forEach(file => {
+                const fullPath = `${dir}/${file}`;
+                if (fs.statSync(fullPath).isDirectory()) {
+                  filelist = walkSync(fullPath, filelist);
+                } else if (file.endsWith('.js')) {
+                  filelist.push(fullPath);
+                }
+              });
+              return filelist;
+            }
+
             const path = './versions.json';
             const data = fs.existsSync(path) ? JSON.parse(fs.readFileSync(path)) : {};
-
-            const files = fs.readdirSync('./').filter(f => f.endsWith('.js'));
+            const files = walkSync('.');
             const now = new Date().toISOString().replace('T', ' ').slice(0,16);
 
             files.forEach(file => {
@@ -51,5 +65,5 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add versions.json
-          git commit -m "Update versions.json [Automated]" || echo "No changes to commit"
+          git diff --cached --quiet || git commit -m "Update versions.json [Automated]"
           git push
