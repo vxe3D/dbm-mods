@@ -90,7 +90,7 @@ const repoRawUrl = "https://github.com/vxe3D/dbm-mods/raw/main/";
 let tableRows = "";
 files.forEach(({ fullPath, displayName }) => {
   const v = data[displayName];
-  const downloadLink = `[🔗](${repoRawUrl}${fullPath.replace(/\\/g, "/")})`;
+  const downloadLink = `<a href="${repoRawUrl}${fullPath.replace(/\\/g, "/")}" download>🔗</a>`;
   tableRows += `| ${displayName} | ${v.version} | ${v.author} | ${v.createdDate} | ${v.updateDate} | ${downloadLink} |\n`;
 });
 
