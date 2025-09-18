@@ -89,22 +89,28 @@ const eventsFiles = files.filter(f => f.fullPath.startsWith("events/"));
 function generateRows(arr) {
   return arr.map(({ fullPath, displayName }) => {
     const v = data[displayName];
-    const downloadLink = `[🔗](${repoRawUrl}${encodeURIComponent(fullPath.replace(/\\/g, "/"))})`;
+    const fileUrl = `${repoRawUrl}${encodeURIComponent(fullPath.replace(/\\/g, "/"))}`;
 
+    // Usuń prefix [VX]
     let display = displayName.replace(/^\[.*?\]/, "");
 
+    // Skróć do 19 znaków
     if (display.length > 19) {
       display = display.slice(0, 16) + "...";
     }
 
+    // Zastępczy tekst dla undefined
     const updateDate = v.updateDate === "undefined" ? "Oczekuje na aktualizację" : v.updateDate;
 
-    return `| <small>${display}</small> | <small>${v.version}</small> | <small>${v.author}</small> | <small>${v.createdDate}</small> | <small>${updateDate}</small> | ${downloadLink} |`;
+    // Nazwa pliku jako link
+    const displayLink = `[${display}](${fileUrl})`;
+
+    return `| <small>${displayLink}</small> | <small>${v.version}</small> | <small>${v.author}</small> | <small>${v.createdDate}</small> | <small>${updateDate}</small> | [🔗](${fileUrl}) |`;
   }).join("\n");
 }
 
-const tableHeader = `| Plik | Wersja | Autor | Utworzono | Zaktualizowano | Pobierz |
-|------|--------|-------|-----------|----------------|---------|`;
+const tableHeader = `| Plik | Wersja | Autor | Utworzono | Zaktualizowano
+|------|--------|-------|-----------|----------------|`;
 
 const htmlTables = `
 <table>
