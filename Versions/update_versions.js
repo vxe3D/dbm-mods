@@ -80,32 +80,58 @@ let readmeContent = fs.existsSync(readmePath)
   ? fs.readFileSync(readmePath, "utf8")
   : "# DBM Mods\n\n## Lista akcji\n\n";
 
-// Tabela z nagłówkami
-const tableHeader = `| Plik | Wersja | Autor | Utworzono | Zaktualizowano | Pobierz |
-|------|--------|-------|-----------|----------------|---------|
-`;
-
 const repoRawUrl = "https://github.com/vxe3D/dbm-mods/blob/main/";
 
-let tableRows = "";
-files.forEach(({ fullPath, displayName }) => {
-  const v = data[displayName];
-  // Zwykły link do raw, użytkownik pobiera manualnie
-  const downloadLink = `[🔗](${repoRawUrl}${encodeURIComponent(fullPath.replace(/\\/g, "/"))})`;
-  tableRows += `| <small>${displayName}</small> | <small>${v.version}</small> | <small>${v.author}</small> | <small>${v.createdDate}</small> | <small>${v.updateDate}</small> | ${downloadLink} |\n`;
-});
+// Filtracja plików po folderach
+const actionsFiles = files.filter(f => f.fullPath.startsWith("actions/"));
+const eventsFiles = files.filter(f => f.fullPath.startsWith("events/"));
 
-// Wstawienie tabeli między markerami w README
+// Funkcja generująca wiersze tabeli
+function generateRows(arr) {
+  return arr.map(({ fullPath, displayName }) => {
+    const v = data[displayName];
+    const downloadLink = `[🔗](${repoRawUrl}${encodeURIComponent(fullPath.replace(/\\/g, "/"))})`;
+    return `| <small>${displayName}</small> | <small>${v.version}</small> | <small>${v.author}</small> | <small>${v.createdDate}</small> | <small>${v.updateDate}</small> | ${downloadLink} |`;
+  }).join("\n");
+}
+
+// Nagłówek tabeli
+const tableHeader = `| Plik | Wersja | Autor | Utworzono | Zaktualizowano | Pobierz |
+|------|--------|-------|-----------|----------------|---------|`;
+
+// Tworzymy HTML z dwiema tabelami obok siebie
+const htmlTables = `
+<table>
+<tr>
+  <td>
+
+### Actions
+${tableHeader}
+${generateRows(actionsFiles)}
+
+  </td>
+  <td>
+
+### Events
+${tableHeader}
+${generateRows(eventsFiles)}
+
+  </td>
+</tr>
+</table>
+`;
+
+// Wstawienie między markerami w README
 if (readmeContent.includes("<!-- ACTIONS_TABLE_START -->")) {
   readmeContent = readmeContent.replace(
     /<!-- ACTIONS_TABLE_START -->[\s\S]*<!-- ACTIONS_TABLE_END -->/m,
-    `<!-- ACTIONS_TABLE_START -->\n${tableHeader}${tableRows}<!-- ACTIONS_TABLE_END -->`
+    `<!-- ACTIONS_TABLE_START -->\n${htmlTables}\n<!-- ACTIONS_TABLE_END -->`
   );
 } else {
   // Jeśli markerów brak, dopisujemy na końcu
-  readmeContent += `\n## Lista akcji\n<!-- ACTIONS_TABLE_START -->\n${tableHeader}${tableRows}<!-- ACTIONS_TABLE_END -->\n`;
+  readmeContent += `\n## Lista akcji\n<!-- ACTIONS_TABLE_START -->\n${htmlTables}\n<!-- ACTIONS_TABLE_END -->\n`;
 }
 
 // Zapis do README.md
 fs.writeFileSync(readmePath, readmeContent);
-console.log("✅ README.md updated with versions table!");
+console.log("✅ README.md updated with Actions & Events tables!");
