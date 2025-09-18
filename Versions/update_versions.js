@@ -87,21 +87,22 @@ const actionsFiles = files.filter(f => f.fullPath.startsWith("actions/"));
 const eventsFiles = files.filter(f => f.fullPath.startsWith("events/"));
 
 function generateRows(arr) {
-  const sorted = arr.slice().sort((a, b) => {
+  // Sortowanie: najnowszy plik (updateDate / createdDate) na górze
+  const sorted = arr.sort((a, b) => {
     const va = data[a.displayName];
     const vb = data[b.displayName];
-    const dateA = (va.updateDate && va.updateDate !== "undefined") ? va.updateDate : va.createdDate;
-    const dateB = (vb.updateDate && vb.updateDate !== "undefined") ? vb.updateDate : vb.createdDate;
-    const dA = Date.parse(dateA.replace(/\./g, "-").replace(/\s+/, "T")) || 0;
-    const dB = Date.parse(dateB.replace(/\./g, "-").replace(/\s+/, "T")) || 0;
-    return dB - dA;
+
+    // Bierzemy updateDate, a jak go brak to createdDate
+    const da = new Date(va.updateDate !== "undefined" ? va.updateDate : va.createdDate);
+    const db = new Date(vb.updateDate !== "undefined" ? vb.updateDate : vb.createdDate);
+
+    return db - da; // sortowanie malejące (najnowszy pierwszy)
   });
+
   return sorted.map(({ fullPath, displayName }) => {
     const v = data[displayName];
     const fileUrl = `${repoRawUrl}${encodeURIComponent(fullPath.replace(/\\/g, "/"))}`;
-
-    let display = displayName.replace(/^[.*?]/, "");
-
+    let display = displayName.replace(/^\[.*?\]/, "");
     if (display.length > 19) {
       display = display.slice(0, 16) + "...";
     }
