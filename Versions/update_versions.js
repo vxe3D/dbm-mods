@@ -1,68 +1,63 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-// Funkcja do rekurencyjnego przeszukiwania katalogów
-function walkSync(dir, filelist = []) {
-  fs.readdirSync(dir).forEach(file => {
-    const fullPath = path.join(dir, file);
-    if (fs.statSync(fullPath).isDirectory()) {
-      walkSync(fullPath, filelist);
-    } else if (file.endsWith('.js')) {
-      // Ścieżka względem głównego katalogu repo
-      filelist.push(path.relative('.', fullPath));
-    }
-  });
-  return filelist;
-}
+// Ścieżka do versions.json (w tym samym katalogu co ten plik)
+const versionsPath = path.join(__dirname, "versions.json");
 
-// Funkcja do pobrania actionVersion z pliku .js
-function getActionVersion(filePath) {
-  try {
-    const content = fs.readFileSync(filePath, 'utf8');
-    const match = content.match(/actionVersion\s*:\s*["']([\d.]+)["']/);
-    if (match) return match[1];
-  } catch (err) {
-    console.warn(`Nie można odczytać pliku ${filePath}: ${err.message}`);
-  }
-  return '1.0.0';
-}
+// Wczytaj istniejący plik lub utwórz pusty obiekt
+const data = fs.existsSync(versionsPath)
+  ? JSON.parse(fs.readFileSync(versionsPath, "utf8"))
+  : {};
 
-// Ścieżka do folderu skryptu
-const scriptDir = __dirname;
+const now = new Date().toISOString().replace("T", " ").slice(0, 16);
 
-// Plik versions.json w tym samym katalogu co skrypt
-const versionsPath = path.join(scriptDir, 'versions.json');
+// Pobieramy tylko pliki .js z głównego katalogu repo (nie z /Versions)
+const repoRoot = path.join(__dirname, "..");
+const files = fs
+  .readdirSync(repoRoot)
+  .filter(
+    (file) =>
+      file.endsWith(".js") && // tylko pliki .js
+      !file.startsWith("Versions") // pomijamy folder Versions
+  );
 
-let data = {};
-if (fs.existsSync(versionsPath)) {
-  data = JSON.parse(fs.readFileSync(versionsPath, 'utf8'));
-}
+// Aktualizacja danych w versions.json
+files.forEach((file) => {
+  const filePath = path.join(repoRoot, file);
+  const content = fs.readFileSync(filePath, "utf8");
 
-// Pobranie wszystkich plików .js w repo
-const files = walkSync('.');
+  // Wyciągamy actionVersion z meta
+  const versionMatch = content.match(/actionVersion:\s*["']([\d.]+)["']/);
+  const actionVersion = versionMatch ? versionMatch[1] : "1.0.0";
 
-// Aktualna data w formacie YYYY-MM-DD HH:MM
-const now = new Date().toISOString().replace('T', ' ').slice(0,16);
-
-// Aktualizacja danych w JSON
-files.forEach(file => {
-  const filePath = path.join('.', file);
-  const versionFromFile = getActionVersion(filePath);
+  // Wyciągamy author z meta
+  const authorMatch = content.match(/author:\s*["']([^"']+)["']/);
+  const author = authorMatch ? authorMatch[1] : "unknown";
 
   if (!data[file]) {
+    // jeśli nie istnieje w versions.json -> dodaj nowy wpis
     data[file] = {
-      version: versionFromFile,
-      author: 'vxed_',
+      version: actionVersion,
+      author: author,
       createdDate: now,
-      updateDate: 'undefined'
+      updateDate: "undefined",
     };
   } else {
+    // jeśli istnieje -> zaktualizuj updateDate, version i author
     data[file].updateDate = now;
-    data[file].version = versionFromFile;
+    data[file].version = actionVersion;
+    data[file].author = author;
   }
 });
 
-// Zapisanie JSON z wcięciami 2 spacji
-fs.writeFileSync(versionsPath, JSON.stringify(data, null, 2), 'utf8');
+// Usuwanie wpisów, których pliki już nie istnieją
+Object.keys(data).forEach((key) => {
+  if (!files.includes(key)) {
+    console.log(`🗑 Usuwam wpis dla pliku: ${key}`);
+    delete data[key];
+  }
+});
 
-console.log(`versions.json zaktualizowany w katalogu ${scriptDir}`);
+// Zapisujemy plik
+fs.writeFileSync(versionsPath, JSON.stringify(data, null, 2));
+console.log("✅ versions.json updated!");
