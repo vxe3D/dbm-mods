@@ -85,7 +85,7 @@ const tableHeader = `| Plik | Wersja | Autor | Utworzono | Zaktualizowano | Pobi
 |------|--------|-------|-----------|----------------|---------|
 `;
 
-const repoRawUrl = "https://github.com/vxe3D/dbm-mods/raw/main/";
+const repoRawUrl = "https://github.com/vxe3D/dbm-mods/blob/main/";
 
 let tableRows = "";
 files.forEach(({ fullPath, displayName }) => {
