@@ -91,7 +91,16 @@ function generateRows(arr) {
   return arr.map(({ fullPath, displayName }) => {
     const v = data[displayName];
     const downloadLink = `[🔗](${repoRawUrl}${encodeURIComponent(fullPath.replace(/\\/g, "/"))})`;
-    return `| <small>${displayName}</small> | <small>${v.version}</small> | <small>${v.author}</small> | <small>${v.createdDate}</small> | <small>${v.updateDate}</small> | ${downloadLink} |`;
+
+    // Usuń prefix [VX] jeśli jest na początku
+    let display = displayName.replace(/^\[.*?\]/, "");
+
+    // Skróć do 19 znaków, jeśli trzeba
+    if (display.length > 19) {
+      display = display.slice(0, 16) + "...";
+    }
+
+    return `| <small>${display}</small> | <small>${v.version}</small> | <small>${v.author}</small> | <small>${v.createdDate}</small> | <small>${v.updateDate}</small> | ${downloadLink} |`;
   }).join("\n");
 }
 
