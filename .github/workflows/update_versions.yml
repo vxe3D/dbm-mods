@@ -6,8 +6,7 @@ on:
       - main
     paths:
       - '**/*.js'
-    paths-ignore:
-      - 'Versions/**'   # ignoruje zmiany w folderze Versions
+      - '!Versions/**'   # wyklucza katalog Versions
 
 jobs:
   update_versions:
