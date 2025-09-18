@@ -83,16 +83,18 @@ let readmeContent = fs.existsSync(readmePath)
 
 const repoRawUrl = "https://github.com/vxe3D/dbm-mods/blob/main/";
 
-// 🔽 sortujemy tutaj, przed przekazaniem do generateRows
-function sortFilesByDate(arr) {
-  return arr.sort((a, b) => {
+const actionsFiles = files.filter(f => f.fullPath.startsWith("actions/"));
+const eventsFiles  = files.filter(f => f.fullPath.startsWith("events/"));
+
+function generateRows(arr) {
+  const sorted = arr.sort((a, b) => {
     const va = data[a.displayName];
     const vb = data[b.displayName];
 
     const getLastActive = (v) => {
       if (Date.parse(v.updateDate)) return new Date(v.updateDate);
       if (Date.parse(v.createdDate)) return new Date(v.createdDate);
-      return 0; // fallback, najstarsze
+      return 0;
     };
 
     const da = getLastActive(va);
@@ -100,13 +102,8 @@ function sortFilesByDate(arr) {
 
     return db - da; // malejąco: najnowszy pierwszy
   });
-}
 
-const actionsFiles = sortFilesByDate(files.filter(f => f.fullPath.startsWith("actions/")));
-const eventsFiles  = sortFilesByDate(files.filter(f => f.fullPath.startsWith("events/")));
-
-function generateRows(arr) {
-  return arr.map(({ fullPath, displayName }) => {
+  return sorted.map(({ fullPath, displayName }) => {
     const v = data[displayName];
     const fileUrl = `${repoRawUrl}${encodeURIComponent(fullPath.replace(/\\/g, "/"))}`;
     let display = displayName.replace(/^\[.*?\]/, "");
