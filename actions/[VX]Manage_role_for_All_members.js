@@ -9,7 +9,7 @@ module.exports = {
 
   meta: {
     version: '3.2.0',
-    actionVersion: "3.1.0",
+    actionVersion: "3.0.0",
     preciseCheck: true,
     author: 'vxed',
     authorUrl: 'https://github.com/vxe3D/dbm-mods',
