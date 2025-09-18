@@ -79,7 +79,7 @@ console.log("✅ versions.json updated!");
 const readmePath = path.join(repoRoot, "README.md");
 let readmeContent = fs.existsSync(readmePath)
   ? fs.readFileSync(readmePath, "utf8")
-  : "# DBM Mods\n\n## Lista akcji\n\n";
+  : "# DBM V14 Mods\n\n## Lista akcji\n\n";
 
 const repoRawUrl = "https://github.com/vxe3D/dbm-mods/blob/main/";
 
