@@ -1,29 +1,21 @@
 module.exports = {
-  name: "[VX]set_roles_channel_perms",
-  displayName: "Set Roles Channel Perms",
-  section: "# VX - Utilities",
+  name: '[VX]Check_Account_Age',
+  displayName: 'Check Account Age',
+  section: '# VX - Utilities',
   meta: {
     version: "3.2.0",
-    actionVersion: "3.5.0",
+    actionVersion: "3.4.0",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
     downloadUrl: "https://github.com/vxe3D/dbm-mods",
   },
 
-  subtitle(data, presets) {
-    return `Ustawianie permisji na kanał dla jednej lub kilku ról`;
-  },
+  fields: ['accountDateType', 'accountDateVar', 'accountAge', 'branch'],
 
-  fields: [
-    "channel",
-    "varName",
-    "varNameContainer",
-    "role",
-    "permission",
-    "state",
-    "reason",
-  ],
+  subtitle(data) {
+    return `Checks if account age ≥ ${data.accountAge}`;
+  },
 
   html(isEvent, data) {
   const actionVersion = (this.meta && typeof this.meta.actionVersion !== "undefined") ? `${this.meta.actionVersion}` : "???";
@@ -72,61 +64,20 @@ module.exports = {
           input.round:focus {border-color:#b595ffff;outline:none;}
         </style>
 
-    <channel-input dropdownLabel="Source Channel" selectId="channel" variableContainerId="varNameContainer" variableInputId="varName"></channel-input>
-
-    <br><br><br>
-
-    <div style="padding-top: 8px;">
-      <span class="dbminputlabel">Source Roles (ID or Variables, one per line)</span><br>
-      <textarea id="role" rows="4" placeholder='123456789012345678\ntempVars("roleID")' class="round" style="width:100%; resize: none;"></textarea>
-    </div>
-
-    <br>
-
-    <table style="width:100%;"><tr>
-      <td><span class="dbminputlabel">Permission List (comma-separated)
-      <help-icon dialogTitle="[Set Role Channel Perms] Settings" dialogWidth="640" dialogHeight="500">
-        <div style="padding: 16px;">
-          <div style="background-color:rgba(0, 0, 0, 0.41); border: 2px solid rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-            <u><b><span style="font-size: 15px;">Text Channels Permissions</span></b></u><br>
-            <div style="display: flex; gap: 20px;">  
-              <ul style="flex: 1;  padding-left: 20px; margin: 0;">
-                <li>ViewChannel, SendMessages, SendTTSMessages, EmbedLinks, AttachFiles, ReadMessageHistory, UseExternalStickers, UseExternalEmojis, MentionEveryone</li>
-                <li>ManageMessages, ManageThreads, CreatePublicThreads, CreatePrivateThreads, SendMessagesInThreads</li>
-              </ul>
-            </div>
-          </div>
-          <div style="background-color:rgba(0, 0, 0, 0.41); border: 2px solid rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-            <u><b><span style="font-size: 15px;">Voice Channel Permissions</span></b></u><br>
-            <div style="display: flex; gap: 20px;">  
-              <ul style="flex: 1;  padding-left: 20px; margin: 0;">
-                <li>Connect, Speak, Stream, UseVAD, MuteMembers, DeafenMembers, MoveMembers, PrioritySpeaker</li>
-              </ul>
-            </div>
-          </div>
+      <div style="width: 100%; overflow: hidden; padding-top: 8px;">
+        <div style="float: left; width: 48%; padding-right: 2%;">
+          <retrieve-from-variable dropdownLabel="Account creation date" selectId="accountDateType" variableInputId="accountDateVar" variableContainerId="varNameContainer1" selectWidth="100%" variableInputWidth="100%"></retrieve-from-variable>
         </div>
-      </help-icon>
-      </span><br><textarea id="permission" rows="3" placeholder="Example: Connect, ViewChannel, UseVAD" class="round" style="width: 100%; resize: none;"></textarea></td>
-    </tr></table>
 
-    <br>
-    <hr class="subtlebar" style="margin-top: 4px; margin-bottom: 4px; width: 100%;">
-    <br>
-
-    <div style="padding-top: 0px;">
-      <div style="float: left; width: calc(50% - 12px);">
-        <span class="dbminputlabel">Reason</span>
-        <input id="reason" placeholder="Optional" class="round" type="text">
+        <div style="float: right; width: 48%;">
+          <span class="dbminputlabel">Account Age (ex. 5mo, 1y etc.)</span>
+          <input id="accountAge" class="round" type="text" placeholder="ex. 1mo" style="width: 100%; padding: 5px;">
+        </div>
       </div>
-      <div style="float: right; width: calc(50% - 12px);">
-        <span class="dbminputlabel">Change To</span><br>
-        <select id="state" class="round">
-          <option value="0" selected>Allow</option>
-          <option value="1">Inherit</option>
-          <option value="2">Disallow</option>
-        </select>
-      </div>
-    </div>`;
+      <div style="clear: both;"></div>
+      <hr class="subtlebar">
+      <conditional-input id="branch" style="padding-top: 8px;"></conditional-input>
+    `;
   },
 
   preInit() {
@@ -136,77 +87,43 @@ module.exports = {
 
   async action(cache) {
     const data = cache.actions[cache.index];
-    const client = this.getDBM()?.Bot?.bot;
-    const channel = await this.getChannelFromData(data.channel, data.varName, cache);
 
-    let roleInputRaw = this.eval(data.role, cache);
+    const type = parseInt(data.accountDateType, 10);
+    const varName = this.evalMessage(data.accountDateVar, cache);
+    const accountDateStr = this.getVariable(type, varName, cache);
 
-    // Jeśli przypadkowo Number, wymuś string
-    if (typeof roleInputRaw === "number") roleInputRaw = roleInputRaw.toString();
+    const requiredStr = this.evalMessage(data.accountAge, cache);
 
-    const roleInput = roleInputRaw ?? '';
-    const roleIDs = roleInput
-      .split(/\r?\n|,/)
-      .map(line => line.trim())
-      .filter(id => id.length > 0);
-
-    const reason = this.evalMessage(data.reason, cache);
-    const rawPermissions = this.evalMessage(data.permission, cache);
-
-    const permissionList = rawPermissions
-      .split(",")
-      .map(p => p.trim())
-      .filter(p => p.length > 0);
-
-    const state = parseInt(data.state, 10);
-    const finalPermissions = {};
-    for (const perm of permissionList) {
-      finalPermissions[perm] = [true, null, false][state];
+    function parseAge(str) {
+      const match = /^(\d+)(y|mo|w|d|m|s|ms)$/i.exec(str);
+      if (!match) return 0;
+      const value = parseInt(match[1], 10);
+      const unit = match[2].toLowerCase();
+      const multipliers = {
+        y: 1000 * 60 * 60 * 24 * 365,
+        mo: 1000 * 60 * 60 * 24 * 30,
+        w: 1000 * 60 * 60 * 24 * 7,
+        d: 1000 * 60 * 60 * 24,
+        m: 1000 * 60,
+        s: 1000,
+        ms: 1,
+      };
+      return value * (multipliers[unit] || 0);
     }
 
-    if (!channel) {
-      this.callNextAction(cache);
-      return;
+    try {
+      const accountDate = new Date(accountDateStr).getTime();
+      const now = Date.now();
+      const accountAgeMs = now - accountDate;
+      const requiredMs = parseAge(requiredStr);
+
+      const result = accountAgeMs >= requiredMs;
+
+      this.executeResults(result, data.branch, cache);
+    } catch (err) {
+      console.error("Account Age check failed:", err);
+      this.executeResults(false, data.branch, cache);
     }
-
-    const channels = Array.isArray(channel) ? channel : [channel];
-    const guild = channels[0].guild;
-
-    for (const roleIdOrVar of roleIDs) {
-      let roleId = roleIdOrVar.toString();
-      if (
-        roleIdOrVar.startsWith("tempVars(") ||
-        roleIdOrVar.startsWith("serverVars(") ||
-        roleIdOrVar.startsWith("globalVars(")
-      ) {
-        roleId = this.eval(roleIdOrVar, cache).toString();
-      }
-
-      let role = guild.roles.cache.get(roleId);
-
-      if (!role) {
-        try {
-          role = await guild.roles.fetch(roleId);
-          if (!role) {
-            console.warn(`❌ Rola o ID "${roleId}" nie istnieje lub nie została znaleziona przez fetch.`);
-            continue;
-          }
-        } catch (err) {
-          console.warn(`❌ Błąd podczas fetchowania roli "${roleId}":`, err.message);
-          continue;
-        }
-      }
-
-      for (const ch of channels) {
-        try {
-          await ch.permissionOverwrites.edit(role, finalPermissions, reason);
-        } catch (e) {
-          console.error(`❌ Błąd przy ustawianiu permisji dla roli "${roleId}" na kanale ${ch.id}:`, e);
-        }
-      }
-    }
-
-    this.callNextAction(cache);
   },
 
   mod() {},

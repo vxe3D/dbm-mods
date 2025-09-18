@@ -1,9 +1,10 @@
 module.exports = {
-  name: "Set Music Equalizer",
+  name: "[VX]set_music_equalizer_MOD",
+  displayName: "Set Music Equalizer",
   section: "# VX - Music",
   meta: {
     version: "3.2.0",
-    actionVersion: "3.4.0",
+    actionVersion: "3.5.0",
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
   },
@@ -22,16 +23,21 @@ module.exports = {
     if (parseInt(data.storage, 10) !== varType) return;
     return [data.varName2, "Music Track (EQ)"];
   },
-  html() {
+  html(isEvent, data) {
+  const actionVersion = (this.meta && typeof this.meta.actionVersion !== "undefined") ? `${this.meta.actionVersion}` : "???";
+  const actionFilename = (this.name ? this.name + ".js" : "[VX]store_server_info.js");
+  window.__VX_ACTION_VERSION = actionVersion;
+  window.__VX_ACTION_FILENAME = actionFilename;
     return `
       <div class="vcstatus-box-fixed vcstatus-box-left" style="top: 2px;">
         <div class="vcstatus-author"><span class="vcstatus-author-label">Autor:</span> <span class="vcstatus-author-name">vxed_</span></div>
         <a href="https://discord.gg/XggyjAMFmC" class="vcstatus-discord" target="_blank">Discord</a>
       </div>
       <div class="vcstatus-box-fixed vcstatus-box-right" style="top: 22px; right: 15px;">
-        <span class="vcstatus-version">v3.4.0</span>
+        <span class="vcstatus-version">v${actionVersion}</span>
       </div>
-    <style>
+        <div id="vx-version-warning" style="position:fixed; top:52px; right:218px; min-width:120px; max-width:320px; z-index:9999;"></div>
+      <style>
         .vcstatus-author-label {
           color: #BDBDBD;
         }
@@ -58,7 +64,7 @@ module.exports = {
         .vcstatus-author {color:#ff4d4d;font-weight:bold;font-size:var(--vcstatus-author-font-size);margin-bottom:2px;margin-top:var(--vcstatus-author-margin-top);margin-left:var(--vcstatus-author-margin-left);}
         .vcstatus-discord {color:#5865F2;background:#23272a;border-radius:5px;padding:2px 10px;text-decoration:none;font-weight:bold;font-size:var(--vcstatus-discord-font-size);margin-top:var(--vcstatus-discord-margin-top);margin-left:var(--vcstatus-discord-margin-left);transition:background 0.2s,color 0.2s;box-shadow:0 1px 4px rgba(88,101,242,0.08);}
         .vcstatus-discord:hover {background:#5865F2;color:#fff;text-decoration:underline;}
-        .vcstatus-warning {background:linear-gradient(90deg,#4a3252ff 0%,#885697ff 100%);border:1px solid #140e16ff;color:#222;padding:10px 14px;border-radius:8px;margin-bottom:16px;font-size:13px;box-shadow:0 2px 8px rgba(255,85,85,0.08);margin-top:5px;}
+        .vcstatus-warning {background: linear-gradient(90deg, #890000 0%, #B57070 100%);border: 1px solid #5a2323;color: #fff;padding: 1px 2px;border-radius: 8px;margin-bottom: 8px;font-size: 11px;font-weight:bold;box-shadow: 0 2px 8px rgba(137,0,0,0.10);margin-top: 4px;text-align: center;}
         .dbminputlabel {color:#8754ffff;font-weight:bold;}
         input.round {border-radius:6px;border:1px solid #aaa;padding:6px 10px;font-size:14px;background:#21232B;transition:border-color 0.2s;}
         input.round:focus {border-color:#b595ffff;outline:none;}
@@ -72,45 +78,49 @@ module.exports = {
         .eq-btn {background:linear-gradient(90deg,#3a3b5a 0%,#23243a 100%);color:#fff;border:1px solid #8754ff;border-radius:5px;padding:4px 13px;font-size:12px;font-weight:600;margin-right:5px;margin-bottom:2px;cursor:pointer;transition:border-color 0.2s,color 0.2s,box-shadow 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.10);outline:none;background-size:200% 100%;background-position:0% 0%;}
         .eq-btn:hover {background:linear-gradient(90deg,#8754ff 0%,#23243a 100%,#8754ff 100%);background-size:200% 100%;background-position:100% 0%;color:#fff;border-color:#b595ff;box-shadow:0 4px 16px rgba(135,84,255,0.15);animation:eq-btn-gradient-move 0.4s linear forwards;}
         @keyframes eq-btn-gradient-move {from{background-position:0% 0%;}to{background-position:100% 0%;}}
-    </style>
+      </style>
 
-<tab-system>
-  <tab label="Main" icon="share square">
-    <store-in-variable dropdownLabel="Store In" selectId="storage" variableContainerId="varNameContainer2" variableInputId="varName2"></store-in-variable>
-  </tab>
-  <tab label="Equalizer" icon="sliders horizontal">
-    <div style="display: flex; flex-direction: row; gap: 24px; margin-bottom: 8px;">
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-  <p style="font-size:15px; font-weight:200; color:#b595ff; margin-bottom:8px;">Enter frequency (Hz) and gain (dB) for 6 bands:</p>
-  <div class="eq-band-row"><label class="eq-label">Band 1:</label> <input class="eq-inp" id="freq0" name="freq0" type="number" placeholder="e.g. 32"> <span class="eq-unit">Hz</span> <input class="eq-inp" id="gain0" name="gain0" type="number" step="0.1" placeholder="e.g. 0"> <span class="eq-unit">dB</span></div>
-  <div class="eq-band-row"><label class="eq-label">Band 2:</label> <input class="eq-inp" id="freq1" name="freq1" type="number" placeholder="e.g. 64"> <span class="eq-unit">Hz</span> <input class="eq-inp" id="gain1" name="gain1" type="number" step="0.1" placeholder="e.g. 0"> <span class="eq-unit">dB</span></div>
-  <div class="eq-band-row"><label class="eq-label">Band 3:</label> <input class="eq-inp" id="freq2" name="freq2" type="number" placeholder="e.g. 250"> <span class="eq-unit">Hz</span> <input class="eq-inp" id="gain2" name="gain2" type="number" step="0.1" placeholder="e.g. 0"> <span class="eq-unit">dB</span></div>
-  <div class="eq-band-row"><label class="eq-label">Band 4:</label> <input class="eq-inp" id="freq3" name="freq3" type="number" placeholder="e.g. 1000"> <span class="eq-unit">Hz</span> <input class="eq-inp" id="gain3" name="gain3" type="number" step="0.1" placeholder="e.g. 0"> <span class="eq-unit">dB</span></div>
-  <div class="eq-band-row"><label class="eq-label">Band 5:</label> <input class="eq-inp" id="freq4" name="freq4" type="number" placeholder="e.g. 4000"> <span class="eq-unit">Hz</span> <input class="eq-inp" id="gain4" name="gain4" type="number" step="0.1" placeholder="e.g. 0"> <span class="eq-unit">dB</span></div>
-  <div class="eq-band-row"><label class="eq-label">Band 6:</label> <input class="eq-inp" id="freq5" name="freq5" type="number" placeholder="e.g. 8000"> <span class="eq-unit">Hz</span> <input class="eq-inp" id="gain5" name="gain5" type="number" step="0.1" placeholder="e.g. 0"> <span class="eq-unit">dB</span></div>
-      </div>
-      <div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; background: #222; color: #eee; border-radius: 10px; padding: 8px 8px 8px 12px; max-width: 180px; max-height: 170px; margin-top: 55px;">
-          <b>Example band split:</b>
-          <div><b>32 Hz</b> — sub-bass</div>
-          <div><b>64 Hz</b> — bass</div>
-          <div><b>250 Hz</b> — low-mids</div>
-          <div><b>1 kHz</b> — mids</div>
-          <div><b>4 kHz</b> — upper-mids</div>
-          <div><b>8 kHz</b> — presence/treble</div>
-      </div>
-    </div>
-    <div style="margin-left: 265px;">
-      <button id="importEqBtn" type="button" class="eq-btn">Import Equalizer</button>
-      <input type="file" id="importEqFile" accept=".eq" style="display:none;">
-      <button id="exportEqBtn" type="button" class="eq-btn">Export Equalizer</button>
-    </div>
-  </tab>
-</tab-system>
-`;
+    <tab-system>
+      <tab label="Main" icon="share square">
+        <store-in-variable dropdownLabel="Store In" selectId="storage" variableContainerId="varNameContainer2" variableInputId="varName2"></store-in-variable>
+      </tab>
+      <tab label="Equalizer" icon="sliders horizontal">
+        <div style="display: flex; flex-direction: row; gap: 24px; margin-bottom: 8px;">
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+      <p style="font-size:15px; font-weight:200; color:#b595ff; margin-bottom:8px;">Enter frequency (Hz) and gain (dB) for 6 bands:</p>
+      <div class="eq-band-row"><label class="eq-label">Band 1:</label> <input class="eq-inp" id="freq0" name="freq0" type="number" placeholder="e.g. 32"> <span class="eq-unit">Hz</span> <input class="eq-inp" id="gain0" name="gain0" type="number" step="0.1" placeholder="e.g. 0"> <span class="eq-unit">dB</span></div>
+      <div class="eq-band-row"><label class="eq-label">Band 2:</label> <input class="eq-inp" id="freq1" name="freq1" type="number" placeholder="e.g. 64"> <span class="eq-unit">Hz</span> <input class="eq-inp" id="gain1" name="gain1" type="number" step="0.1" placeholder="e.g. 0"> <span class="eq-unit">dB</span></div>
+      <div class="eq-band-row"><label class="eq-label">Band 3:</label> <input class="eq-inp" id="freq2" name="freq2" type="number" placeholder="e.g. 250"> <span class="eq-unit">Hz</span> <input class="eq-inp" id="gain2" name="gain2" type="number" step="0.1" placeholder="e.g. 0"> <span class="eq-unit">dB</span></div>
+      <div class="eq-band-row"><label class="eq-label">Band 4:</label> <input class="eq-inp" id="freq3" name="freq3" type="number" placeholder="e.g. 1000"> <span class="eq-unit">Hz</span> <input class="eq-inp" id="gain3" name="gain3" type="number" step="0.1" placeholder="e.g. 0"> <span class="eq-unit">dB</span></div>
+      <div class="eq-band-row"><label class="eq-label">Band 5:</label> <input class="eq-inp" id="freq4" name="freq4" type="number" placeholder="e.g. 4000"> <span class="eq-unit">Hz</span> <input class="eq-inp" id="gain4" name="gain4" type="number" step="0.1" placeholder="e.g. 0"> <span class="eq-unit">dB</span></div>
+      <div class="eq-band-row"><label class="eq-label">Band 6:</label> <input class="eq-inp" id="freq5" name="freq5" type="number" placeholder="e.g. 8000"> <span class="eq-unit">Hz</span> <input class="eq-inp" id="gain5" name="gain5" type="number" step="0.1" placeholder="e.g. 0"> <span class="eq-unit">dB</span></div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; background: #222; color: #eee; border-radius: 10px; padding: 8px 8px 8px 12px; max-width: 180px; max-height: 170px; margin-top: 55px;">
+              <b>Example band split:</b>
+              <div><b>32 Hz</b> — sub-bass</div>
+              <div><b>64 Hz</b> — bass</div>
+              <div><b>250 Hz</b> — low-mids</div>
+              <div><b>1 kHz</b> — mids</div>
+              <div><b>4 kHz</b> — upper-mids</div>
+              <div><b>8 kHz</b> — presence/treble</div>
+          </div>
+        </div>
+        <div style="margin-left: 265px;">
+          <button id="importEqBtn" type="button" class="eq-btn">Import Equalizer</button>
+          <input type="file" id="importEqFile" accept=".eq" style="display:none;">
+          <button id="exportEqBtn" type="button" class="eq-btn">Export Equalizer</button>
+        </div>
+      </tab>
+    </tab-system>
+    `;
   },
-  // przecinek po zamknięciu metody html()
+
+  preInit() {
+    const f = window.__VX_ACTION_FILENAME||"[VX]store_server_info.js", l = window.__VX_ACTION_VERSION||"0.0.0", c = (a,b) => {a=a.split('.').map(Number),b=b.split('.').map(Number);for(let i=0;i<Math.max(a.length,b.length);i++){let n1=a[i]||0,n2=b[i]||0;if(n1!==n2)return n1-n2;}return 0;}, githubUrl = `https://github.com/vxe3D/dbm-mods/blob/main/actions%2F${encodeURIComponent(f)}`;
+    fetch("https://github.com/vxe3D/dbm-mods/raw/main/Versions/versions.json").then(r=>r.json()).then(j=>{const v=j[f]?.version;if(v&&c(l,v)<0){document.getElementById("vx-version-warning").innerHTML="<button class='vcstatus-warning' id='vx-version-btn' type='button'>Masz nieaktualną wersję</button>";setTimeout(()=>{const b=document.getElementById('vx-version-btn');if(b)b.onclick=e=>{e.preventDefault();const u=githubUrl;if(window.require)try{window.require('electron').shell.openExternal(u);}catch{window.open(u,'_blank');}else window.open(u,'_blank');};},0);}});
+  },
+
   init() {
-    // Obsługa import/export EQ (DBM/Electron: kod JS musi być tutaj)
     const importBtn = document.getElementById('importEqBtn');
     const importFile = document.getElementById('importEqFile');
     const exportBtn = document.getElementById('exportEqBtn');
@@ -129,7 +139,6 @@ module.exports = {
                 document.getElementById('gain'+i).value = bands[i].gain;
               }
             }
-            // Get file name without extension
             let fileName = file.name;
             let dotIdx = fileName.lastIndexOf('.');
             if(dotIdx > 0) fileName = fileName.substring(0, dotIdx);
@@ -167,7 +176,6 @@ module.exports = {
   async action(cache) {
     const data = cache.actions[cache.index];
     const { Actions } = this.getDBM();
-    // Pobierz najnowszy EQ z DBM variable (jeśli jest)
     let bands = [];
     const { storage, varName2 } = data;
     const storageType = parseInt(storage, 10);
@@ -177,7 +185,6 @@ module.exports = {
     } else if (Array.isArray(bandsRaw)) {
       bands = bandsRaw;
     }
-    // Jeśli nie ma w zmiennej, pobierz z pól
     if (!bands || !Array.isArray(bands) || bands.length === 0) {
       bands = [];
       for (let i = 0; i < 6; i++) {
@@ -188,23 +195,19 @@ module.exports = {
         }
       }
     }
-    // Zapisz bands jako JSON string do zmiennej DBM (zawsze aktualizuj)
     if (varName2) {
       Actions.storeValue(JSON.stringify(bands), storageType, varName2, cache);
     }
 
-    // --- REALTIME EQ: podmień resource na tym samym playerze ---
+    // --- REALTIME EQ ---
     try {
       const { Bot } = this.getDBM();
       let guild = cache.guild || cache.server;
       if (!guild) throw new Error('Brak guild/server w cache!');
       let queue = Bot.bot.queue && Bot.bot.queue.get(guild.id);
       if (!queue || !queue.player) {
-        // Brak aktywnego playera – tylko zapisujemy bands i kończymy akcję
         return this.callNextAction(cache);
       }
-      // ...reszta kodu bez zmian...
-      // Pobierz ostatni url z queue/songs lub z cache
       let url = null;
       if (queue.songs && queue.songs.length > 0 && queue.currentIndex < queue.songs.length) {
         url = queue.songs[queue.currentIndex]?.url || queue.songs[0]?.url;
@@ -220,7 +223,6 @@ module.exports = {
       if (Array.isArray(bands) && bands.length > 0) {
         eqFilter = bands.map(b => `equalizer=f=${b.freq}:width_type=o:width=2:g=${b.gain}`).join(",");
       }
-      // Dodaj loudnorm limiter
       const loudnormFilter = "loudnorm=I=-8:TP=0:LRA=8";
       if (eqFilter && eqFilter.length > 0) {
         eqFilter = eqFilter + "," + loudnormFilter;
@@ -233,7 +235,6 @@ module.exports = {
       const { createAudioResource, StreamType } = require("@discordjs/voice");
       let inputStream = null;
       if (/^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//.test(url)) {
-        // Use yt-dlp-exec module to get audio stream
         const ytdlp = require('yt-dlp-exec');
         const ytdlpProc = ytdlp(url, {
           output: '-',
@@ -245,7 +246,6 @@ module.exports = {
       } else {
         inputStream = url;
       }
-      // Przygotuj argumenty ffmpeg
       let ffmpegArgs = [
         "-i", inputStream !== url ? "pipe:0" : url,
         "-f", "ogg",
@@ -257,7 +257,6 @@ module.exports = {
         ffmpegArgs.push("-af", eqFilter);
       }
       ffmpegArgs.push("pipe:1");
-      // Ustal ścieżkę do ffmpeg (zakładamy, że jest w PATH)
       const ffmpegPath = "ffmpeg";
       const ffmpegProc = spawn(ffmpegPath, ffmpegArgs, { stdio: inputStream !== url ? ["pipe", "pipe", "ignore"] : ["ignore", "pipe", "ignore"] });
       if (inputStream !== url && inputStream && typeof inputStream.pipe === 'function') {
@@ -271,7 +270,6 @@ module.exports = {
         inlineVolume: true,
       });
       if (audioResource.volume) {
-        // Ustaw na to co było ustawione w playerze, jeśli istnieje
         let prevVol = 1;
         if (queue.player.state && queue.player.state.resource && queue.player.state.resource.volume) {
           prevVol = queue.player.state.resource.volume.volume;

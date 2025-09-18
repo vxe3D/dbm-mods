@@ -1,9 +1,10 @@
 module.exports = {
-  name: "Set Voice Channel Status",
+  name: "[VX]set_voice_channel_status_MOD",
+  displayName: "Set Voice Channel Status",
   section: "# VX - Channels",
   meta: {
     version: "3.2.0",
-    actionVersion: "3.0.0",
+    actionVersion: "3.1.0",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -22,18 +23,23 @@ module.exports = {
   },
 
   html(isEvent, data) {
+  const actionVersion = (this.meta && typeof this.meta.actionVersion !== "undefined") ? `${this.meta.actionVersion}` : "???";
+  const actionFilename = (this.name ? this.name + ".js" : "[VX]store_server_info.js");
+  window.__VX_ACTION_VERSION = actionVersion;
+  window.__VX_ACTION_FILENAME = actionFilename;
     return `
     <div class="vcstatus-box-fixed vcstatus-box-left" style="top: 2px;">
       <div class="vcstatus-author"><span class="vcstatus-author-label">Autor:</span> <span class="vcstatus-author-name">vxed_</span></div>
       <a href="https://discord.gg/XggyjAMFmC" class="vcstatus-discord" target="_blank">Discord</a>
     </div>
     <div class="vcstatus-box-fixed vcstatus-box-right" style="top: 22px; right: 15px;">
-      <span class="vcstatus-version">v3.0.0</span>
+      <span class="vcstatus-version">v${actionVersion}</span>
     </div>
-    <div class="vcstatus-warning">
+    <div class="vcstatus-warning-endpoint">
       <strong>Uwaga!</strong> Ten mod korzysta z nieoficjalnego endpointu Discorda więc może być bannable!<br>
       <span style="color:#ff0000ff">Nie odpowiadamy za używanie tej funkcji.</span>
     </div>
+      <div id="vx-version-warning" style="position:fixed; top:52px; right:218px; min-width:120px; max-width:320px; z-index:9999;"></div>
     <style>
       .vcstatus-author-label {
         color: #BDBDBD;
@@ -61,7 +67,8 @@ module.exports = {
       .vcstatus-author {color:#ff4d4d;font-weight:bold;font-size:var(--vcstatus-author-font-size);margin-bottom:2px;margin-top:var(--vcstatus-author-margin-top);margin-left:var(--vcstatus-author-margin-left);}
       .vcstatus-discord {color:#5865F2;background:#23272a;border-radius:5px;padding:2px 10px;text-decoration:none;font-weight:bold;font-size:var(--vcstatus-discord-font-size);margin-top:var(--vcstatus-discord-margin-top);margin-left:var(--vcstatus-discord-margin-left);transition:background 0.2s,color 0.2s;box-shadow:0 1px 4px rgba(88,101,242,0.08);}
       .vcstatus-discord:hover {background:#5865F2;color:#fff;text-decoration:underline;}
-      .vcstatus-warning {background:linear-gradient(90deg,#ffbaba 0%,#ffd6d6 100%);border:1px solid #ff5555;color:#222;padding:10px 14px;border-radius:8px;margin-bottom:16px;font-size:13px;box-shadow:0 2px 8px rgba(255,85,85,0.08);margin-top:5px;}
+      .vcstatus-warning {background: linear-gradient(90deg, #890000 0%, #B57070 100%);border: 1px solid #5a2323;color: #fff;padding: 1px 2px;border-radius: 8px;margin-bottom: 8px;font-size: 11px;font-weight:bold;box-shadow: 0 2px 8px rgba(137,0,0,0.10);margin-top: 4px;text-align: center;}
+      .vcstatus-warning-endpoint {background:linear-gradient(90deg,#ffbaba 0%,#ffd6d6 100%);border:1px solid #ff5555;color:#222;padding:10px 14px;border-radius:8px;margin-bottom:16px;font-size:13px;box-shadow:0 2px 8px rgba(255,85,85,0.08);margin-top:5px;}
       .dbminputlabel {color:#8754ffff;font-weight:bold;margin-bottom:4px;display:inline-block;}
       input.round {border-radius:6px;border:1px solid #aaa;padding:6px 10px;font-size:14px;margin-top:2px;background:#21232B;transition:border-color 0.2s;}
       input.round:focus {border-color:#b595ffff;outline:none;}
@@ -73,7 +80,10 @@ module.exports = {
     `;
   },
 
-  init() {},
+  preInit() {
+    const f = window.__VX_ACTION_FILENAME||"[VX]store_server_info.js", l = window.__VX_ACTION_VERSION||"0.0.0", c = (a,b) => {a=a.split('.').map(Number),b=b.split('.').map(Number);for(let i=0;i<Math.max(a.length,b.length);i++){let n1=a[i]||0,n2=b[i]||0;if(n1!==n2)return n1-n2;}return 0;}, githubUrl = `https://github.com/vxe3D/dbm-mods/blob/main/actions%2F${encodeURIComponent(f)}`;
+    fetch("https://github.com/vxe3D/dbm-mods/raw/main/Versions/versions.json").then(r=>r.json()).then(j=>{const v=j[f]?.version;if(v&&c(l,v)<0){document.getElementById("vx-version-warning").innerHTML="<button class='vcstatus-warning' id='vx-version-btn' type='button'>Masz nieaktualną wersję</button>";setTimeout(()=>{const b=document.getElementById('vx-version-btn');if(b)b.onclick=e=>{e.preventDefault();const u=githubUrl;if(window.require)try{window.require('electron').shell.openExternal(u);}catch{window.open(u,'_blank');}else window.open(u,'_blank');};},0);}});
+  },
 
   async action(cache) {
     const data = cache.actions[cache.index];
