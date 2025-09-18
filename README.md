@@ -8,7 +8,7 @@
 | [VX]Compare_Restults.js | 3.2.0 | vxed_ | 2025-09-18 06:48 | undefined | <a href="https://github.com/vxe3D/dbm-mods/raw/main/actions/[VX]Compare_Restults.js" download>🔗</a> |
 | [VX]Format_Relative_Time.js | 3.4.0 | vxed_ | 2025-09-18 06:48 | undefined | <a href="https://github.com/vxe3D/dbm-mods/raw/main/actions/[VX]Format_Relative_Time.js" download>🔗</a> |
 | [VX]Generate_Timestamp.js | 3.4.0 | vxed_ | 2025-09-18 06:48 | undefined | <a href="https://github.com/vxe3D/dbm-mods/raw/main/actions/[VX]Generate_Timestamp.js" download>🔗</a> |
-| [VX]Manage_role_for_All_members.js | 3.0.0 | vxed | 2025-09-18 06:48 | undefined | <a href="https://github.com/vxe3D/dbm-mods/raw/main/actions/[VX]Manage_role_for_All_members.js" download>🔗</a> |
+| [VX]Manage_role_for_All_members.js | 3.1.0 | vxed | 2025-09-18 06:48 | 2025-09-18 06:50 | <a href="https://github.com/vxe3D/dbm-mods/raw/main/actions/[VX]Manage_role_for_All_members.js" download>🔗</a> |
 | [VX]SQLite_DB.js | 3.4.0 | vxed_ | 2025-09-18 06:48 | undefined | <a href="https://github.com/vxe3D/dbm-mods/raw/main/actions/[VX]SQLite_DB.js" download>🔗</a> |
 | [VX]channel_restriction.js | 3.4.0 | vxed_ | 2025-09-18 06:48 | undefined | <a href="https://github.com/vxe3D/dbm-mods/raw/main/actions/[VX]channel_restriction.js" download>🔗</a> |
 | [VX]control_music_MOD.js | 3.4.0 | vxed_ | 2025-09-18 06:48 | undefined | <a href="https://github.com/vxe3D/dbm-mods/raw/main/actions/[VX]control_music_MOD.js" download>🔗</a> |
