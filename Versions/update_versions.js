@@ -100,7 +100,10 @@ function generateRows(arr) {
       display = display.slice(0, 16) + "...";
     }
 
-    return `| <small>${display}</small> | <small>${v.version}</small> | <small>${v.author}</small> | <small>${v.createdDate}</small> | <small>${v.updateDate}</small> | ${downloadLink} |`;
+    // Jeśli updateDate jest "undefined", pokaż tekst zastępczy
+    const updateDate = v.updateDate === "undefined" ? "Oczekuje na aktualizację" : v.updateDate;
+
+    return `| <small>${display}</small> | <small>${v.version}</small> | <small>${v.author}</small> | <small>${v.createdDate}</small> | <small>${updateDate}</small> | ${downloadLink} |`;
   }).join("\n");
 }
 
