@@ -83,11 +83,15 @@ let readmeContent = fs.existsSync(readmePath)
 
 const repoRawUrl = "https://github.com/vxe3D/dbm-mods/blob/main/";
 
-function generateRows(arr) {
-  // kopiujemy tablicę, żeby nie modyfikować oryginału
+// 🔹 generateRows zajmuje się filtrowaniem + sortowaniem
+function generateRows(prefix) {
+  // filtrujemy pliki wg katalogu (actions/ lub events/)
+  const arr = files.filter(f => f.fullPath.startsWith(prefix));
+
+  // kopiujemy tablicę
   const sorted = [...arr];
 
-  // znajdujemy najnowszy plik wg updateDate / createdDate
+  // 🔹 przesuwamy najnowszy plik na początek
   let newestIndex = -1;
   let newestTime = 0;
   sorted.forEach((file, i) => {
@@ -101,7 +105,6 @@ function generateRows(arr) {
     }
   });
 
-  // jeśli znaleziono nowy plik, przenieś go na początek
   if (newestIndex > 0) {
     const [newestFile] = sorted.splice(newestIndex, 1);
     sorted.unshift(newestFile);
@@ -111,7 +114,7 @@ function generateRows(arr) {
     const v = data[displayName];
     const fileUrl = `${repoRawUrl}${encodeURIComponent(fullPath.replace(/\\/g, "/"))}`;
     let display = displayName.replace(/^\[.*?\]/, "");
-    if (display.length > 19) display = display.slice(0,16) + "...";
+    if (display.length > 19) display = display.slice(0, 16) + "...";
 
     const updateDate = v.updateDate === "undefined" ? "Oczekuje na aktualizację" : v.updateDate;
     const displayLink = `[${display}](${fileUrl})`;
@@ -130,7 +133,7 @@ const htmlTables = `
 
 ### Actions
 ${tableHeader}
-${generateRows(actionsFiles)}
+${generateRows("actions/")}
 
   </td>
 </tr>
@@ -142,7 +145,7 @@ ${generateRows(actionsFiles)}
 
 ### Events
 ${tableHeader}
-${generateRows(eventsFiles)}
+${generateRows("events/")}
 
   </td>
 </tr>
