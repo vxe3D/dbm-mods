@@ -90,25 +90,21 @@ let readmeContent = fs.existsSync(readmePath)
 const repoRawUrl = "https://github.com/vxe3D/dbm-mods/blob/main/";
 
 function parsePolishDate(str) {
-  // "18.09.2025 09:23" -> Date
   if (!str || str === "undefined") return null;
   const [day, month, year, hour, minute] = str.match(/(\d+)/g).map(Number);
   return new Date(year, month - 1, day, hour, minute);
 }
 
-// 🔹 Funkcja generująca wiersze, dzieląc na najnowsze i resztę
 function generateRowsWithLatest(prefix) {
   const arr = files.filter(f => f.fullPath.startsWith(prefix));
 
   const sorted = [...arr].sort((a, b) => {
     const va = data[a.displayName];
     const vb = data[b.displayName];
-
     const getTime = v => {
       const d = parsePolishDate(v.updateDate) || parsePolishDate(v.createdDate);
       return d ? d.getTime() : 0;
     };
-
     return getTime(vb) - getTime(va);
   });
 
@@ -120,11 +116,9 @@ function generateRowsWithLatest(prefix) {
     const fileUrl = `${repoRawUrl}${encodeURIComponent(fullPath.replace(/\\/g, "/"))}`;
     let display = displayName.replace(/^\[.*?\]/, "");
     if (display.length > 19) display = display.slice(0,16) + "...";
-
     const updateDate = v.updateDate && v.updateDate !== "undefined" ? v.updateDate : "Awaiting update";
     const displayLink = `[${display}](${fileUrl})`;
-
-    return `| <small>${displayLink}</small> | <small>${v.version}</small> | <small>${v.author}</small> | <small>${v.createdDate}</small> | <small>${updateDate}</small> |`;
+    return `| ${displayLink} | ${v.version} | ${v.author} | ${v.createdDate} | ${updateDate} |`;
   }).join("\n");
 
   return {
@@ -136,43 +130,34 @@ function generateRowsWithLatest(prefix) {
 const tableHeader = `| File | Version | Author | Created | Updated
 |------|--------|-------|-----------|----------------|`;
 
-// 🔹 Generowanie tabeli dla Actions
 const { latestRows: latestActions, otherRows: otherActions } = generateRowsWithLatest("actions/");
-// 🔹 Generowanie tabeli dla Events
 const { latestRows: latestEvents, otherRows: otherEvents } = generateRowsWithLatest("events/");
 
-const htmlTables = `
-<table>
-<tr><td>
+const markdownTables = `
 ### Latest Actions
 ${tableHeader}
 ${latestActions}
-</td></tr>
-<tr><td>
+
 ### Other Actions
 ${tableHeader}
 ${otherActions}
-</td></tr>
-<tr><td>
+
 ### Latest Events
 ${tableHeader}
 ${latestEvents}
-</td></tr>
-<tr><td>
+
 ### Other Events
 ${tableHeader}
 ${otherEvents}
-</td></tr>
-</table>
 `;
 
 if (readmeContent.includes("<!-- ACTIONS_TABLE_START -->")) {
   readmeContent = readmeContent.replace(
     /<!-- ACTIONS_TABLE_START -->[\s\S]*<!-- ACTIONS_TABLE_END -->/m,
-    `<!-- ACTIONS_TABLE_START -->\n${htmlTables}\n<!-- ACTIONS_TABLE_END -->`
+    `<!-- ACTIONS_TABLE_START -->\n${markdownTables}\n<!-- ACTIONS_TABLE_END -->`
   );
 } else {
-  readmeContent += `\n## Actions & Events\n<!-- ACTIONS_TABLE_START -->\n${htmlTables}\n<!-- ACTIONS_TABLE_END -->\n`;
+  readmeContent += `\n## Actions & Events\n<!-- ACTIONS_TABLE_START -->\n${markdownTables}\n<!-- ACTIONS_TABLE_END -->\n`;
 }
 
 fs.writeFileSync(readmePath, readmeContent);
