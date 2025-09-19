@@ -4,7 +4,7 @@ module.exports = {
   section: "# VX - Message(s)",
   meta: {
     version: "3.2.0",
-    actionVersion: "3.6.0",
+    actionVersion: "3.6.2",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -2459,7 +2459,12 @@ module.exports = {
       }
     }
 
-    if (data.dontSend === "true") {
+    if (isChecked(data.dontSend)) {
+      // Zapisz payload wiadomości w zmiennej
+      if (data.storage !== "none") {
+        this.storeValue(messageData, parseInt(data.storage), data.varName2, cache);
+      }
+      // Nie wysyłaj wiadomości, od razu kontynuuj
       return this.callNextAction(cache);
     }
 
