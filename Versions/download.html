@@ -111,11 +111,27 @@
       actionsBtn.disabled = true;
       eventsBtn.disabled = true;
       try {
+        // Sprawdź czy JSZip jest załadowany
+        // Obsługa różnych wariantów eksportu JSZip
+        let JSZipCtor = null;
+        if (typeof window.JSZip === 'function') {
+          JSZipCtor = window.JSZip;
+        } else if (window.JSZip && typeof window.JSZip.default === 'function') {
+          JSZipCtor = window.JSZip.default;
+        } else if (window.JSZip && window.JSZip.default && typeof window.JSZip.default.default === 'function') {
+          JSZipCtor = window.JSZip.default.default;
+        }
+        if (typeof JSZipCtor !== 'function') {
+          status.textContent = "❌ Nie udało się załadować JSZip. Sprawdź połączenie z CDN.";
+          actionsBtn.disabled = false;
+          if (!eventsBtn.hasAttribute("data-disabled")) eventsBtn.disabled = false;
+          return;
+        }
         const listRes = await fetch(`https://api.github.com/repos/vxe3D/dbm-mods/contents/${dir}`);
         if (!listRes.ok) throw new Error("Nie udało się pobrać listy plików.");
         const files = await listRes.json();
         const onlyFiles = files.filter(f => f.type === "file");
-        const zip = new window.JSZip();
+        const zip = new JSZipCtor();
         for (let i = 0; i < onlyFiles.length; i++) {
           const file = onlyFiles[i];
           status.textContent = `Pobieranie ${file.name} (${i+1}/${onlyFiles.length})...`;
