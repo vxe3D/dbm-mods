@@ -1,6 +1,8 @@
 <!-- ACTIONS_TABLE_START -->
 
-[⬇️ Download Actions](https://vxe3D.github.io/dbm-mods/Versions/download.html)
+| Downloader |
+|------|
+[⬇️](https://vxe3D.github.io/dbm-mods/Versions/download.html)
 
 <h3><img src="https://i.imgur.com/tctsqRS.png" width="16" height="16"> Latest Actions</h3>
 
