@@ -135,7 +135,9 @@ const { latestRows: latestEvents, otherRows: otherEvents } = generateRowsWithLat
 
 const markdownTables = `
 <h3><img src="https://i.imgur.com/tctsqRS.png" width="16" height="16"> Latest Actions</h3>
-${tableHeader}
+
+| File | Version | Author | Created | Updated |
+|------|--------|-------|-----------|----------------|
 ${latestActions}
 
 ### Other Actions
@@ -143,7 +145,9 @@ ${tableHeader}
 ${otherActions}
 
 <h3><img src="https://i.imgur.com/ezqaGtk.png" width="16" height="16"> Latest Events</h3>
-${tableHeader}
+
+| File | Version | Author | Created | Updated |
+|------|--------|-------|-----------|----------------|
 ${latestEvents}
 
 ### Other Events
