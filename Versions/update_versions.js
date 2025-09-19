@@ -140,8 +140,10 @@ const markdownTables = `
 |------|--------|-------|-----------|----------------|
 ${latestActions}
 
-### Other Actions
-${tableHeader}
+<h3><img src="https://i.imgur.com/tctsqRS.png" width="16" height="16"> Other Actions</h3>
+
+| File | Version | Author | Created | Updated |
+|------|--------|-------|-----------|----------------|
 ${otherActions}
 
 <h3><img src="https://i.imgur.com/ezqaGtk.png" width="16" height="16"> Latest Events</h3>
@@ -150,8 +152,10 @@ ${otherActions}
 |------|--------|-------|-----------|----------------|
 ${latestEvents}
 
-### Other Events
-${tableHeader}
+<h3><img src="https://i.imgur.com/ezqaGtk.png" width="16" height="16"> Other Events</h3>
+
+| File | Version | Author | Created | Updated |
+|------|--------|-------|-----------|----------------|
 ${otherEvents}
 `;
 
