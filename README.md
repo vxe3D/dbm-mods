@@ -8,7 +8,7 @@
 
 | File | Version | Author | Created | Updated |
 |------|--------|-------|-----------|----------------|
-| [delete_bulk_messages.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Ddelete_bulk_messages.js) | 3.2.2 | vxed_ | 19.09.2025 19:23 | 19.09.2025 20:02 |
+| [delete_bulk_messages.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Ddelete_bulk_messages.js) | 3.2.3 | vxed_ | 19.09.2025 19:23 | 19.09.2025 20:11 |
 | [store_time_info.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dstore_time_info.js) | 3.1.0 | vxed_ | 19.09.2025 19:57 | Awaiting update |
 | [Send_Components_Webhook.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DSend_Components_Webhook.js) | 2.1.0 | vxed_ | 19.09.2025 10:24 | 19.09.2025 19:23 |
 | [SQLite_DB.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DSQLite_DB.js) | 3.6.3 | vxed_ | 18.09.2025 09:23 | 19.09.2025 19:21 |
