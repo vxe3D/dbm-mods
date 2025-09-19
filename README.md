@@ -1,8 +1,4 @@
-
-
-## Lista akcji
 <!-- ACTIONS_TABLE_START -->
-
 ### Latest Actions
 | File | Version | Author | Created | Updated
 |------|--------|-------|-----------|----------------|
