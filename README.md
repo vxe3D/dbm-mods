@@ -8,23 +8,24 @@
 
 | File | Version | Author | Created | Updated |
 |------|--------|-------|-----------|----------------|
-| [replace_text.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dreplace_text.js) | 3.5.1 | vxed_ | 18.09.2025 09:23 | 19.09.2025 10:33 |
+| [SQLite_DB.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DSQLite_DB.js) | 3.6.2 | vxed_ | 18.09.2025 09:23 | 19.09.2025 14:54 |
+| [control_music_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dcontrol_music_MOD.js) | 3.4.0 | vxed_ | 18.09.2025 09:23 | 19.09.2025 14:54 |
+| [generate_random_word.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dgenerate_random_word.js) | 2.5.0 | vxed_ | 19.09.2025 14:54 | Awaiting update |
+| [replace_text.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dreplace_text.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 19.09.2025 14:54 |
 | [Send_Components_Webhook.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DSend_Components_Webhook.js) | 2.0.0 | vxed_ | 19.09.2025 10:24 | Awaiting update |
-| [send_components_v2_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dsend_components_v2_MOD.js) | 3.6.2 | vxed_ | 18.09.2025 09:23 | 19.09.2025 10:24 |
-| [store_invite_info.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dstore_invite_info.js) | 3.1.0 | vxed_ | 18.09.2025 14:44 | 18.09.2025 15:48 |
-| [control_music_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dcontrol_music_MOD.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:21 |
 
 <h3><img src="https://i.imgur.com/tctsqRS.png" width="16" height="16"> Other Actions</h3>
 
 | File | Version | Author | Created | Updated |
 |------|--------|-------|-----------|----------------|
+| [send_components_v2_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dsend_components_v2_MOD.js) | 3.6.2 | vxed_ | 18.09.2025 09:23 | 19.09.2025 10:24 |
+| [store_invite_info.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dstore_invite_info.js) | 3.1.0 | vxed_ | 18.09.2025 14:44 | 18.09.2025 15:48 |
 | [set_bot_activity_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_bot_activity_MOD.js) | 3.4.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:20 |
 | [Check_Account_Age.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DCheck_Account_Age.js) | 3.4.0 | vxed_ | 18.09.2025 12:19 | Awaiting update |
 | [Check_Timestamp_Difference.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DCheck_Timestamp_Difference.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
 | [Format_Relative_Time.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DFormat_Relative_Time.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
 | [Generate_Timestamp.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DGenerate_Timestamp.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
 | [Manage_role_for_All_members.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DManage_role_for_All_members.js) | 3.2.0 | vxed | 18.09.2025 09:23 | 18.09.2025 12:19 |
-| [SQLite_DB.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DSQLite_DB.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
 | [channel_restriction.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dchannel_restriction.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
 | [convert_time_to_seconds_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dconvert_time_to_seconds_MOD.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
 | [disable_buttons_select.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Ddisable_buttons_select.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
