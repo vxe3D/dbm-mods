@@ -2,7 +2,7 @@
 
 | Downloader |
 |------|
-[⬇️](https://vxe3D.github.io/dbm-mods/Versions/download.html)
+[⬇️ Click me!](https://vxe3D.github.io/dbm-mods/Versions/download.html)
 
 <h3><img src="https://i.imgur.com/tctsqRS.png" width="16" height="16"> Latest Actions</h3>
 
