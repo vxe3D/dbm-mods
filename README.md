@@ -8,7 +8,7 @@
 
 | File | Version | Author | Created | Updated |
 |------|--------|-------|-----------|----------------|
-| [SQLite_DB.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DSQLite_DB.js) | 3.6.2 | vxed_ | 18.09.2025 09:23 | 19.09.2025 14:54 |
+| [SQLite_DB.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DSQLite_DB.js) | 3.6.3 | vxed_ | 18.09.2025 09:23 | 19.09.2025 19:21 |
 | [control_music_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dcontrol_music_MOD.js) | 3.4.0 | vxed_ | 18.09.2025 09:23 | 19.09.2025 14:54 |
 | [generate_random_word.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dgenerate_random_word.js) | 2.5.0 | vxed_ | 19.09.2025 14:54 | Awaiting update |
 | [replace_text.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dreplace_text.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 19.09.2025 14:54 |
