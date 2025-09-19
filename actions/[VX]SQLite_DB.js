@@ -4,7 +4,7 @@ module.exports = {
     section: '# VX - Utilities',
     meta: {
         version: "3.2.0",
-        actionVersion: "3.6.2",
+        actionVersion: "3.6.3",
         author: "vxed_",
         authorUrl: "https://github.com/vxe3D/dbm-mods",
         downloadUrl: "https://github.com/vxe3D/dbm-mods",
@@ -885,8 +885,31 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                         val2: data.checkvarValue
                     });
                     if (conditionColumn && getColumn && conditionValue) {
-                        if (debugMode) console.log('[sqlite3] CHECKVAR SQL:', `SELECT ${getColumn} FROM "${tableName.replace('.sqlite','')}" WHERE ${conditionColumn}=?`, [conditionValue]);
-                        const sql = `SELECT ${getColumn} FROM "${tableName.replace('.sqlite','')}" WHERE ${conditionColumn}=?`;
+                        const tableNoExt = tableName.replace('.sqlite','');
+                        const pragmaSql = `PRAGMA table_info(\"${tableNoExt}\")`;
+                        const columnsInfo = await new Promise((resolve, reject) => {
+                            db.all(pragmaSql, [], (err, rows) => {
+                                if (err) reject(err);
+                                else resolve(rows);
+                            });
+                        });
+                        const colNames = columnsInfo.map(col => col.name);
+                        if (!colNames.includes(getColumn)) {
+                            const alterSQL = `ALTER TABLE \"${tableNoExt}\" ADD COLUMN \"${getColumn}\" TEXT`;
+                            await new Promise((resolve, reject) => {
+                                db.run(alterSQL, [], err => err ? reject(err) : resolve());
+                            });
+                            if (debugMode) console.log(`[sqlite3] CHECKVAR: Dodano brakującą kolumnę ${getColumn}`);
+                        }
+                        if (!colNames.includes(conditionColumn)) {
+                            const alterSQL = `ALTER TABLE \"${tableNoExt}\" ADD COLUMN \"${conditionColumn}\" TEXT`;
+                            await new Promise((resolve, reject) => {
+                                db.run(alterSQL, [], err => err ? reject(err) : resolve());
+                            });
+                            if (debugMode) console.log(`[sqlite3] CHECKVAR: Dodano brakującą kolumnę ${conditionColumn}`);
+                        }
+                        if (debugMode) console.log('[sqlite3] CHECKVAR SQL:', `SELECT ${getColumn} FROM "${tableNoExt}" WHERE ${conditionColumn}=?`, [conditionValue]);
+                        const sql = `SELECT ${getColumn} FROM "${tableNoExt}" WHERE ${conditionColumn}=?`;
                         const row = await new Promise((resolve, reject) => {
                             db.get(sql, [conditionValue], (err, row) => {
                                 if (err) reject(err);
