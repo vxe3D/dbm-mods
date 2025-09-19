@@ -4,7 +4,7 @@ module.exports = {
     section: '# VX - Utilities',
     meta: {
         version: "3.2.0",
-        actionVersion: "3.5.0",
+        actionVersion: "3.6.2",
         author: "vxed_",
         authorUrl: "https://github.com/vxe3D/dbm-mods",
         downloadUrl: "https://github.com/vxe3D/dbm-mods",
@@ -15,14 +15,16 @@ module.exports = {
             update: 'Update/Save',
             delete: 'Delete',
             count: 'Count Values',
-            checkvar: 'Check Variable'
+            checkvar: 'Check Variable',
+            countList: 'Count List',
+            search: 'Search in'
         };
         const opLabel = opMap[data.dboperation] || data.dboperation;
         let tableName = data.tableName || '';
         if (tableName && !tableName.endsWith('.sqlite')) tableName += '.sqlite';
         let varName = data.varName || '';
             // Show tableName and varName for Store, Count, Update, and Delete operations
-        if (['store', 'count', 'update', 'delete'].includes(data.dboperation)) {
+        if (['store', 'count', 'update', 'delete', 'countList', 'checkvar', 'search'].includes(data.dboperation)) {
             let parts = [opLabel];
             if (tableName) parts.push(`File: ${tableName}`);
             if (varName) parts.push(varName);
@@ -36,7 +38,7 @@ module.exports = {
         return [data.varName, 'Database'];
     },
 
-fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery', 'searchByIndex', 'storeKey', 'storeCollection', 'debugMode', 'tableName', 'storage', 'varName', 'deleteCollection', 'deleteColumnsToClear', 'deleteKey', 'getColumn', 'conditionColumn', 'conditionValue', 'countColumn', 'comparison', 'branch', 'checkvarConditionColumn', 'checkvarGetColumn', 'checkvarConditionValue', 'checkvarComparison', 'checkvarValue'],
+fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery', 'searchByIndex', 'storeKey', 'storeCollection', 'debugMode', 'tableName', 'storage', 'varName', 'deleteCollection', 'deleteColumnsToClear', 'deleteKey', 'getColumn', 'conditionColumn', 'conditionValue', 'countColumn', 'comparison', 'branch', 'checkvarConditionColumn', 'checkvarGetColumn', 'checkvarConditionValue', 'checkvarComparison', 'checkvarValue', 'countListMatchColumn', 'countListCheckValue', 'countListColumn', 'searchReturnColumn', 'searchListColumn', 'searchValue'],
 
   html(isEvent, data) {
   const actionVersion = (this.meta && typeof this.meta.actionVersion !== "undefined") ? `${this.meta.actionVersion}` : "???";
@@ -91,14 +93,98 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                     <span class="dbminputlabel">Operation</span>
                     <select id="dboperation" class="round">
                         <option value="checkvar">Check Variable</option>
+                        <option value="search">Search in</option>
                         <option value="store">Store</option>
                         <option value="update">Update/Save</option>
                         <option value="delete">Delete</option>
+                        <option value="countList">Count List</option>
                         <option value="count">Count Values</option>
                     </select>
-                <div id="countFieldsDiv" style="margin-bottom: 10px; display:none;">
+                <div id="countFieldsDiv" style="margin-top: 10px; margin-bottom: 10px; display:none;">
                     <span class="dbminputlabel">Column to count values</span>
                     <input id="countColumn" class="round" type="text" placeholder="ex. Age">
+                </div>
+                <div id="countListFieldsDiv" style="margin-top: 10px; margin-bottom: 10px; display:none; width: 100%;">
+                    <div style="float: left; width: 32%;">
+                        <span class="dbminputlabel">Column to match</span>
+                        <input id="countListMatchColumn" class="round" type="text" placeholder="ex. ID">
+                    </div>
+                    <div style="float: left; width: 32%; margin-left: 2%;">
+                        <span class="dbminputlabel">Column to check</span>
+                        <input id="countListCheckValue" class="round" type="text" placeholder="ex. 1">
+                    </div>
+                    <div style="float: left; width: 32%; margin-left: 2%;">
+                        <span class="dbminputlabel">Column to count</span>
+                        <input id="countListColumn" class="round" type="text" placeholder="ex. Users">
+                    </div>
+                    <div style="clear: both;"></div>
+                </div>
+                <div id="SearchFieldsDiv" style="margin-top: 10px; margin-bottom: 10px; display:none; width: 100%;">
+                    <div style="float: left; width: 60%;">
+                        <span class="dbminputlabel">Column to match</span>
+                        <span class="dbminputlabel"><b>Jak używać? - <u>Search</u></b>
+                        <help-icon dialogTitle="[Local Database] How to use this function" dialogWidth="640" dialogHeight="700">
+                            <!-- Trzecie okienko -->
+                            <div style="background-color:rgba(0, 0, 0, 0.41); border: 2px solid rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                            <b><span style="font-size: 15px;">📖 <u>Column to check</span></b></u><br>
+                            <div style="display: flex; gap: 20px;">  
+                                <ul style="flex: 1;  padding-left: 20px; margin: 0;">
+                                <li>W tym polu zamieszczasz nazwę kolumny, w której ma szukać użytkownika</li>
+                                </ul>
+                            </div>
+                            </div>
+
+                            <!-- Trzecie okienko -->
+                            <div style="background-color:rgba(0, 0, 0, 0.41); border: 2px solid rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                            <b><span style="font-size: 15px;">📖 <u>Value to find</span></b></u><br>
+                            <div style="display: flex; gap: 20px;">  
+                                <ul style="flex: 1;  padding-left: 20px; margin: 0;">
+                                <li>W tym polu zamieszczasz wartość, której szukasz w kolumnie "Column to check"</li>
+                                </ul>
+                            </div>
+                            </div>
+
+                            <!-- Trzecie okienko -->
+                            <div style="background-color:rgba(0, 0, 0, 0.41); border: 2px solid rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                            <b><span style="font-size: 15px;">📖 <u>Column to match</span></b></u><br>
+                            <div style="display: flex; gap: 20px;">  
+                                <ul style="flex: 1;  padding-left: 20px; margin: 0;">
+                                <li>W tym polu zamieszczasz nazwę kolumny - np. w ID znajduje się użytkownik <b>1</b> i przypisana do niego osoba to <b>2</b> - jeśli poprawnie podasz kolumnę to wtedy wskaże osobę <b>1</b><br><br>Osobą <b>2</b> jest użytkownik którego wskazujesz w "Value to Find"</li>
+                                </ul>
+                            </div>
+                            </div>
+
+                            <!-- Trzecie okienko -->
+                            <div style="background-color:rgba(0, 0, 0, 0.41); border: 2px solid rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 5px; margin-bottom: 10px; margin-top: 200px;">
+                            <b><span style="font-size: 15px;">⚠️ <u>W razie problemów...</span></b></u><br>
+                            <div style="display: flex; gap: 20px;">  
+                                <ul style="flex: 1;  padding-left: 20px; margin: 0;">
+                                <li>Skontaktuj się ze mną na Discordzie <u>DBM Polska</u> lub w <u>wiadomości prywatnej</u> (<b>vxed_</b>)</li>
+                                </ul>
+                            </div>
+                            </div>
+                            <!-- Czwarte okienko -->
+                            <div style="background-color:rgba(0, 0, 0, 0.41); border: 2px solid rgba(255, 255, 255, 0.5); padding: 10px; border-radius: 5px; margin-top: 10px;">
+                            <b><span style="font-size: 15px;">🚨 <u>Znalazłeś błąd?</span></b></u><br>
+                            <div style="display: flex; gap: 20px;">  
+                                <ul style="flex: 1;  padding-left: 20px; margin: 0;">
+                                <li>Zgłoś problem na Discordzie w wiadomości prywatnej <b><u>vxed_</b></u> - zazwyczaj odpowiadam do godziny.</li>
+                                </ul>
+                            </div>
+                            </div>
+                        </help-icon>
+                        </span>
+                        <input id="searchReturnColumn" class="round" type="text" placeholder="ex. ID">
+                    </div>
+                    <div style="float: right; width: 30%;">
+                        <span class="dbminputlabel">Column to check</span>
+                        <input id="searchListColumn" class="round" type="text" placeholder="ex. Users">
+                    </div>
+                    <br><br><br>
+                    <div style="width: 100%; margin-top: 10px;">
+                        <span class="dbminputlabel">Value to find</span>
+                        <input id="searchValue" class="round" type="text" placeholder="ex. 594974899513327617" style="width: 100%;">
+                    </div>
                 </div>
                 <div id="checkVarFieldsDiv" style="margin-bottom: 10px; display:none; width: 100%; overflow: hidden;">
                     <div style="float: left; width: 48%;">
@@ -427,7 +513,9 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
             updateVisibility('deleteFieldsDiv', false);
             updateVisibility('updateConditionDiv', false);
             updateVisibility('countFieldsDiv', false);
+            updateVisibility('countListFieldsDiv', false);
             updateVisibility('checkVarFieldsDiv', false);
+            updateVisibility('SearchFieldsDiv', false);
 
             const debugCheckbox = document.getElementById('debugMode');
             debugMode = debugCheckbox && debugCheckbox.checked;
@@ -437,7 +525,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
 
             const storeInVarDiv = document.getElementById('storeInVariableDiv');
             if (storeInVarDiv) {
-                if (op === 'store' || op === 'count') {
+                if (op === 'store' || op === 'count' || op === 'countList' || op === 'search') {
                     storeInVarDiv.style.display = '';
                 } else {
                     storeInVarDiv.style.display = 'none';
@@ -455,8 +543,12 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                 updateVisibility('deleteFieldsDiv', true);
             } else if (op === 'count') {
                 updateVisibility('countFieldsDiv', true);
+            } else if (op === 'countList') {
+                updateVisibility('countListFieldsDiv', true);
             } else if (op === 'checkvar') {
                 updateVisibility('checkVarFieldsDiv', true);
+            } else if (op === 'search') {
+                updateVisibility('SearchFieldsDiv', true);
             }
         }
         document.getElementById('dboperation').addEventListener('change', updateFields);
@@ -793,7 +885,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                         val2: data.checkvarValue
                     });
                     if (conditionColumn && getColumn && conditionValue) {
-                        if (debugMode) console.log('[sqlite3] CHECKVAR SQL:', `SELECT ${getColumn} FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`, [conditionValue]);
+                        if (debugMode) console.log('[sqlite3] CHECKVAR SQL:', `SELECT ${getColumn} FROM "${tableName.replace('.sqlite','')}" WHERE ${conditionColumn}=?`, [conditionValue]);
                         const sql = `SELECT ${getColumn} FROM "${tableName.replace('.sqlite','')}" WHERE ${conditionColumn}=?`;
                         const row = await new Promise((resolve, reject) => {
                             db.get(sql, [conditionValue], (err, row) => {
@@ -940,7 +1032,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                 if (debugMode) console.log('[sqlite3] OPERATION: count');
                     if (debugMode) console.log('[sqlite3] COUNT operation entered. countColumn:', countColumn);
                     if (countColumn && countColumn.trim() !== '') {
-                        const sql = `SELECT COUNT(*) as cnt FROM ${tableName.replace('.sqlite','')} WHERE ${countColumn} IS NOT NULL AND ${countColumn} != ''`;
+                        const sql = `SELECT COUNT(*) as cnt FROM "${tableName.replace('.sqlite','')}" WHERE ${countColumn} IS NOT NULL AND ${countColumn} != ''`;
                         if (debugMode) console.log('[sqlite3] COUNT SQL:', sql);
                         output = await new Promise((resolve, reject) => {
                             db.get(sql, [], (err, row) => {
@@ -959,6 +1051,40 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                         if (debugMode) console.log('[sqlite3] COUNT output:', output);
                     }
             // end count
+            } else if (dboperation === 'countList') {
+                if (debugMode) console.log('[sqlite3] OPERATION: countList');
+                // Pobierz wartości z pól
+                const countListMatchColumn = this.evalMessage(data.countListMatchColumn, cache);
+                const countListCheckValue = this.evalMessage(data.countListCheckValue, cache);
+                const countListColumn = this.evalMessage(data.countListColumn, cache);
+                if (debugMode) console.log('[sqlite3] countList fields:', { countListMatchColumn, countListCheckValue, countListColumn });
+                if (countListMatchColumn && countListCheckValue && countListColumn) {
+                    const sql = `SELECT ${countListColumn} FROM "${tableName.replace('.sqlite','')}" WHERE ${countListMatchColumn} = ?`;
+                    if (debugMode) console.log('[sqlite3] countList SQL:', sql);
+                    const row = await new Promise((resolve, reject) => {
+                        db.get(sql, [countListCheckValue], (err, row) => {
+                            if (err) {
+                                console.error('[sqlite3] countList ERROR:', err);
+                                reject(err);
+                            } else {
+                                resolve(row);
+                            }
+                        });
+                    });
+                    let value = row && row[countListColumn] ? String(row[countListColumn]) : '';
+                    if (debugMode) console.log('[sqlite3] countList value:', value);
+                    // Zlicz elementy po przecinku (jeśli nie pusta)
+                    let count = 0;
+                    if (value.trim() !== '') {
+                        count = value.split(',').map(s => s.trim()).filter(Boolean).length;
+                    }
+                    output = count;
+                    if (debugMode) console.log('[sqlite3] countList output:', output);
+                } else {
+                    output = '[sqlite3] countList: Missing fields.';
+                    if (debugMode) console.log('[sqlite3] countList output:', output);
+                }
+            // end countlist
             } else if (dboperation === 'update') {
                 if (debugMode) console.log('[sqlite3] OPERATION: update');
                 if (debugMode) console.log('[sqlite3] UPDATE operation entered.', {
@@ -970,7 +1096,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
 
                 let nextValue = null;
                 if (conditionValue && typeof conditionValue === 'string' && conditionValue.trim() === '[next]') {
-                    const sql = `SELECT MAX(CAST(${conditionColumn} AS INTEGER)) as maxval FROM ${tableName.replace('.sqlite','')}`;
+                    const sql = `SELECT MAX(CAST(${conditionColumn} AS INTEGER)) as maxval FROM "${tableName.replace('.sqlite','')}"`;
                     const row = await new Promise((resolve, reject) => {
                         db.get(sql, [], (err, row) => {
                             if (err) reject(err);
@@ -989,7 +1115,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                     // No condition, INSERT
                     if (columns.length > 0 && values.length > 0) {
                         const placeholders = columns.map(() => '?').join(', ');
-                        const insertSql = `INSERT INTO ${tableName.replace('.sqlite','')} (${columns.join(', ')}) VALUES (${placeholders})`;
+                        const insertSql = `INSERT INTO "${tableName.replace('.sqlite','')}" (${columns.join(', ')}) VALUES (${placeholders})`;
                         output = await insertWithAutoColumns(insertSql, values, columns, tableName.replace('.sqlite',''));
                         output = String(output);
                     } else {
@@ -1026,7 +1152,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                             // ✅ Append mode (^+value)
                             if (val.startsWith('^+')) {
                                 const toAppend = val.slice(2);
-                                const sql = `SELECT ${col} FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
+                                const sql = `SELECT ${col} FROM "${tableName.replace('.sqlite','')}" WHERE ${conditionColumn}=?`;
                                 const row = await new Promise((resolve, reject) => {
                                     db.get(sql, [effectiveConditionValue], (err, row) => err ? reject(err) : resolve(row));
                                 });
@@ -1039,7 +1165,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                             // ✅ Remove mode (^-value)
                             else if (val.startsWith('^-')) {
                                 const toRemove = val.slice(2);
-                                const sql = `SELECT ${col} FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
+                                const sql = `SELECT ${col} FROM "${tableName.replace('.sqlite','')}" WHERE ${conditionColumn}=?`;
                                 const row = await new Promise((resolve, reject) => {
                                     db.get(sql, [effectiveConditionValue], (err, row) => err ? reject(err) : resolve(row));
                                 });
@@ -1058,7 +1184,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
 
                             // ✅ Arithmetic mode (+/-number)
                             else if (/^[+-]\d+$/.test(val)) {
-                                const sql = `SELECT ${col} FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
+                                const sql = `SELECT ${col} FROM "${tableName.replace('.sqlite','')}" WHERE ${conditionColumn}=?`;
                                 const row = await new Promise((resolve, reject) => {
                                     db.get(sql, [effectiveConditionValue], (err, row) => err ? reject(err) : resolve(row));
                                 });
@@ -1071,7 +1197,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                     }
 
                     // Check if record exists
-                    const checkSql = `SELECT COUNT(*) as cnt FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
+                    const checkSql = `SELECT COUNT(*) as cnt FROM "${tableName.replace('.sqlite','')}" WHERE ${conditionColumn}=?`;
                     const checkExists = await new Promise((resolve, reject) => {
                         db.get(checkSql, [effectiveConditionValue], (err, row) => {
                             if (err) {
@@ -1098,7 +1224,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                         }
                         if (debugMode) console.log('[sqlite3] UPDATE: No record exists, will insert.', { insertColumns, insertValues });
                         const placeholders = insertColumns.map(() => '?').join(', ');
-                        const insertSql = `INSERT INTO ${tableName.replace('.sqlite','')} (${insertColumns.join(', ')}) VALUES (${placeholders})`;
+                        const insertSql = `INSERT INTO "${tableName.replace('.sqlite','')}" (${insertColumns.join(', ')}) VALUES (${placeholders})`;
                         output = await insertWithAutoColumns(insertSql, insertValues, insertColumns, tableName.replace('.sqlite',''));
                     } else {
                         // UPDATE existing record
@@ -1107,7 +1233,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                         updateValues.push(effectiveConditionValue);
                         if (debugMode) console.log('[sqlite3] UPDATE: Record exists, will update.', { setClause, updateValues });
                         output = String(output);
-                        const sql = `UPDATE ${tableName.replace('.sqlite','')} SET ${setClause} WHERE ${conditionColumn}=?`;
+                        const sql = `UPDATE "${tableName.replace('.sqlite','')}" SET ${setClause} WHERE ${conditionColumn}=?`;
                         output = await updateWithAutoColumns(sql, updateValues, columns, tableName.replace('.sqlite',''));
                     }
                 } else {
@@ -1129,7 +1255,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
 
                     if (values.length > 0 && values[0] === '[all]') {
                         if (debugMode) console.log('[sqlite3] STORE: Fetching all users as JSON table');
-                        const sql = `SELECT * FROM ${tableName.replace('.sqlite', '')}`;
+                        const sql = `SELECT * FROM "${tableName.replace('.sqlite', '')}"`;
                         output = await new Promise((resolve, reject) => {
                             db.all(sql, [], (err, rows) => {
                                 if (err) {
@@ -1153,7 +1279,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
 
                         // Pobierz pierwszą kolumnę z columns
                         const columnToCheck = columns && columns.length > 0 ? columns[0] : null;
-                        const sql = `SELECT ${getColumn} FROM ${tableName.replace('.sqlite','')} WHERE ${columnToCheck}=?`;
+                        const sql = `SELECT ${getColumn} FROM "${tableName.replace('.sqlite','')}" WHERE ${columnToCheck}=?`;
                         output = await new Promise((resolve, reject) => {
                             db.get(sql, [values[0]], async (err, row) => {
                                 if (err) {
@@ -1182,7 +1308,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                             output = 'Brak danych';
                         } else {
                             const valueToCheck = String(values[0]).trim();
-                            const sql = `SELECT ${getColumn} FROM ${tableName.replace('.sqlite','')} WHERE ${columnToCheck} = ? COLLATE BINARY`;
+                            const sql = `SELECT ${getColumn} FROM "${tableName.replace('.sqlite','')}" WHERE ${columnToCheck} = ? COLLATE BINARY`;
 
                             if (debugMode) console.log(`[DEBUG] SQL: ${sql}, value: "${valueToCheck}"`);
 
@@ -1203,7 +1329,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                         }
                     } else if (!getColumn && conditionColumn && values.length > 0) {
                         if (debugMode) console.log('[sqlite3] STORE: conditionColumn only', { conditionColumn, value: values[0] });
-                        const sql = `SELECT * FROM ${tableName.replace('.sqlite','')} WHERE ${conditionColumn}=?`;
+                        const sql = `SELECT * FROM "${tableName.replace('.sqlite','')}" WHERE ${conditionColumn}=?`;
                         output = await new Promise((resolve, reject) => {
                             db.get(sql, [values[0]], (err, row) => {
                                 if (err) {
@@ -1216,7 +1342,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                         });
                     } else {
                         if (debugMode) console.log('[sqlite3] STORE: get all records');
-                        const sql = `SELECT * FROM ${tableName.replace('.sqlite','')}`;
+                        const sql = `SELECT * FROM "${tableName.replace('.sqlite','')}"`;
                         if (debugMode) console.log('[sqlite3] STORE GET ALL RECORDS SQL:', sql);
                         output = await new Promise((resolve, reject) => {
                             db.all(sql, [], (err, rows) => {
@@ -1240,7 +1366,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                     if (columnsToClear.length > 0 && columns.length === 0) {
                         if (debugMode) console.log('[sqlite3] DELETE: Clear all columns', { columnsToClear });
                         const setClause = columnsToClear.map(col => `${col}=NULL`).join(', ');
-                        const sql = `UPDATE ${tableName.replace('.sqlite','')} SET ${setClause}`;
+                        const sql = `UPDATE "${tableName.replace('.sqlite','')}" SET ${setClause}`;
                         output = await new Promise((resolve, reject) => {
                             db.run(sql, [], function(err) {
                                 if (err) {
@@ -1257,7 +1383,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                         if (columnsToClear.length > 0) {
                             if (debugMode) console.log('[sqlite3] DELETE: Update set NULL with where', { setClause, where });
                             const setClause = columnsToClear.map(col => `${col}=NULL`).join(', ');
-                            const sql = `UPDATE ${tableName.replace('.sqlite','')} SET ${setClause} WHERE ${where}`;
+                            const sql = `UPDATE "${tableName.replace('.sqlite','')}" SET ${setClause} WHERE ${where}`;
                             output = await new Promise((resolve, reject) => {
                                 db.run(sql, values, function(err) {
                                     if (err) {
@@ -1270,7 +1396,7 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                             });
                         } else {
                             if (debugMode) console.log('[sqlite3] DELETE: Delete with where', { where });
-                            const sql = `DELETE FROM ${tableName.replace('.sqlite','')} WHERE ${where}`;
+                            const sql = `DELETE FROM "${tableName.replace('.sqlite','')}" WHERE ${where}`;
                             output = await new Promise((resolve, reject) => {
                                 db.run(sql, values, function(err) {
                                     if (err) {
@@ -1284,6 +1410,54 @@ fields: ['dboperation', 'collection', 'key', 'fieldName', 'value', 'searchQuery'
                         }
                     }
             // end delete
+            } else if (dboperation === 'search') {
+                if (debugMode) console.log('[sqlite3] OPERATION: search');
+                const searchReturnColumn = this.evalMessage(data.searchReturnColumn, cache);
+                const searchListColumn = this.evalMessage(data.searchListColumn, cache);
+                const searchValue = this.evalMessage(data.searchValue, cache);
+                if (debugMode) console.log('[sqlite3] search fields:', { searchReturnColumn, searchListColumn, searchValue });
+                if (searchReturnColumn && searchListColumn && searchValue) {
+                    // Walidacja: nie pozwól na SELECT wartości, tylko kolumny!
+                    const validCol = /^[a-zA-Z0-9_\-]+$/;
+                    if (!validCol.test(searchReturnColumn) || !validCol.test(searchListColumn)) {
+                        output = '[sqlite3] search: Invalid column name.';
+                        if (debugMode) console.log('[sqlite3] search output:', output);
+                    } else {
+                        const sql = `SELECT "${searchReturnColumn}", "${searchListColumn}" FROM "${tableName.replace('.sqlite','')}"`;
+                        if (debugMode) console.log('[sqlite3] search SQL:', sql);
+                        const rows = await new Promise((resolve, reject) => {
+                            db.all(sql, [], (err, rows) => {
+                                if (err) {
+                                    console.error('[sqlite3] search ERROR:', err);
+                                    reject(err);
+                                } else {
+                                    resolve(rows);
+                                }
+                            });
+                        });
+                        let found = null;
+                        for (const row of rows) {
+                            let list = row[searchListColumn];
+                            if (typeof list === 'string') {
+                                const arr = list.split(',').map(s => s.trim());
+                                if (arr.includes(String(searchValue))) {
+                                    found = row[searchReturnColumn];
+                                    break;
+                                }
+                            } else if (Array.isArray(list)) {
+                                if (list.includes(String(searchValue))) {
+                                    found = row[searchReturnColumn];
+                                    break;
+                                }
+                            }
+                        }
+                        output = found !== null && found !== undefined ? found : 'Brak danych';
+                        if (debugMode) console.log('[sqlite3] search output:', output);
+                    }
+                } else {
+                    output = '[sqlite3] search: Missing fields.';
+                    if (debugMode) console.log('[sqlite3] search output:', output);
+                }
             } else {
                 if (debugMode) console.log('[sqlite3] OPERATION: unknown or not matched:', dboperation);
             }
