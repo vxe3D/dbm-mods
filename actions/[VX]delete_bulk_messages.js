@@ -4,7 +4,7 @@ module.exports = {
   section: "# VX - Message(s)",
   meta: {
     version: "3.2.0",
-    actionVersion: "3.2.2",
+    actionVersion: "3.2.3",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -207,12 +207,9 @@ module.exports = {
 
     if (!source?.messages) return this.callNextAction(cache);
 
-    const count = Math.min(
-      parseInt(this.evalMessage(data.count, cache), 10),
-      100
-    );
+    const count = parseInt(this.evalMessage(data.count, cache), 10);
     const options = {
-      limit: count,
+      limit: 100,
     };
 
     if (cache.msg) {
@@ -226,7 +223,7 @@ module.exports = {
         if (condition === 1) {
           let author = this.evalMessage(data.authorInput, cache);
           if (author) {
-            messages = messages.filter((m) => String(m.author?.id) === String(author));
+            messages = messages.filter((m) => String(m.author?.id) === String(author)).first(count);
           }
         } else if (condition === 2) {
           if (data.customDays === "custom") {
