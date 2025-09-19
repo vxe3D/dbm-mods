@@ -85,7 +85,7 @@ console.log("✅ versions.json updated!");
 const readmePath = path.join(repoRoot, "README.md");
 let readmeContent = fs.existsSync(readmePath)
   ? fs.readFileSync(readmePath, "utf8")
-  : "# DBM V14 Mods\n\n## Lista akcji\n\n";
+  : "# DBM V14 Mods\n\n## Actions & Events\n\n";
 
 const repoRawUrl = "https://github.com/vxe3D/dbm-mods/blob/main/";
 
@@ -96,8 +96,8 @@ function parsePolishDate(str) {
   return new Date(year, month - 1, day, hour, minute);
 }
 
-// 🔹 generateRows zajmuje się filtrowaniem + sortowaniem
-function generateRows(prefix) {
+// 🔹 Funkcja generująca wiersze, dzieląc na najnowsze i resztę
+function generateRowsWithLatest(prefix) {
   const arr = files.filter(f => f.fullPath.startsWith(prefix));
 
   const sorted = [...arr].sort((a, b) => {
@@ -109,52 +109,60 @@ function generateRows(prefix) {
       return d ? d.getTime() : 0;
     };
 
-    const diff = getTime(vb) - getTime(va);
-    console.log(`🕒 Porównanie ${b.displayName} vs ${a.displayName}: ${diff}`);
-    return diff;
+    return getTime(vb) - getTime(va);
   });
 
-  return sorted.map(({ fullPath, displayName }) => {
+  const latest = sorted.slice(0, 5);
+  const rest = sorted.slice(5);
+
+  const renderRows = arr => arr.map(({ fullPath, displayName }) => {
     const v = data[displayName];
     const fileUrl = `${repoRawUrl}${encodeURIComponent(fullPath.replace(/\\/g, "/"))}`;
     let display = displayName.replace(/^\[.*?\]/, "");
     if (display.length > 19) display = display.slice(0,16) + "...";
 
-    const updateDate = v.updateDate && v.updateDate !== "undefined" ? v.updateDate : "Oczekuje na aktualizację";
+    const updateDate = v.updateDate && v.updateDate !== "undefined" ? v.updateDate : "Awaiting update";
     const displayLink = `[${display}](${fileUrl})`;
 
-    const row = `| <small>${displayLink}</small> | <small>${v.version}</small> | <small>${v.author}</small> | <small>${v.createdDate}</small> | <small>${updateDate}</small> |`;
-    console.log(`📊 Generuję wiersz dla ${displayName}: ${row}`);
-    return row;
+    return `| <small>${displayLink}</small> | <small>${v.version}</small> | <small>${v.author}</small> | <small>${v.createdDate}</small> | <small>${updateDate}</small> |`;
   }).join("\n");
+
+  return {
+    latestRows: renderRows(latest),
+    otherRows: renderRows(rest)
+  };
 }
 
-const tableHeader = `| Plik | Wersja | Autor | Utworzono | Zaktualizowano
+const tableHeader = `| File | Version | Author | Created | Updated
 |------|--------|-------|-----------|----------------|`;
+
+// 🔹 Generowanie tabeli dla Actions
+const { latestRows: latestActions, otherRows: otherActions } = generateRowsWithLatest("actions/");
+// 🔹 Generowanie tabeli dla Events
+const { latestRows: latestEvents, otherRows: otherEvents } = generateRowsWithLatest("events/");
 
 const htmlTables = `
 <table>
-<tr>
-  <td>
-
-### Actions
+<tr><td>
+### Latest Actions
 ${tableHeader}
-${generateRows("actions/")}
-
-  </td>
-</tr>
-</table>
-
-<table>
-<tr>
-  <td>
-
-### Events
+${latestActions}
+</td></tr>
+<tr><td>
+### Other Actions
 ${tableHeader}
-${generateRows("events/")}
-
-  </td>
-</tr>
+${otherActions}
+</td></tr>
+<tr><td>
+### Latest Events
+${tableHeader}
+${latestEvents}
+</td></tr>
+<tr><td>
+### Other Events
+${tableHeader}
+${otherEvents}
+</td></tr>
 </table>
 `;
 
@@ -164,8 +172,8 @@ if (readmeContent.includes("<!-- ACTIONS_TABLE_START -->")) {
     `<!-- ACTIONS_TABLE_START -->\n${htmlTables}\n<!-- ACTIONS_TABLE_END -->`
   );
 } else {
-  readmeContent += `\n## Lista akcji\n<!-- ACTIONS_TABLE_START -->\n${htmlTables}\n<!-- ACTIONS_TABLE_END -->\n`;
+  readmeContent += `\n## Actions & Events\n<!-- ACTIONS_TABLE_START -->\n${htmlTables}\n<!-- ACTIONS_TABLE_END -->\n`;
 }
 
 fs.writeFileSync(readmePath, readmeContent);
-console.log("✅ README.md updated with Actions & Events tables!");
+console.log("✅ README.md updated with Latest & Other Actions/Events tables!");
