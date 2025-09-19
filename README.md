@@ -1,5 +1,39 @@
 <!-- ACTIONS_TABLE_START -->
 
+
+<div style="margin-bottom:10px;">
+  <button id="downloadActions" style="
+    background-color:#4CAF50;
+    color:white;
+    border:none;
+    padding:6px 12px;
+    font-size:14px;
+    cursor:pointer;
+    border-radius:4px;
+  ">⬇️ Download Actions</button>
+</div>
+
+<script type="module">
+import JSZip from "https://cdn.jsdelivr.net/npm/jszip@4.1.0/dist/jszip.min.js";
+import { saveAs } from "https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js";
+
+const versionsRes = await fetch("https://raw.githubusercontent.com/vxe3D/dbm-mods/main/Versions/versions.json");
+const versionsData = await versionsRes.json();
+const actionFiles = Object.keys(versionsData);
+
+document.getElementById("downloadActions").addEventListener("click", async () => {
+  const zip = new JSZip();
+  for (const file of actionFiles) {
+    const fileRes = await fetch(`https://raw.githubusercontent.com/vxe3D/dbm-mods/main/actions/${encodeURIComponent(file)}`);
+    const content = await fileRes.text();
+    zip.file(file, content);
+  }
+  const blob = await zip.generateAsync({ type: "blob" });
+  saveAs(blob, "actions.zip");
+});
+</script>
+
+
 <h3><img src="https://i.imgur.com/tctsqRS.png" width="16" height="16"> Latest Actions</h3>
 
 | File | Version | Author | Created | Updated |
@@ -10,23 +44,24 @@
 | [store_invite_info.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dstore_invite_info.js) | 3.1.0 | vxed_ | 18.09.2025 14:44 | 18.09.2025 15:48 |
 | [control_music_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dcontrol_music_MOD.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:21 |
 
-### Other Actions
-| File | Version | Author | Created | Updated
+<h3><img src="https://i.imgur.com/tctsqRS.png" width="16" height="16"> Other Actions</h3>
+
+| File | Version | Author | Created | Updated |
 |------|--------|-------|-----------|----------------|
 | [set_bot_activity_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_bot_activity_MOD.js) | 3.4.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:20 |
 | [Check_Account_Age.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DCheck_Account_Age.js) | 3.4.0 | vxed_ | 18.09.2025 12:19 | Awaiting update |
-| [Check_Timestamp_...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DCheck_Timestamp_Difference.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [Check_Timestamp_Difference.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DCheck_Timestamp_Difference.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
 | [Format_Relative_Time.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DFormat_Relative_Time.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
 | [Generate_Timestamp.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DGenerate_Timestamp.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
-| [Manage_role_for_...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DManage_role_for_All_members.js) | 3.2.0 | vxed | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [Manage_role_for_All_members.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DManage_role_for_All_members.js) | 3.2.0 | vxed | 18.09.2025 09:23 | 18.09.2025 12:19 |
 | [SQLite_DB.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DSQLite_DB.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
 | [channel_restriction.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dchannel_restriction.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
-| [convert_time_to_...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dconvert_time_to_seconds_MOD.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [convert_time_to_seconds_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dconvert_time_to_seconds_MOD.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
 | [disable_buttons_select.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Ddisable_buttons_select.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
 | [edit_button.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dedit_button.js) | 3.8.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
 | [play_music_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dplay_music_MOD.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
 | [play_url_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dplay_url_MOD.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
-| [set_members_chan...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_members_channel_perms.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [set_members_channel_perms.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_members_channel_perms.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
 | [set_music_equalizer_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_music_equalizer_MOD.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
 | [set_roles_channel_perms.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_roles_channel_perms.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
 | [set_voice_channe...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_voice_channel_status_MOD.js) | 3.1.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
@@ -44,8 +79,9 @@
 |------|--------|-------|-----------|----------------|
 
 
-### Other Events
-| File | Version | Author | Created | Updated
+<h3><img src="https://i.imgur.com/ezqaGtk.png" width="16" height="16"> Other Events</h3>
+
+| File | Version | Author | Created | Updated |
 |------|--------|-------|-----------|----------------|
 
 
