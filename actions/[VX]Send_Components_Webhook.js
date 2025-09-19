@@ -4,7 +4,7 @@ module.exports = {
   section: "# VX - Utilities",
   meta: {
     version: "3.2.0",
-    actionVersion: "2.0.0",
+    actionVersion: "2.1.0",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -23,7 +23,6 @@ module.exports = {
   window.__VX_ACTION_VERSION = actionVersion;
   window.__VX_ACTION_FILENAME = actionFilename;
     return `
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
         <div class="vcstatus-box-fixed vcstatus-box-left" style="top: 2px;">
           <div class="vcstatus-author"><span class="vcstatus-author-label">Autor:</span> <span class="vcstatus-author-name">vxed_</span></div>
           <a href="https://discord.gg/XggyjAMFmC" class="vcstatus-discord" target="_blank">Discord</a>
@@ -114,8 +113,9 @@ module.exports = {
         components: messageOptions.components ?? undefined,
         username: nickname || messageOptions.username,
         avatarURL: avatarURL || messageOptions.avatarURL,
-        files: messageOptions.attachments ?? undefined,
-        flags: MessageFlags.IsComponentsV2,
+        files: messageOptions.files ?? undefined, // <-- poprawka!
+        allowedMentions: messageOptions.allowedMentions ?? undefined, // <-- dodaj to!
+        flags: messageOptions.flags ?? MessageFlags.IsComponentsV2,
         withComponents: true,
       };
 
