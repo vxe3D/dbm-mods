@@ -1,5 +1,6 @@
 <!-- ACTIONS_TABLE_START -->
-### Latest Actions
+
+<h3><img src="https://i.imgur.com/tctsqRS.png" width="16" height="16"> Latest Actions</h3>
 | File | Version | Author | Created | Updated
 |------|--------|-------|-----------|----------------|
 | [replace_text.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dreplace_text.js) | 3.5.1 | vxed_ | 18.09.2025 09:23 | 19.09.2025 10:33 |
@@ -36,7 +37,7 @@
 | [check-rep.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX-C%5Dcheck-rep.js) | 3.4.0 | Hit stary & vxed_ | 18.09.2025 09:23 | Awaiting update |
 | [give_rep.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX-C%5Dgive_rep.js) | 3.4.0 | Hit stary & vxed_ | 18.09.2025 09:23 | Awaiting update |
 
-### Latest Events
+<h3><img src="https://i.imgur.com/ezqaGtk.png" width="16" height="16"> Latest Events</h3>
 | File | Version | Author | Created | Updated
 |------|--------|-------|-----------|----------------|
 
