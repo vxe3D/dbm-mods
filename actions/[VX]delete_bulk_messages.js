@@ -4,7 +4,7 @@ module.exports = {
   section: "# VX - Message(s)",
   meta: {
     version: "3.2.0",
-    actionVersion: "3.2.0",
+    actionVersion: "3.2.2",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -224,19 +224,21 @@ module.exports = {
       .then((messages) => {
         const condition = parseInt(data.condition, 10);
         if (condition === 1) {
-          let author = data.authorInput;
+          let author = this.evalMessage(data.authorInput, cache);
           if (author) {
             messages = messages.filter((m) => String(m.author?.id) === String(author));
           }
         } else if (condition === 2) {
           if (data.customDays === "custom") {
-            const days = parseInt(data.customDaysInput, 10);
+            const daysRaw = this.evalMessage(data.customDaysInput, cache);
+            const days = parseInt(daysRaw, 10);
             if (!isNaN(days)) {
               const minTimestamp = Date.now() - days * 24 * 60 * 60 * 1000;
               messages = messages.filter((m) => m.createdTimestamp < minTimestamp);
             }
           } else if (data.customDays === "words") {
-            const words = (data.customWords || "").split(",").map(w => w.trim()).filter(Boolean);
+            const wordsRaw = this.evalMessage(data.customWords, cache);
+            const words = (wordsRaw || "").split(",").map(w => w.trim()).filter(Boolean);
             if (words.length > 0) {
               messages = messages.filter((m) => words.some(word => m.content && m.content.includes(word)));
             }
