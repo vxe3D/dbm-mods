@@ -82,6 +82,41 @@ fs.writeFileSync(versionsPath, JSON.stringify(data, null, 2));
 console.log("✅ versions.json updated!");
 
 // -------------------- GENEROWANIE README --------------------
+
+const downloadButton = `
+<div style="margin-bottom:10px;">
+  <button id="downloadActions" style="
+    background-color:#4CAF50;
+    color:white;
+    border:none;
+    padding:6px 12px;
+    font-size:14px;
+    cursor:pointer;
+    border-radius:4px;
+  ">⬇️ Download Actions</button>
+</div>
+
+<script type="module">
+import JSZip from "https://cdn.jsdelivr.net/npm/jszip@4.1.0/dist/jszip.min.js";
+import { saveAs } from "https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js";
+
+const versionsRes = await fetch("https://raw.githubusercontent.com/vxe3D/dbm-mods/main/Versions/versions.json");
+const versionsData = await versionsRes.json();
+const actionFiles = Object.keys(versionsData);
+
+document.getElementById("downloadActions").addEventListener("click", async () => {
+  const zip = new JSZip();
+  for (const file of actionFiles) {
+    const fileRes = await fetch(\`https://raw.githubusercontent.com/vxe3D/dbm-mods/main/actions/\${encodeURIComponent(file)}\`);
+    const content = await fileRes.text();
+    zip.file(file, content);
+  }
+  const blob = await zip.generateAsync({ type: "blob" });
+  saveAs(blob, "actions.zip");
+});
+</script>
+`;
+
 const readmePath = path.join(repoRoot, "README.md");
 let readmeContent = fs.existsSync(readmePath)
   ? fs.readFileSync(readmePath, "utf8")
@@ -127,13 +162,12 @@ function generateRowsWithLatest(prefix) {
   };
 }
 
-const tableHeader = `| File | Version | Author | Created | Updated
-|------|--------|-------|-----------|----------------|`;
-
 const { latestRows: latestActions, otherRows: otherActions } = generateRowsWithLatest("actions/");
 const { latestRows: latestEvents, otherRows: otherEvents } = generateRowsWithLatest("events/");
 
 const markdownTables = `
+${downloadButton}
+
 <h3><img src="https://i.imgur.com/tctsqRS.png" width="16" height="16"> Latest Actions</h3>
 
 | File | Version | Author | Created | Updated |
