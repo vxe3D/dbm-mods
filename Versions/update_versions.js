@@ -41,6 +41,7 @@ function getFilesFromDirs(dirs) {
 const files = getFilesFromDirs(["actions", "events"]);
 console.log("📄 Pliki znalezione w repo:", files);
 
+// Aktualizacja wersji i autorów
 files.forEach(({ fullPath, displayName }) => {
   const filePath = path.join(repoRoot, fullPath);
   const content = fs.readFileSync(filePath, "utf8");
@@ -58,18 +59,18 @@ files.forEach(({ fullPath, displayName }) => {
       createdDate: getWarsawTime(),
       updateDate: "undefined",
     };
-    console.log(`➕ Dodano nowy plik: ${displayName}`, data[displayName]);
   } else {
     const prev = data[displayName];
     if (prev.version !== actionVersion || prev.author !== author) {
       prev.updateDate = getWarsawTime();
-      console.log(`✏️ Zaktualizowano plik: ${displayName}, updateDate ustawione na`, prev.updateDate);
+      console.log(`✏️ Zaktualizowano plik: ${displayName}, updateDate ustawione na ${prev.updateDate}`);
     }
     prev.version = actionVersion;
     prev.author = author;
   }
 });
 
+// Usuwanie wpisów dla nieistniejących plików
 Object.keys(data).forEach((key) => {
   if (!files.some(f => f.displayName === key)) {
     console.log(`🗑 Usuwam wpis dla pliku: ${key}`);
@@ -88,22 +89,28 @@ let readmeContent = fs.existsSync(readmePath)
 
 const repoRawUrl = "https://github.com/vxe3D/dbm-mods/blob/main/";
 
+function parsePolishDate(str) {
+  // "18.09.2025 09:23" -> Date
+  if (!str || str === "undefined") return null;
+  const [day, month, year, hour, minute] = str.match(/(\d+)/g).map(Number);
+  return new Date(year, month - 1, day, hour, minute);
+}
+
+// 🔹 generateRows zajmuje się filtrowaniem + sortowaniem
 function generateRows(prefix) {
   const arr = files.filter(f => f.fullPath.startsWith(prefix));
-  console.log(`🔹 Filtrowanie plików dla prefixu '${prefix}':`, arr.map(f => f.displayName));
 
   const sorted = [...arr].sort((a, b) => {
     const va = data[a.displayName];
     const vb = data[b.displayName];
 
     const getTime = v => {
-      if (!v) return 0;
-      const d = v.updateDate && v.updateDate !== "undefined" ? new Date(v.updateDate) : v.createdDate ? new Date(v.createdDate) : null;
+      const d = parsePolishDate(v.updateDate) || parsePolishDate(v.createdDate);
       return d ? d.getTime() : 0;
     };
 
     const diff = getTime(vb) - getTime(va);
-    console.log(`🕒 Porównanie ${a.displayName} vs ${b.displayName}: ${diff}`);
+    console.log(`🕒 Porównanie ${b.displayName} vs ${a.displayName}: ${diff}`);
     return diff;
   });
 
@@ -117,7 +124,7 @@ function generateRows(prefix) {
     const displayLink = `[${display}](${fileUrl})`;
 
     const row = `| <small>${displayLink}</small> | <small>${v.version}</small> | <small>${v.author}</small> | <small>${v.createdDate}</small> | <small>${updateDate}</small> |`;
-    console.log(`📊 Generuję wiersz dla ${displayName}:`, row);
+    console.log(`📊 Generuję wiersz dla ${displayName}: ${row}`);
     return row;
   }).join("\n");
 }
