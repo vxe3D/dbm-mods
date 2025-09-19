@@ -82,21 +82,6 @@ fs.writeFileSync(versionsPath, JSON.stringify(data, null, 2));
 console.log("✅ versions.json updated!");
 
 // -------------------- GENEROWANIE README --------------------
-
-const downloadButton = `
-<div style="margin-bottom:10px;">
-  <a href="Versions/download.html" style="
-      background-color:#4CAF50;
-      color:white;
-      padding:8px 16px;
-      text-decoration:none;
-      font-weight:bold;
-      border-radius:4px;
-      display:inline-block;
-  ">⬇️ Download Actions</a>
-</div>
-`;
-
 const readmePath = path.join(repoRoot, "README.md");
 let readmeContent = fs.existsSync(readmePath)
   ? fs.readFileSync(readmePath, "utf8")
@@ -146,7 +131,7 @@ const { latestRows: latestActions, otherRows: otherActions } = generateRowsWithL
 const { latestRows: latestEvents, otherRows: otherEvents } = generateRowsWithLatest("events/");
 
 const markdownTables = `
-${downloadButton}
+[⬇️ Download Actions](https://vxe3D.github.io/dbm-mods/Versions/download.html)
 
 <h3><img src="https://i.imgur.com/tctsqRS.png" width="16" height="16"> Latest Actions</h3>
 
