@@ -95,10 +95,9 @@
   <div id="status"></div>
   <div id="progressBar"><div id="progressBarInner"></div></div>
 
-  <script type="module">
-    import JSZip from "https://cdn.jsdelivr.net/npm/jszip@4.1.0/dist/jszip.min.js";
-    import { saveAs } from "https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js";
-
+  <script src="https://cdn.jsdelivr.net/npm/jszip@4.1.0/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <script>
     const actionsBtn = document.getElementById("downloadActions");
     const eventsBtn = document.getElementById("downloadEvents");
     const status = document.getElementById("status");
@@ -116,7 +115,7 @@
         if (!listRes.ok) throw new Error("Nie udało się pobrać listy plików.");
         const files = await listRes.json();
         const onlyFiles = files.filter(f => f.type === "file");
-        const zip = new JSZip();
+        const zip = new window.JSZip();
         for (let i = 0; i < onlyFiles.length; i++) {
           const file = onlyFiles[i];
           status.textContent = `Pobieranie ${file.name} (${i+1}/${onlyFiles.length})...`;
@@ -127,7 +126,7 @@
         }
         status.textContent = "Tworzenie archiwum ZIP...";
         const blob = await zip.generateAsync({ type: "blob" });
-        saveAs(blob, zipName);
+        window.saveAs(blob, zipName);
         status.textContent = "✅ Pobieranie zakończone!";
         progressBarInner.style.width = "100%";
       } catch (err) {
