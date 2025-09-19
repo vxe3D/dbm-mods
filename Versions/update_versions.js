@@ -115,7 +115,7 @@ function generateRowsWithLatest(prefix) {
     const v = data[displayName];
     const fileUrl = `${repoRawUrl}${encodeURIComponent(fullPath.replace(/\\/g, "/"))}`;
     let display = displayName.replace(/^\[.*?\]/, "");
-    if (display.length > 26) display = display.slice(0,16) + "...";
+    if (display.length > 30) display = display.slice(0,16) + "...";
     const updateDate = v.updateDate && v.updateDate !== "undefined" ? v.updateDate : "Awaiting update";
     const displayLink = `[${display}](${fileUrl})`;
     return `| ${displayLink} | ${v.version} | ${v.author} | ${v.createdDate} | ${updateDate} |`;
