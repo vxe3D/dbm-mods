@@ -19,6 +19,8 @@ const data = fs.existsSync(versionsPath)
   ? JSON.parse(fs.readFileSync(versionsPath, "utf8"))
   : {};
 
+console.log("📂 Wczytane wersje z versions.json:", data);
+
 const repoRoot = path.join(__dirname, "..");
 
 function getFilesFromDirs(dirs) {
@@ -37,6 +39,7 @@ function getFilesFromDirs(dirs) {
 }
 
 const files = getFilesFromDirs(["actions", "events"]);
+console.log("📄 Pliki znalezione w repo:", files);
 
 files.forEach(({ fullPath, displayName }) => {
   const filePath = path.join(repoRoot, fullPath);
@@ -55,10 +58,12 @@ files.forEach(({ fullPath, displayName }) => {
       createdDate: getWarsawTime(),
       updateDate: "undefined",
     };
+    console.log(`➕ Dodano nowy plik: ${displayName}`, data[displayName]);
   } else {
     const prev = data[displayName];
     if (prev.version !== actionVersion || prev.author !== author) {
       prev.updateDate = getWarsawTime();
+      console.log(`✏️ Zaktualizowano plik: ${displayName}, updateDate ustawione na`, prev.updateDate);
     }
     prev.version = actionVersion;
     prev.author = author;
@@ -83,9 +88,9 @@ let readmeContent = fs.existsSync(readmePath)
 
 const repoRawUrl = "https://github.com/vxe3D/dbm-mods/blob/main/";
 
-// 🔹 generateRows zajmuje się filtrowaniem + sortowaniem
 function generateRows(prefix) {
   const arr = files.filter(f => f.fullPath.startsWith(prefix));
+  console.log(`🔹 Filtrowanie plików dla prefixu '${prefix}':`, arr.map(f => f.displayName));
 
   const sorted = [...arr].sort((a, b) => {
     const va = data[a.displayName];
@@ -97,7 +102,9 @@ function generateRows(prefix) {
       return d ? d.getTime() : 0;
     };
 
-    return getTime(vb) - getTime(va);
+    const diff = getTime(vb) - getTime(va);
+    console.log(`🕒 Porównanie ${a.displayName} vs ${b.displayName}: ${diff}`);
+    return diff;
   });
 
   return sorted.map(({ fullPath, displayName }) => {
@@ -109,7 +116,9 @@ function generateRows(prefix) {
     const updateDate = v.updateDate && v.updateDate !== "undefined" ? v.updateDate : "Oczekuje na aktualizację";
     const displayLink = `[${display}](${fileUrl})`;
 
-    return `| <small>${displayLink}</small> | <small>${v.version}</small> | <small>${v.author}</small> | <small>${v.createdDate}</small> | <small>${updateDate}</small> |`;
+    const row = `| <small>${displayLink}</small> | <small>${v.version}</small> | <small>${v.author}</small> | <small>${v.createdDate}</small> | <small>${updateDate}</small> |`;
+    console.log(`📊 Generuję wiersz dla ${displayName}:`, row);
+    return row;
   }).join("\n");
 }
 
