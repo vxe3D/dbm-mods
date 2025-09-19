@@ -3,58 +3,51 @@
 ## Lista akcji
 <!-- ACTIONS_TABLE_START -->
 
-<table>
-<tr><td>
 ### Latest Actions
 | File | Version | Author | Created | Updated
 |------|--------|-------|-----------|----------------|
-| <small>[replace_text.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dreplace_text.js)</small> | <small>3.5.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>19.09.2025 10:28</small> |
-| <small>[Send_Components_...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DSend_Components_Webhook.js)</small> | <small>2.0.0</small> | <small>vxed_</small> | <small>19.09.2025 10:24</small> | <small>Awaiting update</small> |
-| <small>[send_components_...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dsend_components_v2_MOD.js)</small> | <small>3.6.2</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>19.09.2025 10:24</small> |
-| <small>[store_invite_inf...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dstore_invite_info.js)</small> | <small>3.1.0</small> | <small>vxed_</small> | <small>18.09.2025 14:44</small> | <small>18.09.2025 15:48</small> |
-| <small>[control_music_MO...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dcontrol_music_MOD.js)</small> | <small>3.5.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:21</small> |
-</td></tr>
-<tr><td>
+| [replace_text.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dreplace_text.js) | 3.5.1 | vxed_ | 18.09.2025 09:23 | 19.09.2025 10:33 |
+| [Send_Components_...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DSend_Components_Webhook.js) | 2.0.0 | vxed_ | 19.09.2025 10:24 | Awaiting update |
+| [send_components_...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dsend_components_v2_MOD.js) | 3.6.2 | vxed_ | 18.09.2025 09:23 | 19.09.2025 10:24 |
+| [store_invite_inf...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dstore_invite_info.js) | 3.1.0 | vxed_ | 18.09.2025 14:44 | 18.09.2025 15:48 |
+| [control_music_MO...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dcontrol_music_MOD.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:21 |
+
 ### Other Actions
 | File | Version | Author | Created | Updated
 |------|--------|-------|-----------|----------------|
-| <small>[set_bot_activity...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_bot_activity_MOD.js)</small> | <small>3.4.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:20</small> |
-| <small>[Check_Account_Ag...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DCheck_Account_Age.js)</small> | <small>3.4.0</small> | <small>vxed_</small> | <small>18.09.2025 12:19</small> | <small>Awaiting update</small> |
-| <small>[Check_Timestamp_...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DCheck_Timestamp_Difference.js)</small> | <small>3.5.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:19</small> |
-| <small>[Format_Relative_...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DFormat_Relative_Time.js)</small> | <small>3.5.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:19</small> |
-| <small>[Generate_Timesta...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DGenerate_Timestamp.js)</small> | <small>3.5.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:19</small> |
-| <small>[Manage_role_for_...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DManage_role_for_All_members.js)</small> | <small>3.2.0</small> | <small>vxed</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:19</small> |
-| <small>[SQLite_DB.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DSQLite_DB.js)</small> | <small>3.5.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:19</small> |
-| <small>[channel_restrict...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dchannel_restriction.js)</small> | <small>3.5.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:19</small> |
-| <small>[convert_time_to_...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dconvert_time_to_seconds_MOD.js)</small> | <small>3.5.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:19</small> |
-| <small>[disable_buttons_...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Ddisable_buttons_select.js)</small> | <small>3.5.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:19</small> |
-| <small>[edit_button.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dedit_button.js)</small> | <small>3.8.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:19</small> |
-| <small>[play_music_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dplay_music_MOD.js)</small> | <small>3.5.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:19</small> |
-| <small>[play_url_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dplay_url_MOD.js)</small> | <small>3.5.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:19</small> |
-| <small>[set_members_chan...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_members_channel_perms.js)</small> | <small>3.5.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:19</small> |
-| <small>[set_music_equali...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_music_equalizer_MOD.js)</small> | <small>3.5.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:19</small> |
-| <small>[set_roles_channe...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_roles_channel_perms.js)</small> | <small>3.5.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:19</small> |
-| <small>[set_voice_channe...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_voice_channel_status_MOD.js)</small> | <small>3.1.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:19</small> |
-| <small>[store_bot_client...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dstore_bot_client_info.js)</small> | <small>3.5.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:19</small> |
-| <small>[store_queue_info...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dstore_queue_info_MOD.js)</small> | <small>3.3.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:19</small> |
-| <small>[store_server_inf...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dstore_server_info.js)</small> | <small>3.4.0</small> | <small>vxed_</small> | <small>18.09.2025 09:36</small> | <small>18.09.2025 12:19</small> |
-| <small>[store_track_info...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dstore_track_info_MOD.js)</small> | <small>3.4.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:19</small> |
-| <small>[wait_plus_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dwait_plus_MOD.js)</small> | <small>3.5.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>18.09.2025 12:19</small> |
-| <small>[check-rep.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX-C%5Dcheck-rep.js)</small> | <small>3.4.0</small> | <small>Hit stary & vxed_</small> | <small>18.09.2025 09:23</small> | <small>Awaiting update</small> |
-| <small>[give_rep.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX-C%5Dgive_rep.js)</small> | <small>3.4.0</small> | <small>Hit stary & vxed_</small> | <small>18.09.2025 09:23</small> | <small>Awaiting update</small> |
-</td></tr>
-<tr><td>
+| [set_bot_activity...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_bot_activity_MOD.js) | 3.4.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:20 |
+| [Check_Account_Ag...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DCheck_Account_Age.js) | 3.4.0 | vxed_ | 18.09.2025 12:19 | Awaiting update |
+| [Check_Timestamp_...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DCheck_Timestamp_Difference.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [Format_Relative_...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DFormat_Relative_Time.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [Generate_Timesta...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DGenerate_Timestamp.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [Manage_role_for_...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DManage_role_for_All_members.js) | 3.2.0 | vxed | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [SQLite_DB.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DSQLite_DB.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [channel_restrict...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dchannel_restriction.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [convert_time_to_...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dconvert_time_to_seconds_MOD.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [disable_buttons_...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Ddisable_buttons_select.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [edit_button.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dedit_button.js) | 3.8.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [play_music_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dplay_music_MOD.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [play_url_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dplay_url_MOD.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [set_members_chan...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_members_channel_perms.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [set_music_equali...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_music_equalizer_MOD.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [set_roles_channe...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_roles_channel_perms.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [set_voice_channe...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_voice_channel_status_MOD.js) | 3.1.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [store_bot_client...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dstore_bot_client_info.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [store_queue_info...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dstore_queue_info_MOD.js) | 3.3.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [store_server_inf...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dstore_server_info.js) | 3.4.0 | vxed_ | 18.09.2025 09:36 | 18.09.2025 12:19 |
+| [store_track_info...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dstore_track_info_MOD.js) | 3.4.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [wait_plus_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dwait_plus_MOD.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 18.09.2025 12:19 |
+| [check-rep.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX-C%5Dcheck-rep.js) | 3.4.0 | Hit stary & vxed_ | 18.09.2025 09:23 | Awaiting update |
+| [give_rep.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX-C%5Dgive_rep.js) | 3.4.0 | Hit stary & vxed_ | 18.09.2025 09:23 | Awaiting update |
+
 ### Latest Events
 | File | Version | Author | Created | Updated
 |------|--------|-------|-----------|----------------|
 
-</td></tr>
-<tr><td>
+
 ### Other Events
 | File | Version | Author | Created | Updated
 |------|--------|-------|-----------|----------------|
 
-</td></tr>
-</table>
 
 <!-- ACTIONS_TABLE_END -->
