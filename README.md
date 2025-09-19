@@ -10,7 +10,7 @@
 ### Actions
 | Plik | Wersja | Autor | Utworzono | Zaktualizowano
 |------|--------|-------|-----------|----------------|
-| <small>[replace_text.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dreplace_text.js)</small> | <small>3.5.1</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>19.09.2025 10:25</small> |
+| <small>[replace_text.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dreplace_text.js)</small> | <small>3.5.0</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>19.09.2025 10:28</small> |
 | <small>[Send_Components_...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DSend_Components_Webhook.js)</small> | <small>2.0.0</small> | <small>vxed_</small> | <small>19.09.2025 10:24</small> | <small>Oczekuje na aktualizację</small> |
 | <small>[send_components_...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dsend_components_v2_MOD.js)</small> | <small>3.6.2</small> | <small>vxed_</small> | <small>18.09.2025 09:23</small> | <small>19.09.2025 10:24</small> |
 | <small>[store_invite_inf...](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dstore_invite_info.js)</small> | <small>3.1.0</small> | <small>vxed_</small> | <small>18.09.2025 14:44</small> | <small>18.09.2025 15:48</small> |
