@@ -134,7 +134,8 @@ const { latestRows: latestActions, otherRows: otherActions } = generateRowsWithL
 const { latestRows: latestEvents, otherRows: otherEvents } = generateRowsWithLatest("events/");
 
 const markdownTables = `
-### Latest Actions
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+### <i class="book icon"></i> Latest Actions
 ${tableHeader}
 ${latestActions}
 
