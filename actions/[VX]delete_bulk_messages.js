@@ -4,7 +4,7 @@ module.exports = {
   section: "# VX - Message(s)",
   meta: {
     version: "3.2.0",
-    actionVersion: "3.2.6",
+    actionVersion: "3.2.7",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
