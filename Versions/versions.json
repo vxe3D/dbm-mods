@@ -180,10 +180,10 @@
     "updateDate": "undefined"
   },
   "[VX]delete_bulk_messages.js": {
-    "version": "3.2.6",
+    "version": "3.2.7",
     "author": "vxed_",
     "createdDate": "19.09.2025 19:23",
-    "updateDate": "20.09.2025 13:53"
+    "updateDate": "20.09.2025 16:29"
   },
   "[VX]store_time_info.js": {
     "version": "3.1.0",
