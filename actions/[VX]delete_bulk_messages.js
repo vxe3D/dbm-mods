@@ -4,7 +4,7 @@ module.exports = {
   section: "# VX - Message(s)",
   meta: {
     version: "3.2.0",
-    actionVersion: "3.2.3",
+    actionVersion: "3.2.6",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -65,6 +65,9 @@ module.exports = {
           .dbminputlabel {color:#8754ffff;font-weight:bold;}
           input.round {border-radius:6px;border:1px solid #aaa;padding:6px 10px;font-size:14px;background:#21232B;transition:border-color 0.2s;}
           input.round:focus {border-color:#b595ffff;outline:none;}
+          #info.round {background-color: #1e1e1e;color: #eee;}
+          #info.round option {background-color: #2c2f33;color: #eee;padding: 6px;}
+          optgroup {margin-top: 10px;font-weight: bold;color: #ddd;}
         </style>
 
       <channel-input dropdownLabel="Source Channel" selectId="channel" variableContainerId="varNameContainer" variableInputId="varName"></channel-input>
@@ -87,11 +90,13 @@ module.exports = {
         <div style="float: right; width: 45%; position: relative; min-height: 60px;">
           <span class="dbminputlabel">Save Message to File</span><br>
           <select id="saveToFile" class="round" style="width: 100%;">
-            <option value="no" selected>No</option>
-            <option value="/logs">/logs</option>
-            <option value="/resources">/resources</option>
-            <option value="/data">/data</option>
-          </select>
+            <option value="no" selected>No</option>">
+              <optgroup label="🗑️ After 15 seconds delete file!">
+                <option value="/logs">/logs</option>
+                <option value="/resources">/resources</option>
+                <option value="/data">/data</option>
+              </optgroup>
+            </select>
           <input id="fileName" class="round" type="text" style="position: absolute; right: 0; top: 51px; width: 100%; margin-top: 0; display: none; z-index: 2;" placeholder="deleted_messages.txt">
         </div>
       </div>
@@ -220,10 +225,11 @@ module.exports = {
       .fetch(options)
       .then((messages) => {
         const condition = parseInt(data.condition, 10);
+        let toDelete;
         if (condition === 1) {
           let author = this.evalMessage(data.authorInput, cache);
           if (author) {
-            messages = messages.filter((m) => String(m.author?.id) === String(author)).first(count);
+            toDelete = messages.filter((m) => String(m.author?.id) === String(author)).first(count);
           }
         } else if (condition === 2) {
           if (data.customDays === "custom") {
@@ -231,19 +237,22 @@ module.exports = {
             const days = parseInt(daysRaw, 10);
             if (!isNaN(days)) {
               const minTimestamp = Date.now() - days * 24 * 60 * 60 * 1000;
-              messages = messages.filter((m) => m.createdTimestamp < minTimestamp);
+              toDelete = messages.filter((m) => m.createdTimestamp < minTimestamp).first(count);
             }
           } else if (data.customDays === "words") {
             const wordsRaw = this.evalMessage(data.customWords, cache);
             const words = (wordsRaw || "").split(",").map(w => w.trim()).filter(Boolean);
             if (words.length > 0) {
-              messages = messages.filter((m) => words.some(word => m.content && m.content.includes(word)));
+              toDelete = messages.filter((m) => words.some(word => m.content && m.content.includes(word))).first(count);
             }
           } else if (["7","14","30"].includes(data.customDays)) {
             const days = parseInt(data.customDays, 10);
             const minTimestamp = Date.now() - days * 24 * 60 * 60 * 1000;
-            messages = messages.filter((m) => m.createdTimestamp < minTimestamp);
+            toDelete = messages.filter((m) => m.createdTimestamp < minTimestamp).first(count);
           }
+        } else {
+          // None: just take the first N messages
+          toDelete = messages.first(count);
         }
 
         if (["/logs","/resources","/data"].includes(data.saveToFile) && data.fileName) {
@@ -256,7 +265,7 @@ module.exports = {
             const pad = (n) => n < 10 ? '0'+n : n;
             return `${pad(d.getDate())}.${pad(d.getMonth()+1)}-${d.getFullYear()} - ${pad(d.getHours())}:${pad(d.getMinutes())}`;
           }
-          const logContent = Array.from(messages.values()).map(m => {
+          const logContent = Array.from((Array.isArray(toDelete) ? toDelete : toDelete?.values?.() ? Array.from(toDelete.values()) : [])).map(m => {
             const nick = m.member?.displayName || m.author?.username || m.author?.tag || m.author?.id || "?";
             const id = m.author?.id || "?";
             const date = formatDate(m.createdTimestamp);
@@ -275,20 +284,18 @@ module.exports = {
           try {
             fs.mkdirSync(path.dirname(filePath), { recursive: true });
             fs.writeFileSync(filePath, logContent, "utf8");
-            // Tutaj masz czas po ilu usuwa sie plik z logami - mozesz to usunac jesli chcesz
             setTimeout(() => {
               try {
                 if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
               } catch (e) {}
             }, 15000);
-            // A tutaj sie konczy deklaracja tego usuwania
           } catch (e) {
             this.displayError(data, cache, e);
           }
         }
 
         source
-          .bulkDelete(messages, true)
+          .bulkDelete(toDelete, true)
           .then(() => this.callNextAction(cache))
           .catch((err) => this.displayError(data, cache, err));
       })
