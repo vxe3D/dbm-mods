@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/icon.min.css" />
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pobierz DBM Mods</title>
@@ -333,6 +334,33 @@
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
   <script>
+    // Pobierz wersje i wyciągnij 5 najnowszych updateDate
+    let recentUpdatedFiles = [];
+    async function getRecentUpdatedFiles() {
+      try {
+        const res = await fetch('https://raw.githubusercontent.com/vxe3D/dbm-mods/main/Versions/versions.json');
+        const versions = await res.json();
+        // Zbierz pliki z updateDate != undefined
+        const filesWithUpdate = Object.entries(versions)
+          .filter(([name, v]) => v.updateDate && v.updateDate !== 'undefined')
+          .map(([name, v]) => ({ name, updateDate: v.updateDate }));
+        // Sortuj po dacie malejąco
+        filesWithUpdate.sort((a, b) => {
+          // Format dd.mm.yyyy hh:mm
+          const parse = s => {
+            if (!s || s === 'undefined') return 0;
+            const [d, t] = s.split(' ');
+            const [day, month, year] = d.split('.');
+            const [hour, min] = t ? t.split(':') : [0,0];
+            return new Date(`${year}-${month}-${day}T${hour}:${min}:00`).getTime();
+          };
+          return parse(b.updateDate) - parse(a.updateDate);
+        });
+        recentUpdatedFiles = filesWithUpdate.slice(0, 5).map(f => f.name);
+      } catch (e) {
+        recentUpdatedFiles = [];
+      }
+    }
     const status = document.getElementById("status");
     const progressBar = document.getElementById("progressBar");
     const progressBarInner = document.getElementById("progressBarInner");
@@ -368,8 +396,13 @@
       files.forEach(file => {
         const option = document.createElement("option");
         option.value = file.name;
-        option.textContent = file.name;
         option.dataset.url = file.download_url;
+        // Ikona star jeśli plik jest w recentUpdatedFiles
+        if (recentUpdatedFiles.includes(file.name)) {
+          option.innerHTML = '<i class="star icon" style="color:#ffe066;margin-right:6px;"></i>' + file.name;
+        } else {
+          option.textContent = file.name;
+        }
         select.appendChild(option);
       });
       section.appendChild(select);
@@ -403,7 +436,12 @@
       files.forEach(file => {
         const option = document.createElement("option");
         option.value = file.download_url;
-        option.textContent = file.name;
+        // Ikona star jeśli plik jest w recentUpdatedFiles
+        if (recentUpdatedFiles.includes(file.name)) {
+          option.innerHTML = '<i class="star icon" style="color:#ffe066;margin-right:6px;"></i>' + file.name;
+        } else {
+          option.textContent = file.name;
+        }
         select.appendChild(option);
       });
       select.onchange = function() {
@@ -529,5 +567,10 @@
 
     refreshBtn.addEventListener("click", renderFileLists);
     window.addEventListener("DOMContentLoaded", renderFileLists);
+    // Najpierw pobierz listę najnowszych aktualizacji, potem renderuj listę plików
+    window.addEventListener("DOMContentLoaded", async () => {
+      await getRecentUpdatedFiles();
+      renderFileLists();
+    });
   </script>
 </html>
