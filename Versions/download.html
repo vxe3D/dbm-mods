@@ -468,7 +468,9 @@
   document.getElementById("actionsCol").innerHTML = "";
   document.getElementById("eventsCol").innerHTML = "";
   status.textContent = "Pobieranie listy plików...";
-  const [actions, events] = await Promise.all([getFiles("actions"), getFiles("events")]);
+  let [actions, events] = await Promise.all([getFiles("actions"), getFiles("events")]);
+  if (!Array.isArray(actions)) actions = [];
+  if (!Array.isArray(events)) events = [];
   renderDirectLinks("actions", actions);
   renderDirectLinks("events", events);
   document.getElementById("actionsCol").appendChild(createFileListSection("actions", actions));
