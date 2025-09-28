@@ -55,18 +55,21 @@ files.forEach(({ fullPath, displayName }) => {
   if (!data[displayName]) {
     data[displayName] = {
       version: actionVersion,
+      previousVersion: "undefined",
       author: author,
       createdDate: getWarsawTime(),
       updateDate: "undefined",
     };
   } else {
     const prev = data[displayName];
-    if (prev.version !== actionVersion || prev.author !== author) {
+    if (prev.version !== actionVersion) {
+      prev.previousVersion = prev.version || "undefined";
       prev.updateDate = getWarsawTime();
-      console.log(`✏️ Zaktualizowano plik: ${displayName}, updateDate ustawione na ${prev.updateDate}`);
+      console.log(`✏️ Zaktualizowano plik: ${displayName}, previousVersion ustawione na ${prev.previousVersion}, updateDate ustawione na ${prev.updateDate}`);
     }
     prev.version = actionVersion;
     prev.author = author;
+    if (!prev.previousVersion) prev.previousVersion = "undefined";
   }
 });
 
