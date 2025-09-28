@@ -302,5 +302,13 @@
     "author": "vxed_",
     "createdDate": "28.09.2025 07:37",
     "updateDate": "undefined"
+  },
+  "[VX]store_voice_channel_info.js": {
+    "version": "1.0.0",
+    "previousVersion": "undefined",
+    "folder": "actions",
+    "author": "vxed_",
+    "createdDate": "28.09.2025 07:39",
+    "updateDate": "undefined"
   }
 }
