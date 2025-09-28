@@ -368,10 +368,20 @@
     const refreshBtn = document.getElementById("refreshList");
 
     async function getFiles(dir) {
-      const res = await fetch(`https://api.github.com/repos/vxe3D/dbm-mods/contents/${dir}`);
-      if (!res.ok) return null;
-      const files = await res.json();
-      return files.filter(f => f.type === "file");
+      // Pobierz manifest z versions.json i wygeneruj download_url
+      const res = await fetch('https://raw.githubusercontent.com/vxe3D/dbm-mods/main/Versions/versions.json');
+      if (!res.ok) return [];
+      const versions = await res.json();
+      // Filtrowanie po folderze
+      const folder = dir === 'actions' ? 'actions' : 'events';
+      // Tylko pliki z odpowiedniego folderu (po rozszerzeniu .js)
+      const files = Object.keys(versions)
+        .filter(name => name.endsWith('.js'))
+        .map(name => ({
+          name,
+          download_url: `https://raw.githubusercontent.com/vxe3D/dbm-mods/main/${folder}/${name}`
+        }));
+      return files;
     }
 
     function createFileListSection(dir, files) {
