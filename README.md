@@ -8,7 +8,7 @@
 
 | File | Version | Author | Created | Updated |
 |------|--------|-------|-----------|----------------|
-| [Check_variable.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DCheck_variable.js) | 3.0.0 | vxed_ | 28.09.2025 05:31 | Awaiting update |
+| [Check_variable.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DCheck_variable.js) | 3.0.1 | vxed_ | 28.09.2025 05:31 | 28.09.2025 05:46 |
 | [replace_text.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dreplace_text.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 28.09.2025 05:09 |
 | [set_bot_activity_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_bot_activity_MOD.js) | 3.4.0 | vxed_ | 18.09.2025 09:23 | 28.09.2025 05:07 |
 | [timeout_member.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dtimeout_member.js) | 3.1.0 | vxed_ | 20.09.2025 16:30 | Awaiting update |
