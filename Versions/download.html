@@ -568,6 +568,7 @@
     refreshBtn.addEventListener("click", renderFileLists);
     window.addEventListener("DOMContentLoaded", renderFileLists);
     // Najpierw pobierz listę najnowszych aktualizacji, potem renderuj listę plików
+    window.removeEventListener("DOMContentLoaded", renderFileLists);
     window.addEventListener("DOMContentLoaded", async () => {
       await getRecentUpdatedFiles();
       renderFileLists();
