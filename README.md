@@ -8,8 +8,8 @@
 
 | File | Version | Author | Created | Updated |
 |------|--------|-------|-----------|----------------|
-| [replace_text.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dreplace_text.js) | 3.5.0 | vxed_ | 18.09.2025 09:23 | 28.09.2025 04:00 |
-| [set_bot_activity_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_bot_activity_MOD.js) | 3.4.0 | vxed_ | 18.09.2025 09:23 | 28.09.2025 04:00 |
+| [replace_text.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dreplace_text.js) | 3.4.9 | vxed_ | 18.09.2025 09:23 | 28.09.2025 04:48 |
+| [set_bot_activity_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dset_bot_activity_MOD.js) | 3.3.9 | vxed_ | 18.09.2025 09:23 | 28.09.2025 04:48 |
 | [timeout_member.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dtimeout_member.js) | 3.1.0 | vxed_ | 20.09.2025 16:30 | Awaiting update |
 | [untimeout_member.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Duntimeout_member.js) | 3.0.0 | vxed_ | 20.09.2025 16:30 | Awaiting update |
 | [delete_bulk_messages.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Ddelete_bulk_messages.js) | 3.2.7 | vxed_ | 19.09.2025 19:23 | 20.09.2025 16:29 |
