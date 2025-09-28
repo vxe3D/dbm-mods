@@ -238,10 +238,10 @@
     "previousVersion": "undefined"
   },
   "[VX]Check_variable.js": {
-    "version": "3.0.1",
+    "version": "3.0.2",
     "author": "vxed_",
     "createdDate": "28.09.2025 05:31",
-    "updateDate": "28.09.2025 05:46",
-    "previousVersion": "undefined"
+    "updateDate": "28.09.2025 06:07",
+    "previousVersion": "3.0.1"
   }
 }
