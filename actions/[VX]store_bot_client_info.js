@@ -201,9 +201,6 @@ module.exports = {
           .dbminputlabel {color:#8754ffff;font-weight:bold;}
           input.round {border-radius:6px;border:1px solid #aaa;padding:6px 10px;font-size:14px;background:#21232B;transition:border-color 0.2s;}
           input.round:focus {border-color:#b595ffff;outline:none;}
-          #info.round {background-color: #1e1e1e;color: #eee;}
-          #info.round option {background-color: #2c2f33;color: #eee;padding: 6px;}
-          optgroup {margin-top: 10px;font-weight: bold;color: #ddd;}
         </style>
 
       <div style="float: left; width: 80%; padding-top: 8px;">
