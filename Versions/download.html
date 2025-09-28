@@ -418,7 +418,11 @@
         const option = document.createElement("option");
         option.value = file.name;
         option.dataset.url = file.download_url;
-        option.textContent = file.name;
+        if (recentUpdatedFiles.includes(file.name)) {
+          option.textContent = '⭐ ' + file.name;
+        } else {
+          option.textContent = file.name;
+        }
         select.appendChild(option);
       });
       section.appendChild(select);
@@ -452,11 +456,13 @@
       files.forEach(file => {
         const option = document.createElement("option");
         option.value = file.download_url;
+        // Pokaz gwiazdkę w liście, ale zapisz czystą nazwę w data-filename
         if (recentUpdatedFiles.includes(file.name)) {
           option.textContent = '⭐ ' + file.name;
         } else {
           option.textContent = file.name;
         }
+        option.dataset.filename = file.name;
         select.appendChild(option);
       });
       select.onchange = function() {
@@ -468,7 +474,8 @@
             const url = window.URL.createObjectURL(blob);
             const tempLink = document.createElement("a");
             tempLink.href = url;
-            tempLink.download = selected.textContent;
+            // Użyj czystej nazwy pliku bez gwiazdki
+            tempLink.download = selected.dataset.filename || selected.textContent.replace(/^⭐\s*/, "");
             document.body.appendChild(tempLink);
             tempLink.click();
             setTimeout(() => {
