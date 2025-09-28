@@ -322,9 +322,9 @@
     <div id="directLinksPanel">
       <h3>Bezpośrednie pobieranie</h3>
       <label for="directLinksActionsSelect" style="color:#c7a6ff;font-weight:500;margin-bottom:4px;">Actions</label>
-      <select id="directLinksActionsSelect" class="direct-link-select" size="5"></select>
+    <select id="directLinksActionsSelect" class="direct-link-select" size="6"></select>
       <label for="directLinksEventsSelect" style="color:#c7a6ff;font-weight:500;margin-bottom:4px;">Events</label>
-      <select id="directLinksEventsSelect" class="direct-link-select" size="5"></select>
+    <select id="directLinksEventsSelect" class="direct-link-select" size="6"></select>
     </div>
     <div class="main-col" id="eventsCol"></div>
   </div>
@@ -342,11 +342,12 @@
         const versions = await res.json();
         
         const filesWithUpdate = Object.entries(versions)
-          .filter(([name, v]) => v.updateDate && v.updateDate !== 'undefined')
-          .map(([name, v]) => ({ name, updateDate: v.updateDate }));
-        
+          .map(([name, v]) => ({
+            name,
+            date: (v.updateDate && v.updateDate !== 'undefined') ? v.updateDate : v.createdDate
+          }));
+
         filesWithUpdate.sort((a, b) => {
-          
           const parse = s => {
             if (!s || s === 'undefined') return 0;
             const [d, t] = s.split(' ');
@@ -354,7 +355,7 @@
             const [hour, min] = t ? t.split(':') : [0,0];
             return new Date(`${year}-${month}-${day}T${hour}:${min}:00`).getTime();
           };
-          return parse(b.updateDate) - parse(a.updateDate);
+          return parse(b.date) - parse(a.date);
         });
         recentUpdatedFiles = filesWithUpdate.slice(0, 5).map(f => f.name);
       } catch (e) {
