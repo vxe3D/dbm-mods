@@ -243,5 +243,12 @@
     "createdDate": "28.09.2025 05:31",
     "updateDate": "28.09.2025 06:07",
     "previousVersion": "3.0.1"
+  },
+  "[VX]store_message_info.js": {
+    "version": "3.1.0",
+    "previousVersion": "undefined",
+    "author": "vxed_",
+    "createdDate": "28.09.2025 06:16",
+    "updateDate": "undefined"
   }
 }
