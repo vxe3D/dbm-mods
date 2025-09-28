@@ -368,17 +368,29 @@
     const refreshBtn = document.getElementById("refreshList");
 
     async function getFiles(dir) {
-      // Pobierz manifest z versions.json i korzystaj z pola folder
       const res = await fetch('https://raw.githubusercontent.com/vxe3D/dbm-mods/main/Versions/versions.json');
       if (!res.ok) return [];
       const versions = await res.json();
-      // Filtrowanie po folderze z manifestu
-      const files = Object.entries(versions)
+      let files = Object.entries(versions)
         .filter(([name, v]) => v.folder === dir)
         .map(([name, v]) => ({
           name,
-          download_url: `https://raw.githubusercontent.com/vxe3D/dbm-mods/main/${v.folder}/${name}`
+          download_url: `https://raw.githubusercontent.com/vxe3D/dbm-mods/main/${v.folder}/${name}`,
+          updateDate: v.updateDate,
+          createdDate: v.createdDate
         }));
+      files.sort((a, b) => {
+        const parseDate = s => {
+          if (!s || s === 'undefined') return 0;
+          const [d, t] = s.split(' ');
+          const [day, month, year] = d.split('.');
+          const [hour, min] = t ? t.split(':') : [0,0];
+          return new Date(`${year}-${month}-${day}T${hour}:${min}:00`).getTime();
+        };
+        const dateA = parseDate(a.updateDate) || parseDate(a.createdDate);
+        const dateB = parseDate(b.updateDate) || parseDate(b.createdDate);
+        return dateB - dateA;
+      });
       return files;
     }
 
