@@ -69,6 +69,28 @@
       margin: 0 auto;
       box-sizing: border-box;
     }
+    .main-col {
+      flex: 1 1 0;
+      min-width: 0;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      box-sizing: border-box;
+    }
+    #directLinksPanel {
+      flex: 0 0 340px;
+      align-self: flex-start;
+      margin: 0 18px;
+      max-width: 340px;
+      min-width: 220px;
+      width: 100%;
+    }
+    @media (max-width: 900px) {
+      #main-content { flex-direction: column; gap: 0; max-width: 98vw; }
+      #directLinksPanel { max-width: 98vw; min-width: 0; margin: 0 0 12px 0; }
+      .main-col { max-width: 98vw; min-width: 0; }
+    }
     #fileLists {
       display: flex;
       flex-direction: column;
@@ -295,6 +317,7 @@
     <button id="refreshList">Odśwież listę</button>
   </div>
   <div id="main-content">
+    <div class="main-col" id="actionsCol"></div>
     <div id="directLinksPanel">
       <h3>Bezpośrednie pobieranie</h3>
       <label for="directLinksActionsSelect" style="color:#c7a6ff;font-weight:500;margin-bottom:4px;">Actions</label>
@@ -302,7 +325,7 @@
       <label for="directLinksEventsSelect" style="color:#c7a6ff;font-weight:500;margin-bottom:4px;">Events</label>
       <select id="directLinksEventsSelect" class="direct-link-select" size="5"></select>
     </div>
-    <div id="fileLists"></div>
+    <div class="main-col" id="eventsCol"></div>
   </div>
   <div id="status"></div>
   <div id="progressBar"><div id="progressBarInner"></div></div>
@@ -405,13 +428,15 @@
     }
 
     async function renderFileLists() {
-  fileLists.innerHTML = "";
+  // Usuwamy stare panele
+  document.getElementById("actionsCol").innerHTML = "";
+  document.getElementById("eventsCol").innerHTML = "";
   status.textContent = "Pobieranie listy plików...";
   const [actions, events] = await Promise.all([getFiles("actions"), getFiles("events")]);
   renderDirectLinks("actions", actions);
   renderDirectLinks("events", events);
-  fileLists.appendChild(createFileListSection("actions", actions));
-  fileLists.appendChild(createFileListSection("events", events));
+  document.getElementById("actionsCol").appendChild(createFileListSection("actions", actions));
+  document.getElementById("eventsCol").appendChild(createFileListSection("events", events));
   status.textContent = "Wybierz pliki do pobrania.";
     }
 
