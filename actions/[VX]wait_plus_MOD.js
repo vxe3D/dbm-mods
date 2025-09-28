@@ -4,7 +4,7 @@ module.exports = {
   section: "# VX - Utilities",
   meta: {
     version: "3.2.0",
-    actionVersion: "3.5.0",
+    actionVersion: "3.5.1",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -14,10 +14,14 @@ module.exports = {
   subtitle(data, presets) {
     const measurements = ["Milliseconds", "Seconds", "Minutes", "Hours"];
     const timeText = `${data.time} ${measurements[parseInt(data.measurement, 10)]}`;
-    
-    const skipCount = parseInt(data.skipCount, 10);
-    const skipText = skipCount > 0 ? ` (Skip ${skipCount} action${skipCount > 1 ? 's' : ''})` : "";
 
+    let skipText = "";
+    if (data.branchOption === "1") {
+      const skipCount = parseInt(data.skipCount, 10);
+      if (skipCount > 0) {
+        skipText = ` (Skip ${skipCount} action${skipCount > 1 ? 's' : ''})`;
+      }
+    }
     return timeText + skipText;
   },
 
