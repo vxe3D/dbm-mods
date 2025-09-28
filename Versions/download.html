@@ -563,9 +563,10 @@
       }
     }
 
-    refreshBtn.addEventListener("click", renderFileLists);
-    window.addEventListener("DOMContentLoaded", renderFileLists);
-    window.removeEventListener("DOMContentLoaded", renderFileLists);
+    refreshBtn.addEventListener("click", async () => {
+      await getRecentUpdatedFiles();
+      renderFileLists();
+    });
     window.addEventListener("DOMContentLoaded", async () => {
       await getRecentUpdatedFiles();
       renderFileLists();
