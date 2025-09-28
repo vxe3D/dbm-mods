@@ -84,10 +84,10 @@
     "updateDate": "18.09.2025 12:19"
   },
   "[VX]replace_text.js": {
-    "version": "3.4.9",
+    "version": "3.5.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "28.09.2025 03:29"
+    "updateDate": "28.09.2025 03:30"
   },
   "[VX]send_components_v2_MOD.js": {
     "version": "3.6.2",
@@ -96,10 +96,10 @@
     "updateDate": "19.09.2025 10:24"
   },
   "[VX]set_bot_activity_MOD.js": {
-    "version": "3.4.0",
+    "version": "3.3.9",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "18.09.2025 12:20"
+    "updateDate": "28.09.2025 03:30"
   },
   "[VX]set_members_channel_perms.js": {
     "version": "3.5.0",
