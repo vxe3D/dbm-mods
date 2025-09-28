@@ -52,10 +52,12 @@ files.forEach(({ fullPath, displayName }) => {
   const authorMatch = content.match(/author:\s*["']([^"']+)["']/);
   const author = authorMatch ? authorMatch[1] : "unknown";
 
+  const folderName = fullPath.split('/')[0];
   if (!data[displayName]) {
     data[displayName] = {
       version: actionVersion,
       previousVersion: "undefined",
+      folder: folderName,
       author: author,
       createdDate: getWarsawTime(),
       updateDate: "undefined",
@@ -69,6 +71,7 @@ files.forEach(({ fullPath, displayName }) => {
     }
     prev.version = actionVersion;
     prev.author = author;
+    prev.folder = folderName;
     if (!prev.previousVersion) prev.previousVersion = "undefined";
   }
 });
