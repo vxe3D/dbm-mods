@@ -214,6 +214,28 @@
       btnAll.onclick = () => downloadAll(dir);
       section.appendChild(btnAll);
 
+      // Lista bezpośrednich linków do pobrania
+      const directLinks = document.createElement("ul");
+      directLinks.style.listStyle = "none";
+      directLinks.style.padding = "0";
+      directLinks.style.marginTop = "14px";
+      directLinks.style.marginBottom = "0";
+      files.forEach(file => {
+        const li = document.createElement("li");
+        li.style.marginBottom = "6px";
+        const a = document.createElement("a");
+        a.href = file.download_url;
+        a.textContent = `🔗 ${file.name}`;
+        a.style.color = "#a084ff";
+        a.style.textDecoration = "none";
+        a.style.fontWeight = "500";
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        li.appendChild(a);
+        directLinks.appendChild(li);
+      });
+      section.appendChild(directLinks);
+
       return section;
     }
 
