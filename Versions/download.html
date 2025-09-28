@@ -111,30 +111,117 @@
 <body>
   <h1>⬇️ Pobierz DBM Mods</h1>
   <div class="btns">
-    <button id="downloadActions">Pobierz Actions</button>
-    <button id="downloadEvents" disabled>Pobierz Events</button>
+    <button id="refreshList">Odśwież listę</button>
   </div>
+  <div id="fileLists"></div>
   <div id="status"></div>
   <div id="progressBar"><div id="progressBarInner"></div></div>
 
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
   <script>
-    const actionsBtn = document.getElementById("downloadActions");
-    const eventsBtn = document.getElementById("downloadEvents");
     const status = document.getElementById("status");
     const progressBar = document.getElementById("progressBar");
     const progressBarInner = document.getElementById("progressBarInner");
+    const fileLists = document.getElementById("fileLists");
+    const refreshBtn = document.getElementById("refreshList");
 
-    async function fetchAndZip(dir, zipName) {
-      status.textContent = `Pobieranie listy plików z ${dir}...`;
+    async function getFiles(dir) {
+      const res = await fetch(`https://api.github.com/repos/vxe3D/dbm-mods/contents/${dir}`);
+      if (!res.ok) return null;
+      const files = await res.json();
+      return files.filter(f => f.type === "file");
+    }
+
+    function createFileListSection(dir, files) {
+      const section = document.createElement("section");
+      section.style.marginBottom = "32px";
+      const title = document.createElement("h2");
+      title.textContent = dir.charAt(0).toUpperCase() + dir.slice(1);
+      section.appendChild(title);
+
+      if (!files || files.length === 0) {
+        const info = document.createElement("div");
+        info.textContent = "Brak plików.";
+        section.appendChild(info);
+        return section;
+      }
+
+      // Zaznacz wszystko
+      const selectAll = document.createElement("input");
+      selectAll.type = "checkbox";
+      selectAll.id = `selectAll_${dir}`;
+      selectAll.style.marginRight = "8px";
+      const selectAllLabel = document.createElement("label");
+      selectAllLabel.textContent = "Zaznacz wszystko";
+      selectAllLabel.htmlFor = selectAll.id;
+      section.appendChild(selectAll);
+      section.appendChild(selectAllLabel);
+
+      // Lista plików
+      const ul = document.createElement("ul");
+      ul.style.listStyle = "none";
+      ul.style.padding = "0";
+      files.forEach(file => {
+        const li = document.createElement("li");
+        li.style.marginBottom = "6px";
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.value = file.name;
+        cb.dataset.url = file.download_url;
+        cb.className = `cb_${dir}`;
+        cb.id = `${dir}_${file.name}`;
+        const label = document.createElement("label");
+        label.textContent = file.name;
+        label.htmlFor = cb.id;
+        li.appendChild(cb);
+        li.appendChild(label);
+        ul.appendChild(li);
+      });
+      section.appendChild(ul);
+
+      // Przycisk pobierz wybrane
+      const btnSelected = document.createElement("button");
+      btnSelected.textContent = "Pobierz wybrane";
+      btnSelected.style.marginRight = "12px";
+      btnSelected.onclick = () => downloadSelected(dir);
+      section.appendChild(btnSelected);
+
+      // Przycisk pobierz wszystko
+      const btnAll = document.createElement("button");
+      btnAll.textContent = "Pobierz wszystko";
+      btnAll.onclick = () => downloadAll(dir);
+      section.appendChild(btnAll);
+
+      // Obsługa zaznacz wszystko
+      selectAll.addEventListener("change", () => {
+        ul.querySelectorAll(`.cb_${dir}`).forEach(cb => {
+          cb.checked = selectAll.checked;
+        });
+      });
+
+      return section;
+    }
+
+    async function renderFileLists() {
+      fileLists.innerHTML = "";
+      status.textContent = "Pobieranie listy plików...";
+      const [actions, events] = await Promise.all([getFiles("actions"), getFiles("events")]);
+      fileLists.appendChild(createFileListSection("actions", actions));
+      fileLists.appendChild(createFileListSection("events", events));
+      status.textContent = "Wybierz pliki do pobrania.";
+    }
+
+    async function downloadSelected(dir) {
+      const checkboxes = fileLists.querySelectorAll(`.cb_${dir}:checked`);
+      if (checkboxes.length === 0) {
+        status.textContent = "Nie wybrano żadnych plików.";
+        return;
+      }
+      status.textContent = `Pobieranie wybranych plików z ${dir}...`;
       progressBar.style.display = "block";
       progressBarInner.style.width = "0%";
-      actionsBtn.disabled = true;
-      eventsBtn.disabled = true;
       try {
-        // Sprawdź czy JSZip jest załadowany
-        // Obsługa różnych wariantów eksportu JSZip
         let JSZipCtor = null;
         if (typeof window.JSZip === 'function') {
           JSZipCtor = window.JSZip;
@@ -144,60 +231,76 @@
           JSZipCtor = window.JSZip.default.default;
         }
         if (typeof JSZipCtor !== 'function') {
-          status.textContent = "❌ Nie udało się załadować JSZip. Sprawdź połączenie z CDN.";
-          actionsBtn.disabled = false;
-          if (!eventsBtn.hasAttribute("data-disabled")) eventsBtn.disabled = false;
+          status.textContent = "❌ Nie udało się załadować JSZip.";
           return;
         }
-        const listRes = await fetch(`https://api.github.com/repos/vxe3D/dbm-mods/contents/${dir}`);
-        if (!listRes.ok) throw new Error("Nie udało się pobrać listy plików.");
-        const files = await listRes.json();
-        const onlyFiles = files.filter(f => f.type === "file");
         const zip = new JSZipCtor();
-        for (let i = 0; i < onlyFiles.length; i++) {
-          const file = onlyFiles[i];
-          status.textContent = `Pobieranie ${file.name} (${i+1}/${onlyFiles.length})...`;
-          const res = await fetch(file.download_url);
+        let i = 0;
+        for (const cb of checkboxes) {
+          status.textContent = `Pobieranie ${cb.value} (${i+1}/${checkboxes.length})...`;
+          const res = await fetch(cb.dataset.url);
           const text = await res.text();
-          zip.file(file.name, text);
-          progressBarInner.style.width = `${Math.round(((i+1)/onlyFiles.length)*100)}%`;
+          zip.file(cb.value, text);
+          progressBarInner.style.width = `${Math.round(((i+1)/checkboxes.length)*100)}%`;
+          i++;
         }
         status.textContent = "Tworzenie archiwum ZIP...";
         const blob = await zip.generateAsync({ type: "blob" });
-        window.saveAs(blob, zipName);
+        window.saveAs(blob, `${dir}_wybrane.zip`);
         status.textContent = "✅ Pobieranie zakończone!";
         progressBarInner.style.width = "100%";
       } catch (err) {
         console.error(err);
         status.textContent = "❌ Wystąpił błąd. Sprawdź konsolę.";
         progressBarInner.style.width = "0%";
-      } finally {
-        actionsBtn.disabled = false;
-        if (!eventsBtn.hasAttribute("data-disabled")) eventsBtn.disabled = false;
       }
     }
 
-    actionsBtn.addEventListener("click", () => fetchAndZip("actions", "actions.zip"));
-    eventsBtn.addEventListener("click", () => {
-      if (!eventsBtn.disabled) fetchAndZip("events", "events.zip");
-    });
-
-    // Sprawdź czy katalog events istnieje
-    (async () => {
+    async function downloadAll(dir) {
+      status.textContent = `Pobieranie wszystkich plików z ${dir}...`;
+      progressBar.style.display = "block";
+      progressBarInner.style.width = "0%";
       try {
-        const res = await fetch("https://api.github.com/repos/vxe3D/dbm-mods/contents/events");
-        if (res.ok) {
-          eventsBtn.disabled = false;
-          eventsBtn.removeAttribute("data-disabled");
-        } else {
-          eventsBtn.disabled = true;
-          eventsBtn.setAttribute("data-disabled", "1");
+        let JSZipCtor = null;
+        if (typeof window.JSZip === 'function') {
+          JSZipCtor = window.JSZip;
+        } else if (window.JSZip && typeof window.JSZip.default === 'function') {
+          JSZipCtor = window.JSZip.default;
+        } else if (window.JSZip && window.JSZip.default && typeof window.JSZip.default.default === 'function') {
+          JSZipCtor = window.JSZip.default.default;
         }
-      } catch {
-        eventsBtn.disabled = true;
-        eventsBtn.setAttribute("data-disabled", "1");
+        if (typeof JSZipCtor !== 'function') {
+          status.textContent = "❌ Nie udało się załadować JSZip.";
+          return;
+        }
+        const files = await getFiles(dir);
+        if (!files || files.length === 0) {
+          status.textContent = "Brak plików do pobrania.";
+          return;
+        }
+        const zip = new JSZipCtor();
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          status.textContent = `Pobieranie ${file.name} (${i+1}/${files.length})...`;
+          const res = await fetch(file.download_url);
+          const text = await res.text();
+          zip.file(file.name, text);
+          progressBarInner.style.width = `${Math.round(((i+1)/files.length)*100)}%`;
+        }
+        status.textContent = "Tworzenie archiwum ZIP...";
+        const blob = await zip.generateAsync({ type: "blob" });
+        window.saveAs(blob, `${dir}.zip`);
+        status.textContent = "✅ Pobieranie zakończone!";
+        progressBarInner.style.width = "100%";
+      } catch (err) {
+        console.error(err);
+        status.textContent = "❌ Wystąpił błąd. Sprawdź konsolę.";
+        progressBarInner.style.width = "0%";
       }
-    })();
+    }
+
+    refreshBtn.addEventListener("click", renderFileLists);
+    window.addEventListener("DOMContentLoaded", renderFileLists);
   </script>
 </body>
   <div id="discord-widget-container">
