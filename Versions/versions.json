@@ -286,5 +286,21 @@
     "createdDate": "28.09.2025 06:16",
     "updateDate": "undefined",
     "folder": "actions"
+  },
+  "[VX]store_channel_info.js": {
+    "version": "1.0.0",
+    "previousVersion": "undefined",
+    "folder": "actions",
+    "author": "vxed_",
+    "createdDate": "28.09.2025 07:37",
+    "updateDate": "undefined"
+  },
+  "[VX]store_thread_info.js": {
+    "version": "1.0.0",
+    "previousVersion": "undefined",
+    "folder": "actions",
+    "author": "vxed_",
+    "createdDate": "28.09.2025 07:37",
+    "updateDate": "undefined"
   }
 }
