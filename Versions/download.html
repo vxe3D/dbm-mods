@@ -55,6 +55,26 @@
       width: 100%;
       gap: 36px;
     }
+    #fileLists {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 24px;
+      min-width: 340px;
+      max-width: 440px;
+    }
+    .file-section {
+      background: #23203a;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px #0005;
+      padding: 24px 18px 18px 18px;
+      margin-bottom: 0;
+      min-width: 320px;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
     #directLinksPanel {
       background: #181028;
       border-radius: 14px;
@@ -121,6 +141,29 @@
       font-size: 1.08rem;
       margin-bottom: 14px;
       padding: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: #a084ff #2d1846;
+      outline: none;
+    }
+    .file-select option {
+      padding: 6px 8px;
+      border-radius: 6px;
+      margin-bottom: 2px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .file-select:focus option:checked, .file-select option:checked {
+      background: #6c3fd1;
+      color: #fff;
+      font-weight: bold;
+    }
+    .file-select::-webkit-scrollbar {
+      width: 8px;
+      background: #2d1846;
+      border-radius: 8px;
+    }
+    .file-select::-webkit-scrollbar-thumb {
+      background: #a084ff;
+      border-radius: 8px;
     }
     .file-section button {
       margin-bottom: 0;
