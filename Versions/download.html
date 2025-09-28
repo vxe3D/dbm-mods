@@ -304,7 +304,6 @@
 
       if (!files || files.length === 0) {
         const info = document.createElement("div");
-        info.textContent = "Brak plików.";
         section.appendChild(info);
         return section;
       }
@@ -344,7 +343,6 @@
       select.innerHTML = "";
       if (!files || files.length === 0) {
         const option = document.createElement("option");
-        option.textContent = "Brak plików.";
         option.disabled = true;
         select.appendChild(option);
         return;
