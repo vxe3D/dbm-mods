@@ -35,6 +35,47 @@
       gap: 24px;
       margin-bottom: 32px;
     }
+    .file-section {
+      background: #23203a;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px #0005;
+      padding: 24px 18px 18px 18px;
+      margin-bottom: 32px;
+      min-width: 320px;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .file-section h2 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      color: #c7a6ff;
+      font-size: 1.3rem;
+      text-align: left;
+    }
+    .file-select {
+      width: 100%;
+      min-height: 120px;
+      background: #2d1846;
+      color: #e0d6ff;
+      border-radius: 8px;
+      border: 1px solid #3a2060;
+      font-size: 1.08rem;
+      margin-bottom: 14px;
+      padding: 8px;
+    }
+    .file-section button {
+      margin-bottom: 0;
+      margin-right: 12px;
+      margin-top: 0;
+      padding: 10px 22px;
+      font-size: 1.08rem;
+    }
+    @media (max-width: 600px) {
+      .file-section { min-width: 98vw; max-width: 98vw; padding: 12px 4vw; }
+      .file-select { min-height: 80px; font-size: 0.98rem; }
+    }
     button {
       background: linear-gradient(90deg, #6c3fd1 0%, #2d1846 100%);
       color: #fff;
@@ -135,7 +176,7 @@
 
     function createFileListSection(dir, files) {
       const section = document.createElement("section");
-      section.style.marginBottom = "32px";
+      section.className = "file-section";
       const title = document.createElement("h2");
       title.textContent = dir.charAt(0).toUpperCase() + dir.slice(1);
       section.appendChild(title);
@@ -147,44 +188,24 @@
         return section;
       }
 
-      // Zaznacz wszystko
-      const selectAll = document.createElement("input");
-      selectAll.type = "checkbox";
-      selectAll.id = `selectAll_${dir}`;
-      selectAll.style.marginRight = "8px";
-      const selectAllLabel = document.createElement("label");
-      selectAllLabel.textContent = "Zaznacz wszystko";
-      selectAllLabel.htmlFor = selectAll.id;
-      section.appendChild(selectAll);
-      section.appendChild(selectAllLabel);
-
-      // Lista plików
-      const ul = document.createElement("ul");
-      ul.style.listStyle = "none";
-      ul.style.padding = "0";
+      // Select z wielokrotnym wyborem
+      const select = document.createElement("select");
+      select.className = "file-select";
+      select.multiple = true;
+      select.size = Math.min(files.length, 10);
       files.forEach(file => {
-        const li = document.createElement("li");
-        li.style.marginBottom = "6px";
-        const cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.value = file.name;
-        cb.dataset.url = file.download_url;
-        cb.className = `cb_${dir}`;
-        cb.id = `${dir}_${file.name}`;
-        const label = document.createElement("label");
-        label.textContent = file.name;
-        label.htmlFor = cb.id;
-        li.appendChild(cb);
-        li.appendChild(label);
-        ul.appendChild(li);
+        const option = document.createElement("option");
+        option.value = file.name;
+        option.textContent = file.name;
+        option.dataset.url = file.download_url;
+        select.appendChild(option);
       });
-      section.appendChild(ul);
+      section.appendChild(select);
 
       // Przycisk pobierz wybrane
       const btnSelected = document.createElement("button");
       btnSelected.textContent = "Pobierz wybrane";
-      btnSelected.style.marginRight = "12px";
-      btnSelected.onclick = () => downloadSelected(dir);
+      btnSelected.onclick = () => downloadSelected(dir, select);
       section.appendChild(btnSelected);
 
       // Przycisk pobierz wszystko
@@ -192,13 +213,6 @@
       btnAll.textContent = "Pobierz wszystko";
       btnAll.onclick = () => downloadAll(dir);
       section.appendChild(btnAll);
-
-      // Obsługa zaznacz wszystko
-      selectAll.addEventListener("change", () => {
-        ul.querySelectorAll(`.cb_${dir}`).forEach(cb => {
-          cb.checked = selectAll.checked;
-        });
-      });
 
       return section;
     }
@@ -212,9 +226,9 @@
       status.textContent = "Wybierz pliki do pobrania.";
     }
 
-    async function downloadSelected(dir) {
-      const checkboxes = fileLists.querySelectorAll(`.cb_${dir}:checked`);
-      if (checkboxes.length === 0) {
+    async function downloadSelected(dir, select) {
+      const selectedOptions = Array.from(select.selectedOptions);
+      if (selectedOptions.length === 0) {
         status.textContent = "Nie wybrano żadnych plików.";
         return;
       }
@@ -236,12 +250,12 @@
         }
         const zip = new JSZipCtor();
         let i = 0;
-        for (const cb of checkboxes) {
-          status.textContent = `Pobieranie ${cb.value} (${i+1}/${checkboxes.length})...`;
-          const res = await fetch(cb.dataset.url);
+        for (const opt of selectedOptions) {
+          status.textContent = `Pobieranie ${opt.value} (${i+1}/${selectedOptions.length})...`;
+          const res = await fetch(opt.dataset.url);
           const text = await res.text();
-          zip.file(cb.value, text);
-          progressBarInner.style.width = `${Math.round(((i+1)/checkboxes.length)*100)}%`;
+          zip.file(opt.value, text);
+          progressBarInner.style.width = `${Math.round(((i+1)/selectedOptions.length)*100)}%`;
           i++;
         }
         status.textContent = "Tworzenie archiwum ZIP...";
