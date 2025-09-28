@@ -3,210 +3,245 @@
     "version": "3.4.0",
     "author": "Hit stary & vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "undefined"
+    "updateDate": "undefined",
+    "previousVersion": "undefined"
   },
   "[VX-C]give_rep.js": {
     "version": "3.4.0",
     "author": "Hit stary & vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "undefined"
+    "updateDate": "undefined",
+    "previousVersion": "undefined"
   },
   "[VX]Check_Timestamp_Difference.js": {
     "version": "3.5.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "18.09.2025 12:19"
+    "updateDate": "18.09.2025 12:19",
+    "previousVersion": "undefined"
   },
   "[VX]Format_Relative_Time.js": {
     "version": "3.5.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "18.09.2025 12:19"
+    "updateDate": "18.09.2025 12:19",
+    "previousVersion": "undefined"
   },
   "[VX]Generate_Timestamp.js": {
     "version": "3.5.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "18.09.2025 12:19"
+    "updateDate": "18.09.2025 12:19",
+    "previousVersion": "undefined"
   },
   "[VX]Manage_role_for_All_members.js": {
     "version": "3.2.0",
     "author": "vxed",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "18.09.2025 12:19"
+    "updateDate": "18.09.2025 12:19",
+    "previousVersion": "undefined"
   },
   "[VX]SQLite_DB.js": {
     "version": "3.6.3",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "19.09.2025 19:21"
+    "updateDate": "19.09.2025 19:21",
+    "previousVersion": "undefined"
   },
   "[VX]channel_restriction.js": {
     "version": "3.5.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "18.09.2025 12:19"
+    "updateDate": "18.09.2025 12:19",
+    "previousVersion": "undefined"
   },
   "[VX]control_music_MOD.js": {
     "version": "3.4.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "19.09.2025 14:54"
+    "updateDate": "19.09.2025 14:54",
+    "previousVersion": "undefined"
   },
   "[VX]convert_time_to_seconds_MOD.js": {
     "version": "3.5.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "18.09.2025 12:19"
+    "updateDate": "18.09.2025 12:19",
+    "previousVersion": "undefined"
   },
   "[VX]disable_buttons_select.js": {
     "version": "3.5.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "18.09.2025 12:19"
+    "updateDate": "18.09.2025 12:19",
+    "previousVersion": "undefined"
   },
   "[VX]edit_button.js": {
     "version": "3.8.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "18.09.2025 12:19"
+    "updateDate": "18.09.2025 12:19",
+    "previousVersion": "undefined"
   },
   "[VX]play_music_MOD.js": {
     "version": "3.5.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "18.09.2025 12:19"
+    "updateDate": "18.09.2025 12:19",
+    "previousVersion": "undefined"
   },
   "[VX]play_url_MOD.js": {
     "version": "3.5.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "18.09.2025 12:19"
+    "updateDate": "18.09.2025 12:19",
+    "previousVersion": "undefined"
   },
   "[VX]replace_text.js": {
     "version": "3.5.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "28.09.2025 05:09"
+    "updateDate": "28.09.2025 05:09",
+    "previousVersion": "undefined"
   },
   "[VX]send_components_v2_MOD.js": {
     "version": "3.6.2",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "19.09.2025 10:24"
+    "updateDate": "19.09.2025 10:24",
+    "previousVersion": "undefined"
   },
   "[VX]set_bot_activity_MOD.js": {
     "version": "3.4.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "28.09.2025 05:07"
+    "updateDate": "28.09.2025 05:07",
+    "previousVersion": "undefined"
   },
   "[VX]set_members_channel_perms.js": {
     "version": "3.5.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "18.09.2025 12:19"
+    "updateDate": "18.09.2025 12:19",
+    "previousVersion": "undefined"
   },
   "[VX]set_music_equalizer_MOD.js": {
     "version": "3.5.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "18.09.2025 12:19"
+    "updateDate": "18.09.2025 12:19",
+    "previousVersion": "undefined"
   },
   "[VX]set_roles_channel_perms.js": {
     "version": "3.5.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "18.09.2025 12:19"
+    "updateDate": "18.09.2025 12:19",
+    "previousVersion": "undefined"
   },
   "[VX]set_voice_channel_status_MOD.js": {
     "version": "3.1.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "18.09.2025 12:19"
+    "updateDate": "18.09.2025 12:19",
+    "previousVersion": "undefined"
   },
   "[VX]store_bot_client_info.js": {
     "version": "3.5.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "18.09.2025 12:19"
+    "updateDate": "18.09.2025 12:19",
+    "previousVersion": "undefined"
   },
   "[VX]store_queue_info_MOD.js": {
     "version": "3.3.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "18.09.2025 12:19"
+    "updateDate": "18.09.2025 12:19",
+    "previousVersion": "undefined"
   },
   "[VX]store_track_info_MOD.js": {
     "version": "3.4.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "18.09.2025 12:19"
+    "updateDate": "18.09.2025 12:19",
+    "previousVersion": "undefined"
   },
   "[VX]wait_plus_MOD.js": {
     "version": "3.5.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:23",
-    "updateDate": "18.09.2025 12:19"
+    "updateDate": "18.09.2025 12:19",
+    "previousVersion": "undefined"
   },
   "[VX]store_server_info.js": {
     "version": "3.4.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 09:36",
-    "updateDate": "18.09.2025 12:19"
+    "updateDate": "18.09.2025 12:19",
+    "previousVersion": "undefined"
   },
   "[VX]Check_Account_Age.js": {
     "version": "3.4.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 12:19",
-    "updateDate": "undefined"
+    "updateDate": "undefined",
+    "previousVersion": "undefined"
   },
   "[VX]store_invite_info.js": {
     "version": "3.1.0",
     "author": "vxed_",
     "createdDate": "18.09.2025 14:44",
-    "updateDate": "18.09.2025 15:48"
+    "updateDate": "18.09.2025 15:48",
+    "previousVersion": "undefined"
   },
   "[VX]Send_Components_Webhook.js": {
     "version": "2.1.0",
     "author": "vxed_",
     "createdDate": "19.09.2025 10:24",
-    "updateDate": "19.09.2025 19:23"
+    "updateDate": "19.09.2025 19:23",
+    "previousVersion": "undefined"
   },
   "[VX]generate_random_word.js": {
     "version": "2.5.0",
     "author": "vxed_",
     "createdDate": "19.09.2025 14:54",
-    "updateDate": "undefined"
+    "updateDate": "undefined",
+    "previousVersion": "undefined"
   },
   "[VX]delete_bulk_messages.js": {
     "version": "3.2.7",
     "author": "vxed_",
     "createdDate": "19.09.2025 19:23",
-    "updateDate": "20.09.2025 16:29"
+    "updateDate": "20.09.2025 16:29",
+    "previousVersion": "undefined"
   },
   "[VX]store_time_info.js": {
     "version": "3.1.0",
     "author": "vxed_",
     "createdDate": "19.09.2025 19:57",
-    "updateDate": "undefined"
+    "updateDate": "undefined",
+    "previousVersion": "undefined"
   },
   "[VX]timeout_member.js": {
     "version": "3.1.0",
     "author": "vxed_",
     "createdDate": "20.09.2025 16:30",
-    "updateDate": "undefined"
+    "updateDate": "undefined",
+    "previousVersion": "undefined"
   },
   "[VX]untimeout_member.js": {
     "version": "3.0.0",
     "author": "vxed_",
     "createdDate": "20.09.2025 16:30",
-    "updateDate": "undefined"
+    "updateDate": "undefined",
+    "previousVersion": "undefined"
   },
   "[VX]Check_variable.js": {
     "version": "3.0.1",
     "author": "vxed_",
     "createdDate": "28.09.2025 05:31",
-    "updateDate": "28.09.2025 05:46"
+    "updateDate": "28.09.2025 05:46",
+    "previousVersion": "undefined"
   }
 }
