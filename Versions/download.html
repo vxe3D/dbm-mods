@@ -368,24 +368,10 @@
     const refreshBtn = document.getElementById("refreshList");
 
     async function getFiles(dir) {
-      // Scrape the HTML directory listing from GitHub web page
-      const url = `https://github.com/vxe3D/dbm-mods/tree/main/${dir}`;
-      const res = await fetch(url);
-      if (!res.ok) return [];
-      const html = await res.text();
-      // Parse file names and raw URLs from the HTML
-      const fileRegex = /<a[^>]+href=\"\/vxe3D\/dbm-mods\/blob\/main\/${dir}\/([^\"]+)\"[^>]*>([^<]+)<\/a>/g;
-      const files = [];
-      let match;
-      while ((match = fileRegex.exec(html)) !== null) {
-        const name = match[1];
-        files.push({
-          name,
-          download_url: `https://raw.githubusercontent.com/vxe3D/dbm-mods/main/${dir}/${name}`,
-          type: "file"
-        });
-      }
-      return files;
+      const res = await fetch(`https://api.github.com/repos/vxe3D/dbm-mods/contents/${dir}`);
+      if (!res.ok) return null;
+      const files = await res.json();
+      return files.filter(f => f.type === "file");
     }
 
     function createFileListSection(dir, files) {
