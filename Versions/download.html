@@ -334,19 +334,19 @@
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
   <script>
-    // Pobierz wersje i wyciągnij 5 najnowszych updateDate
+    
     let recentUpdatedFiles = [];
     async function getRecentUpdatedFiles() {
       try {
         const res = await fetch('https://raw.githubusercontent.com/vxe3D/dbm-mods/main/Versions/versions.json');
         const versions = await res.json();
-        // Zbierz pliki z updateDate != undefined
+        
         const filesWithUpdate = Object.entries(versions)
           .filter(([name, v]) => v.updateDate && v.updateDate !== 'undefined')
           .map(([name, v]) => ({ name, updateDate: v.updateDate }));
-        // Sortuj po dacie malejąco
+        
         filesWithUpdate.sort((a, b) => {
-          // Format dd.mm.yyyy hh:mm
+          
           const parse = s => {
             if (!s || s === 'undefined') return 0;
             const [d, t] = s.split(' ');
@@ -388,7 +388,7 @@
         return section;
       }
 
-      // Select z wielokrotnym wyborem
+    
       const select = document.createElement("select");
       select.className = "file-select";
       select.multiple = true;
@@ -397,9 +397,8 @@
         const option = document.createElement("option");
         option.value = file.name;
         option.dataset.url = file.download_url;
-        // Ikona star jeśli plik jest w recentUpdatedFiles
         if (recentUpdatedFiles.includes(file.name)) {
-          option.innerHTML = '<i class="star icon" style="color:#ffe066;margin-right:6px;"></i>' + file.name;
+          option.textContent = '⭐ ' + file.name;
         } else {
           option.textContent = file.name;
         }
@@ -407,13 +406,13 @@
       });
       section.appendChild(select);
 
-      // Przycisk pobierz wybrane
+      
       const btnSelected = document.createElement("button");
       btnSelected.textContent = "Pobierz wybrane";
       btnSelected.onclick = () => downloadSelected(dir, select);
       section.appendChild(btnSelected);
 
-      // Przycisk pobierz wszystko
+      
       const btnAll = document.createElement("button");
       btnAll.textContent = "Pobierz wszystko";
       btnAll.onclick = () => downloadAll(dir);
@@ -422,7 +421,7 @@
       return section;
     }
 
-    // Renderowanie bezpośrednich linków po lewej stronie
+    
     function renderDirectLinks(dir, files) {
       const select = document.getElementById(dir === "actions" ? "directLinksActionsSelect" : "directLinksEventsSelect");
       select.innerHTML = "";
@@ -436,9 +435,8 @@
       files.forEach(file => {
         const option = document.createElement("option");
         option.value = file.download_url;
-        // Ikona star jeśli plik jest w recentUpdatedFiles
         if (recentUpdatedFiles.includes(file.name)) {
-          option.innerHTML = '<i class="star icon" style="color:#ffe066;margin-right:6px;"></i>' + file.name;
+          option.textContent = '⭐ ' + file.name;
         } else {
           option.textContent = file.name;
         }
@@ -466,7 +464,7 @@
     }
 
     async function renderFileLists() {
-  // Usuwamy stare panele
+  
   document.getElementById("actionsCol").innerHTML = "";
   document.getElementById("eventsCol").innerHTML = "";
   status.textContent = "Pobieranie listy plików...";
@@ -567,7 +565,6 @@
 
     refreshBtn.addEventListener("click", renderFileLists);
     window.addEventListener("DOMContentLoaded", renderFileLists);
-    // Najpierw pobierz listę najnowszych aktualizacji, potem renderuj listę plików
     window.removeEventListener("DOMContentLoaded", renderFileLists);
     window.addEventListener("DOMContentLoaded", async () => {
       await getRecentUpdatedFiles();
