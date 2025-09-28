@@ -47,6 +47,63 @@
       flex-direction: column;
       align-items: stretch;
     }
+    #main-content {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: center;
+      width: 100%;
+      gap: 36px;
+    }
+    #directLinksPanel {
+      background: #181028;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px #0005;
+      padding: 24px 18px 18px 18px;
+      min-width: 220px;
+      max-width: 320px;
+      margin-right: 0;
+      margin-bottom: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      height: fit-content;
+    }
+    #directLinksPanel h3 {
+      color: #c7a6ff;
+      font-size: 1.1rem;
+      margin-top: 0;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+    .direct-link-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .direct-link-list li {
+      margin-bottom: 8px;
+      word-break: break-all;
+    }
+    .direct-link-list a {
+      color: #a084ff;
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 2px 0;
+      border-bottom: 1px dotted #a084ff;
+    }
+    .direct-link-list a:hover {
+      color: #fff;
+      background: #6c3fd1;
+      border-radius: 4px;
+      padding: 2px 4px;
+      border-bottom: none;
+    }
+    @media (max-width: 900px) {
+      #main-content { flex-direction: column; gap: 0; }
+      #directLinksPanel { max-width: 98vw; min-width: 98vw; margin-bottom: 18px; }
+    }
     .file-section h2 {
       margin-top: 0;
       margin-bottom: 12px;
@@ -154,7 +211,14 @@
   <div class="btns">
     <button id="refreshList">Odśwież listę</button>
   </div>
-  <div id="fileLists"></div>
+  <div id="main-content">
+    <div id="directLinksPanel">
+      <h3>Bezpośrednie pobieranie</h3>
+      <ul id="directLinksActions" class="direct-link-list"></ul>
+      <ul id="directLinksEvents" class="direct-link-list"></ul>
+    </div>
+    <div id="fileLists"></div>
+  </div>
   <div id="status"></div>
   <div id="progressBar"><div id="progressBarInner"></div></div>
 
@@ -214,38 +278,55 @@
       btnAll.onclick = () => downloadAll(dir);
       section.appendChild(btnAll);
 
-      // Lista bezpośrednich linków do pobrania
-      const directLinks = document.createElement("ul");
-      directLinks.style.listStyle = "none";
-      directLinks.style.padding = "0";
-      directLinks.style.marginTop = "14px";
-      directLinks.style.marginBottom = "0";
-      files.forEach(file => {
-        const li = document.createElement("li");
-        li.style.marginBottom = "6px";
-        const a = document.createElement("a");
-        a.href = file.download_url;
-        a.textContent = `🔗 ${file.name}`;
-        a.style.color = "#a084ff";
-        a.style.textDecoration = "none";
-        a.style.fontWeight = "500";
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        li.appendChild(a);
-        directLinks.appendChild(li);
-      });
-      section.appendChild(directLinks);
-
       return section;
     }
 
+    // Renderowanie bezpośrednich linków po lewej stronie
+    function renderDirectLinks(dir, files) {
+      const ul = document.getElementById(dir === "actions" ? "directLinksActions" : "directLinksEvents");
+      ul.innerHTML = "";
+      if (!files || files.length === 0) {
+        const li = document.createElement("li");
+        li.textContent = "Brak plików.";
+        ul.appendChild(li);
+        return;
+      }
+      files.forEach(file => {
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+        a.href = file.download_url;
+        a.textContent = `🔗 ${file.name}`;
+        a.addEventListener("click", function(e) {
+          e.preventDefault();
+          fetch(file.download_url)
+            .then(res => res.blob())
+            .then(blob => {
+              const url = window.URL.createObjectURL(blob);
+              const tempLink = document.createElement("a");
+              tempLink.href = url;
+              tempLink.download = file.name;
+              document.body.appendChild(tempLink);
+              tempLink.click();
+              setTimeout(() => {
+                document.body.removeChild(tempLink);
+                window.URL.revokeObjectURL(url);
+              }, 100);
+            });
+        });
+        li.appendChild(a);
+        ul.appendChild(li);
+      });
+    }
+
     async function renderFileLists() {
-      fileLists.innerHTML = "";
-      status.textContent = "Pobieranie listy plików...";
-      const [actions, events] = await Promise.all([getFiles("actions"), getFiles("events")]);
-      fileLists.appendChild(createFileListSection("actions", actions));
-      fileLists.appendChild(createFileListSection("events", events));
-      status.textContent = "Wybierz pliki do pobrania.";
+  fileLists.innerHTML = "";
+  status.textContent = "Pobieranie listy plików...";
+  const [actions, events] = await Promise.all([getFiles("actions"), getFiles("events")]);
+  renderDirectLinks("actions", actions);
+  renderDirectLinks("events", events);
+  fileLists.appendChild(createFileListSection("actions", actions));
+  fileLists.appendChild(createFileListSection("events", events));
+  status.textContent = "Wybierz pliki do pobrania.";
     }
 
     async function downloadSelected(dir, select) {
