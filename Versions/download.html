@@ -418,11 +418,7 @@
         const option = document.createElement("option");
         option.value = file.name;
         option.dataset.url = file.download_url;
-        if (recentUpdatedFiles.includes(file.name)) {
-          option.textContent = '⭐ ' + file.name;
-        } else {
-          option.textContent = file.name;
-        }
+        option.textContent = file.name;
         select.appendChild(option);
       });
       section.appendChild(select);
