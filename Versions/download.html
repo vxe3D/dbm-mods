@@ -96,29 +96,41 @@
       margin-bottom: 12px;
       text-align: left;
     }
-    .direct-link-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
+    .direct-link-select {
+      width: 100%;
+      min-width: 180px;
+      max-width: 320px;
+      min-height: 40px;
+      background: #2d1846;
+      color: #e0d6ff;
+      border-radius: 8px;
+      border: 1px solid #3a2060;
+      font-size: 1.05rem;
+      margin-bottom: 12px;
+      padding: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: #a084ff #2d1846;
+      outline: none;
     }
-    .direct-link-list li {
-      margin-bottom: 8px;
-      word-break: break-all;
+    .direct-link-select option {
+      padding: 6px 8px;
+      border-radius: 6px;
+      margin-bottom: 2px;
+      transition: background 0.15s, color 0.15s;
     }
-    .direct-link-list a {
-      color: #a084ff;
-      text-decoration: none;
-      font-weight: 500;
-      cursor: pointer;
-      padding: 2px 0;
-      border-bottom: 1px dotted #a084ff;
-    }
-    .direct-link-list a:hover {
-      color: #fff;
+    .direct-link-select:focus option:checked, .direct-link-select option:checked {
       background: #6c3fd1;
-      border-radius: 4px;
-      padding: 2px 4px;
-      border-bottom: none;
+      color: #fff;
+      font-weight: bold;
+    }
+    .direct-link-select::-webkit-scrollbar {
+      width: 8px;
+      background: #2d1846;
+      border-radius: 8px;
+    }
+    .direct-link-select::-webkit-scrollbar-thumb {
+      background: #a084ff;
+      border-radius: 8px;
     }
     @media (max-width: 900px) {
       #main-content { flex-direction: column; gap: 0; }
@@ -256,9 +268,11 @@
   </div>
   <div id="main-content">
     <div id="directLinksPanel">
-      <h3>Bezpośrednie pobieranie</h3>
-      <ul id="directLinksActions" class="direct-link-list"></ul>
-      <ul id="directLinksEvents" class="direct-link-list"></ul>
+  <h3>Bezpośrednie pobieranie</h3>
+  <label for="directLinksActionsSelect" style="color:#c7a6ff;font-weight:500;margin-bottom:4px;">Actions</label>
+  <select id="directLinksActionsSelect" class="direct-link-select" size="5"></select>
+  <label for="directLinksEventsSelect" style="color:#c7a6ff;font-weight:500;margin-bottom:4px;">Events</label>
+  <select id="directLinksEventsSelect" class="direct-link-select" size="5"></select>
     </div>
     <div id="fileLists"></div>
   </div>
@@ -326,39 +340,40 @@
 
     // Renderowanie bezpośrednich linków po lewej stronie
     function renderDirectLinks(dir, files) {
-      const ul = document.getElementById(dir === "actions" ? "directLinksActions" : "directLinksEvents");
-      ul.innerHTML = "";
+      const select = document.getElementById(dir === "actions" ? "directLinksActionsSelect" : "directLinksEventsSelect");
+      select.innerHTML = "";
       if (!files || files.length === 0) {
-        const li = document.createElement("li");
-        li.textContent = "Brak plików.";
-        ul.appendChild(li);
+        const option = document.createElement("option");
+        option.textContent = "Brak plików.";
+        option.disabled = true;
+        select.appendChild(option);
         return;
       }
       files.forEach(file => {
-        const li = document.createElement("li");
-        const a = document.createElement("a");
-        a.href = file.download_url;
-        a.textContent = `🔗 ${file.name}`;
-        a.addEventListener("click", function(e) {
-          e.preventDefault();
-          fetch(file.download_url)
-            .then(res => res.blob())
-            .then(blob => {
-              const url = window.URL.createObjectURL(blob);
-              const tempLink = document.createElement("a");
-              tempLink.href = url;
-              tempLink.download = file.name;
-              document.body.appendChild(tempLink);
-              tempLink.click();
-              setTimeout(() => {
-                document.body.removeChild(tempLink);
-                window.URL.revokeObjectURL(url);
-              }, 100);
-            });
-        });
-        li.appendChild(a);
-        ul.appendChild(li);
+        const option = document.createElement("option");
+        option.value = file.download_url;
+        option.textContent = file.name;
+        select.appendChild(option);
       });
+      select.onchange = function() {
+        const selected = select.options[select.selectedIndex];
+        if (!selected || !selected.value) return;
+        fetch(selected.value)
+          .then(res => res.blob())
+          .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const tempLink = document.createElement("a");
+            tempLink.href = url;
+            tempLink.download = selected.textContent;
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            setTimeout(() => {
+              document.body.removeChild(tempLink);
+              window.URL.revokeObjectURL(url);
+            }, 100);
+          });
+        select.selectedIndex = -1;
+      };
     }
 
     async function renderFileLists() {
