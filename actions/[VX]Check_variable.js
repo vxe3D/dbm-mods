@@ -4,7 +4,7 @@ module.exports = {
   section: "# VX - Utilities",
   meta: {
     version: "3.2.0",
-    actionVersion: "3.0.2",
+    actionVersion: "3.0.5",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -169,15 +169,25 @@ module.exports = {
       return [];
     }
 
+    function safeStr(val) {
+      if (val == null) return "";
+      if (typeof val === "object") return JSON.stringify(val);
+      // Jeśli liczba jest zbyt duża → zamień na string
+      if (typeof val === "number" && val > Number.MAX_SAFE_INTEGER) {
+        return val.toString();
+      }
+      return String(val);
+    }
+
     switch (compare) {
       case 0: // Exists
         result = typeof val1 !== "undefined";
         break;
       case 1: // Equals (loose)
-        result = toStr(val1) == toStr(val2);
+        result = safeStr(val1) == safeStr(val2);
         break;
       case 2: // Equals Exactly (strict)
-        result = toStr(val1) === toStr(val2);
+        result = safeStr(val1) === safeStr(val2);
         break;
       case 3: // Less Than
         result = toNum(val1) < toNum(val2);
@@ -187,45 +197,46 @@ module.exports = {
         break;
       case 5: // Includes
         {
-          let arr = Array.isArray(val1) ? val1 : toStr(val1);
+          let arr = Array.isArray(val1) ? val1 : safeStr(val1);
           if (Array.isArray(arr)) {
             result = arr.includes(val2);
           } else {
-            result = arr.includes(toStr(val2));
+            result = arr.includes(safeStr(val2));
           }
         }
         break;
       case 6: // Matches Regex
         {
           try {
-            const regex = new RegExp(val2, "i");
-            result = regex.test(toStr(val1));
-          } catch {
+            const regex = new RegExp(safeStr(val2), "i");
+            result = regex.test(safeStr(val1));
+          } catch (e) {
+            console.error("[ACTION DEBUG] Regex error:", e);
             result = false;
           }
         }
         break;
       case 7: // Starts With
-        result = toStr(val1).startsWith(toStr(val2));
+        result = safeStr(val1).startsWith(safeStr(val2));
         break;
       case 8: // Ends With
-        result = toStr(val1).endsWith(toStr(val2));
+        result = safeStr(val1).endsWith(safeStr(val2));
         break;
       case 9: // Length Equals
         {
-          let len = Array.isArray(val1) ? val1.length : toStr(val1).length;
+          let len = Array.isArray(val1) ? val1.length : safeStr(val1).length;
           result = len === toNum(val2);
         }
         break;
       case 10: // Length Greater Than
         {
-          let len = Array.isArray(val1) ? val1.length : toStr(val1).length;
+          let len = Array.isArray(val1) ? val1.length : safeStr(val1).length;
           result = len > toNum(val2);
         }
         break;
       case 11: // Length Less Than
         {
-          let len = Array.isArray(val1) ? val1.length : toStr(val1).length;
+          let len = Array.isArray(val1) ? val1.length : safeStr(val1).length;
           result = len < toNum(val2);
         }
         break;
