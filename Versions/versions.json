@@ -272,11 +272,11 @@
     "folder": "actions"
   },
   "[VX]Check_variable.js": {
-    "version": "3.0.2",
+    "version": "3.0.5",
     "author": "vxed_",
     "createdDate": "28.09.2025 05:31",
-    "updateDate": "28.09.2025 06:07",
-    "previousVersion": "3.0.1",
+    "updateDate": "04.10.2025 21:19",
+    "previousVersion": "3.0.2",
     "folder": "actions"
   },
   "[VX]store_message_info.js": {
