@@ -4,7 +4,7 @@ module.exports = {
   section: "# VX - Utilities",
   meta: {
     version: "3.2.0",
-    actionVersion: "3.0.5",
+    actionVersion: "3.0.6",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -15,7 +15,7 @@ module.exports = {
     return `${presets.getConditionsText(data)}`;
   },
 
-  fields: ["storage", "varName", "comparison", "value", "branch"],
+  fields: ["storage", "varName", "comparison", "value", "branch", "debugMode"],
 
   html(isEvent, data) {
   const actionVersion = (this.meta && typeof this.meta.actionVersion !== "undefined") ? `${this.meta.actionVersion}` : "???";
@@ -67,6 +67,7 @@ module.exports = {
           optgroup {margin-top: 10px;font-weight: bold;color: #ddd;}
         </style>
 
+      <dbm-checkbox id="debugMode" selectWidth="100%" variableInputWidth="100%" label="Debug Mode"></dbm-checkbox><br>
       <retrieve-from-variable allowSlashParams dropdownLabel="Variable" selectId="storage" variableContainerId="varNameContainer" variableInputId="varName"></retrieve-from-variable>
 
       <br><br><br>
@@ -179,21 +180,36 @@ module.exports = {
       return String(val);
     }
 
+    // Debug log helper
+    function debugLog(...args) {
+      if (data.debugMode) {
+        console.log("[VX]Check_variable DEBUG:", ...args);
+      }
+    }
+
+    debugLog("Variable:", varName, "Value:", val1);
+    debugLog("Comparison:", compare, "Compare to:", val2);
+
     switch (compare) {
       case 0: // Exists
         result = typeof val1 !== "undefined";
+        debugLog("Exists result:", result);
         break;
       case 1: // Equals (loose)
         result = safeStr(val1) == safeStr(val2);
+        debugLog("Equals result:", result);
         break;
       case 2: // Equals Exactly (strict)
         result = safeStr(val1) === safeStr(val2);
+        debugLog("Equals Exactly result:", result);
         break;
       case 3: // Less Than
         result = toNum(val1) < toNum(val2);
+        debugLog("Less Than result:", result);
         break;
       case 4: // Greater Than
         result = toNum(val1) > toNum(val2);
+        debugLog("Greater Than result:", result);
         break;
       case 5: // Includes
         {
@@ -203,6 +219,7 @@ module.exports = {
           } else {
             result = arr.includes(safeStr(val2));
           }
+          debugLog("Includes result:", result);
         }
         break;
       case 6: // Matches Regex
@@ -210,6 +227,7 @@ module.exports = {
           try {
             const regex = new RegExp(safeStr(val2), "i");
             result = regex.test(safeStr(val1));
+            debugLog("Regex result:", result);
           } catch (e) {
             console.error("[ACTION DEBUG] Regex error:", e);
             result = false;
@@ -218,29 +236,35 @@ module.exports = {
         break;
       case 7: // Starts With
         result = safeStr(val1).startsWith(safeStr(val2));
+        debugLog("Starts With result:", result);
         break;
       case 8: // Ends With
         result = safeStr(val1).endsWith(safeStr(val2));
+        debugLog("Ends With result:", result);
         break;
       case 9: // Length Equals
         {
           let len = Array.isArray(val1) ? val1.length : safeStr(val1).length;
           result = len === toNum(val2);
+          debugLog("Length Equals result:", result);
         }
         break;
       case 10: // Length Greater Than
         {
           let len = Array.isArray(val1) ? val1.length : safeStr(val1).length;
           result = len > toNum(val2);
+          debugLog("Length Greater Than result:", result);
         }
         break;
       case 11: // Length Less Than
         {
           let len = Array.isArray(val1) ? val1.length : safeStr(val1).length;
           result = len < toNum(val2);
+          debugLog("Length Less Than result:", result);
         }
         break;
     }
+    debugLog("Final result:", result);
     this.executeResults(result, data?.branch ?? data, cache);
   },
 
