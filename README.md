@@ -8,7 +8,7 @@
 
 | File | Version | Author | Created | Updated |
 |------|--------|-------|-----------|----------------|
-| [Check_variable.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DCheck_variable.js) | 3.0.5 | vxed_ | 28.09.2025 05:31 | 04.10.2025 21:19 |
+| [Check_variable.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5DCheck_variable.js) | 3.0.6 | vxed_ | 28.09.2025 05:31 | 05.10.2025 09:12 |
 | [wait_plus_MOD.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dwait_plus_MOD.js) | 3.5.1 | vxed_ | 18.09.2025 09:23 | 28.09.2025 08:07 |
 | [store_voice_channel_info.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dstore_voice_channel_info.js) | 1.0.0 | vxed_ | 28.09.2025 07:39 | Awaiting update |
 | [store_channel_info.js](https://github.com/vxe3D/dbm-mods/blob/main/actions%2F%5BVX%5Dstore_channel_info.js) | 1.0.0 | vxed_ | 28.09.2025 07:37 | Awaiting update |
