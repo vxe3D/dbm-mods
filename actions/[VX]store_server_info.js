@@ -4,7 +4,7 @@ module.exports = {
   section: "# VX - Utilities",
   meta: {
     version: "3.2.0",
-    actionVersion: "3.4.0",
+    actionVersion: "3.4.1",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -287,8 +287,7 @@ module.exports = {
         break;
       case 14: {
         const count = targetServer.premiumSubscriptionCount;
-        const tier = targetServer.premiumTier;
-        const maxBoosts = [0, 2, 7, 14][tier] || 0;
+        const maxBoosts = 28;
         const filled = Math.min(count, maxBoosts);
         const totalBars = 10;
         const progress = Math.round((filled / maxBoosts) * totalBars) || 0;
