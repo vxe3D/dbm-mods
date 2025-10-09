@@ -4,7 +4,7 @@ module.exports = {
   section: "# VX - Channel(s)",
   meta: {
     version: "3.2.0",
-    actionVersion: "1.0.0",
+    actionVersion: "1.1.0",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -31,7 +31,9 @@ module.exports = {
       "Created At (Date)",
       "Created Timestamp",
       "Guild",
-      "Deletable"
+      "Deletable",
+      "Category ID",
+      "Position"
     ];
     return `${presets.getChannelText(data.channel, data.varName)} - ${info[parseInt(data.info, 10)]}`;
   },
@@ -61,6 +63,8 @@ module.exports = {
       case 16: dataType = "Number"; break;
       case 17: dataType = "Guild"; break;
       case 18: dataType = "Boolean"; break;
+      case 19: dataType = "String"; break; // Category ID
+      case 20: dataType = "Number"; break; // Position
     }
     return [data.varName2, dataType];
   },
@@ -123,33 +127,35 @@ module.exports = {
     <span class="dbminputlabel">Source Info</span><br>
       <select id="info" class="round">
         <optgroup label="⭐ General">
-          <option value="0">Channel Object</option>
-          <option value="1">ID</option>
-          <option value="7">Name</option>
-          <option value="12">Topic</option>
-          <option value="13">URL</option>
-          <option value="17">Guild</option>
+          <option value="0">⚙️ Channel Object</option>
+          <option value="1">🆔 ID</option>
+          <option value="7">✨ Name</option>
+          <option value="12">💡 Topic</option>
+          <option value="13">🔗 URL</option>
+          <option value="17">🏛️ Guild</option>
+          <option value="19">🆔 Category ID</option>
+          <option value="20">🚩 Position</option>
         </optgroup>
         <optgroup label="🕒 Creation Info">
-          <option value="15">Created At (Date)</option>
-          <option value="16">Created Timestamp</option>
+          <option value="15">📅 Created At (Date)</option>
+          <option value="16">🕓 Created Timestamp</option>
         </optgroup>
         <optgroup label="💬 Messages">
-          <option value="2">Last Message</option>
-          <option value="3">Last Message ID</option>
-          <option value="6">Messages (Cache)</option>
+          <option value="2">💬 Last Message</option>
+          <option value="3">🆔 Last Message ID</option>
+          <option value="6">💭 Messages (Cache)</option>
         </optgroup>
         <optgroup label="⚙️ Properties">
-          <option value="4">Manageable</option>
-          <option value="5">Members</option>
-          <option value="14">Viewable</option>
-          <option value="18">Deletable</option>
+          <option value="4">🛠️ Manageable?</option>
+          <option value="5">👥 Members</option>
+          <option value="14">👀 Viewable?</option>
+          <option value="18">🗑️ Deletable?</option>
         </optgroup>
         <optgroup label="🧩 System Info">
-          <option value="8">NSFW</option>
-          <option value="9">Parent</option>
-          <option value="10">Parent ID</option>
-          <option value="11">Rate Limit Per User</option>
+          <option value="8">🔞 NSFW</option>
+          <option value="9">🗂️ Parent</option>
+          <option value="10">🆔 Parent ID</option>
+          <option value="11">🚫 Rate Limit Per User</option>
         </optgroup>
       </select>
     </div>
@@ -190,6 +196,8 @@ module.exports = {
       case 16: result = channel.createdTimestamp ?? null; break;
       case 17: result = channel.guild ?? null; break;
       case 18: result = channel.deletable ?? null; break;
+      case 19: result = channel.parentId ?? null; break; // Category ID
+      case 20: result = channel.position ?? null; break; // Position
     }
 
     if (result !== undefined) {

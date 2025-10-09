@@ -4,7 +4,7 @@ module.exports = {
   section: "# VX - Utilities",
   meta: {
     version: "3.2.0",
-    actionVersion: "3.4.1",
+    actionVersion: "3.4.2",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -154,43 +154,43 @@ module.exports = {
           <select id="info" class="round">
 
             <optgroup label="⚙️ General Info">
-              <option value="0">Server Object</option>
-              <option value="1">Server ID</option>
-              <option value="8">Created At</option>
-              <option value="11">Icon URL</option>
-              <option value="12">Members Count (no bots)</option>
-              <option value="13">Bots Count</option>
-              <option value="19">Verification Level</option>
-              <option value="18">Stickers Count</option>
+              <option value="0">🏛️ Server Object</option>
+              <option value="1">🆔 Server ID</option>
+              <option value="8">➕ Created At</option>
+              <option value="11">🖼️ Icon URL</option>
+              <option value="12">🧮 Members Count (no bots)</option>
+              <option value="13">🤖 Bots Count</option>
+              <option value="19">🔒 Verification Level</option>
+              <option value="18">📜 Stickers Count</option>
             </optgroup>
 
             <optgroup label="🚀 Boosts">
-              <option value="14">Boost Progress Bar</option>
-              <option value="15">Boost Count</option>
-              <option value="16">Boost Tier</option>
-              <option value="17">Boosts User List (Inline)</option>
+              <option value="14">📈 Boost Progress Bar</option>
+              <option value="15">🧮 Boost Count</option>
+              <option value="16">🏅 Boost Tier</option>
+              <option value="17">👥 Boosts User List (Inline)</option>
             </optgroup>
 
             <optgroup label="⭐ Roles">
-              <option value="3">Roles Count</option>
-              <option value="2">Roles List (Inline)</option>
+              <option value="3">🧮 Roles Count</option>
+              <option value="2">🎭 Roles List (Inline)</option>
             </optgroup>
 
             <optgroup label="💬 Text & Voice Channels">
-              <option value="5">Text Channels Count</option>
-              <option value="4">Text Channels List (Inline)</option>
-              <option value="7">Voice Channels Count</option>
-              <option value="6">Voice Channels List (Inline)</option>
+              <option value="5">🧮 Text Channels Count</option>
+              <option value="4">💬 Text Channels List (Inline)</option>
+              <option value="7">🧮 Voice Channels Count</option>
+              <option value="6">🔊 Voice Channels List (Inline)</option>
             </optgroup>
 
             <optgroup label="📋 Emojis">
-              <option value="10">Emojis Count</option>
-              <option value="9">Emojis List (Inline)</option>
+              <option value="10">🧮 Emojis Count</option>
+              <option value="9">📋 Emojis List (Inline)</option>
             </optgroup>
 
             <optgroup label="🚫 Bans">
-              <option value="21">Bans Count</option>
-              <option value="20">Bans List (Inline)</option>
+              <option value="21">🧮 Bans Count</option>
+              <option value="20">🚫 Bans List (Inline)</option>
             </optgroup>
           </select>
         </div>
@@ -200,20 +200,6 @@ module.exports = {
   preInit() {
     const f = window.__VX_ACTION_FILENAME||"[VX]store_server_info.js", l = window.__VX_ACTION_VERSION||"0.0.0", c = (a,b) => {a=a.split('.').map(Number),b=b.split('.').map(Number);for(let i=0;i<Math.max(a.length,b.length);i++){let n1=a[i]||0,n2=b[i]||0;if(n1!==n2)return n1-n2;}return 0;}, githubUrl = `https://github.com/vxe3D/dbm-mods/blob/main/actions%2F${encodeURIComponent(f)}`;
     fetch("https://github.com/vxe3D/dbm-mods/raw/main/Versions/versions.json").then(r=>r.json()).then(j=>{const v=j[f]?.version;if(v&&c(l,v)<0){document.getElementById("vx-version-warning").innerHTML="<button class='vcstatus-warning' id='vx-version-btn' type='button'>Masz nieaktualną wersję</button>";setTimeout(()=>{const b=document.getElementById('vx-version-btn');if(b)b.onclick=e=>{e.preventDefault();const u=githubUrl;if(window.require)try{window.require('electron').shell.openExternal(u);}catch{window.open(u,'_blank');}else window.open(u,'_blank');};},0);}});
-  },
-
-  init() {
-    const select = document.getElementById("info");
-    const updateCheck = () => {
-      for (let option of select.options) {
-        option.text = option.text.replace(/^📍\s*/, "");
-      }
-      if (select.selectedIndex > 0) {
-        select.options[select.selectedIndex].text = "📍 " + select.options[select.selectedIndex].text;
-      }
-    };
-    select.addEventListener("change", updateCheck);
-    updateCheck();
   },
 
   async action(cache) {

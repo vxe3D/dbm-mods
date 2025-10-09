@@ -4,7 +4,7 @@ module.exports = {
   section: "# VX - Message(s)",
   meta: {
     version: "3.2.0",
-    actionVersion: "3.1.0",
+    actionVersion: "3.2.0",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -41,7 +41,10 @@ module.exports = {
       "Editable",
       "Deletable",
       "Pinnable",
-      "Message Object"
+      "Message Object",
+      "First Attachment",
+      "Third Attachment",
+      "Second Attachment"
     ];
     return `${presets.getMessageText(data.message, data.varName)} - ${info[parseInt(data.info, 10)]}`;
   },
@@ -81,6 +84,9 @@ module.exports = {
       case 26: dataType = "Boolean"; break; // Deletable
       case 27: dataType = "Boolean"; break; // Pinnable
       case 28: dataType = "Message"; break; // Message Object
+      case 29: dataType = "Attachment"; break; // First Attachment
+      case 30: dataType = "Attachment"; break; // Third Attachment
+      case 31: dataType = "Attachment"; break; // Second Attachment
     }
     return [data.varName2, dataType];
   },
@@ -143,44 +149,47 @@ module.exports = {
         <span class="dbminputlabel">Source Info</span><br>
         <select id="info" class="round">
           <optgroup label="⭐ General">
-            <option value="28">Msg. Object</option>
-            <option value="0">Msg. ID</option>
-            <option value="1">Msg. Content</option>
-            <option value="2">Msg. URL</option>
-            <option value="7">Msg. Author</option>
-            <option value="9">Msg. Guild</option>
-            <option value="10">Msg. Channel</option>
+            <option value="28">⚙️ Msg. Object</option>
+            <option value="0">🆔 Msg. ID</option>
+            <option value="1">📝 Msg. Content</option>
+            <option value="2">🔗 Msg. URL</option>
+            <option value="7">✍️ Msg. Author</option>
+            <option value="9">🏛️ Msg. Guild</option>
+            <option value="10">💬 Msg. Channel</option>
           </optgroup>
           <optgroup label="🕒 Time">
-            <option value="3">Msg. Created Timestamp</option>
-            <option value="4">Msg. Created At (Date)</option>
-            <option value="5">Msg. Edited Timestamp</option>
-            <option value="6">Msg. Edited At (Date)</option>
+            <option value="3">🕓 Msg. Created Timestamp</option>
+            <option value="4">📅 Msg. Created At (Date)</option>
+            <option value="5">🕓 Msg. Edited Timestamp</option>
+            <option value="6">✏️ Msg. Edited At (Date)</option>
           </optgroup>
           <optgroup label="🖼️ Media Collections">
-            <option value="17">Msg. Attachments</option>
-            <option value="18">Msg. Embeds</option>
-            <option value="19">Msg. Stickers</option>
+            <option value="17">🗃️ Msg. Attachments</option>
+            <option value="18">💎 Msg. Embeds</option>
+            <option value="19">💟 Msg. Stickers</option>
+            <option value="29">🖼️ Msg. First Attachment</option>
+            <option value="31">🖼️ Msg. Second Attachment</option>
+            <option value="30">🖼️ Msg. Third Attachment</option>
           </optgroup>
           <optgroup label="🗂️ Mention/Reaction Collections">
-            <option value="13">Msg. Reactions (Cache)</option>
-            <option value="14">Msg. Mentioned Users</option>
-            <option value="15">Msg. Mentioned Roles</option>
-            <option value="16">Msg. Mentioned Channels</option>
+            <option value="13">🥳 Msg. Reactions (Cache)</option>
+            <option value="14">👥 Msg. Mentioned Users</option>
+            <option value="15">🎭 Msg. Mentioned Roles</option>
+            <option value="16">💬 Msg. Mentioned Channels</option>
           </optgroup>
           <optgroup label="⚙️ Properties">
-            <option value="20">Msg. Pinned</option>
-            <option value="21">Msg. TTS</option>
-            <option value="24">Msg. Flags</option>
-            <option value="25">Msg. Editable</option>
-            <option value="26">Msg. Deletable</option>
-            <option value="27">Msg. Pinnable</option>
+            <option value="20">📌 Msg. Pinned</option>
+            <option value="21">🗣️ Msg. TTS</option>
+            <option value="24">⚙️ Msg. Flags</option>
+            <option value="25">✏️ Msg. Editable?</option>
+            <option value="26">🗑️ Msg. Deletable?</option>
+            <option value="27">📌 Msg. Pinnable?</option>
           </optgroup>
           <optgroup label="🧩 System Info">
-            <option value="22">Msg. System</option>
-            <option value="23">Msg. Crosspostable</option>
-            <option value="11">Msg. Webhook ID</option>
-            <option value="12">Msg. Application ID</option>
+            <option value="22">🛠️ Msg. System</option>
+            <option value="23">🧩 Msg. Crosspostable</option>
+            <option value="11">🌐 Msg. Webhook ID</option>
+            <option value="12">💻 Msg. Application ID</option>
           </optgroup>
         </select>
       </div>
@@ -230,6 +239,9 @@ module.exports = {
       case 26: result = msg.deletable; break;
       case 27: result = msg.pinnable; break;
       case 28: result = msg; break;
+      case 29: result = msg.attachments && msg.attachments.size > 0 ? Array.from(msg.attachments.values())[0]?.url : undefined; break;
+      case 31: result = msg.attachments && msg.attachments.size > 1 ? Array.from(msg.attachments.values())[1]?.url : undefined; break;
+      case 30: result = msg.attachments && msg.attachments.size > 2 ? Array.from(msg.attachments.values())[2]?.url : undefined; break;
     }
 
     if (result !== undefined) {

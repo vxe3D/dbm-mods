@@ -4,7 +4,7 @@ module.exports = {
   section: "# VX - Utilities",
   meta: {
     version: "3.2.0",
-    actionVersion: "3.1.0",
+    actionVersion: "3.1.1",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -133,23 +133,23 @@ module.exports = {
         <span class="dbminputlabel">Source Info</span>
         <select id="info" class="round">
           <optgroup label="🧩 Objects">
-            <option value="0" selected>Channel object</option>
-            <option value="4">Guild object</option>
+            <option value="0" selected>⚙️ Channel object</option>
+            <option value="4">🏛️ Guild object</option>
           </optgroup>
 
           <optgroup label="🔎 Invite info">
-            <option value="1">Creator of invite</option>
-            <option value="2">Creation date</option>
-            <option value="3">Expiration date</option>
-            <option value="5">Max. uses</option>
-            <option value="6">Is temporary?</option>
-            <option value="7">Url for invite</option>
-            <option value="10">Invite Code</option>
+            <option value="1">✍ Creator of invite</option>
+            <option value="2">📅 Creation date</option>
+            <option value="3">📅 Expiration date</option>
+            <option value="5">⚙️ Max. uses</option>
+            <option value="6">⏳ Is temporary?</option>
+            <option value="7">🔗 Url for invite</option>
+            <option value="10">🔑 Invite Code</option>
           </optgroup>
 
           <optgroup label="📊 Statistics">
-            <option value="9">Invite server member count</option>
-            <option value="8">Times used</option>
+            <option value="9">🧮 Invite server member count</option>
+            <option value="8">📈 Times used</option>
           </optgroup>
         </select>
       </div>

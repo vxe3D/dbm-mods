@@ -4,7 +4,7 @@ module.exports = {
   section: "# VX - Channel(s)",
   meta: {
     version: "3.2.0",
-    actionVersion: "1.0.0",
+    actionVersion: "1.0.1",
     preciseCheck: true,
     author: "vxed_",
     authorUrl: "https://github.com/vxe3D/dbm-mods",
@@ -111,25 +111,25 @@ module.exports = {
         <span class="dbminputlabel">Source Info</span><br>
         <select id="info" class="round">
           <optgroup label="⭐ General">
-            <option value="0">Thread Object</option>
-            <option value="1">Thread ID</option>
-            <option value="2">Thread Owner ID</option>
-            <option value="3">Thread Parent ID</option>
+            <option value="0">⚙️ Thread Object</option>
+            <option value="1">🆔 Thread ID</option>
+            <option value="2">👑 Thread Owner ID</option>
+            <option value="3">🗂️ Thread Parent ID</option>
           </optgroup>
           <optgroup label="⚙️ Thread Properties">
-            <option value="4">Thread Archived</option>
-            <option value="5">Thread Auto Archive Duration</option>
-            <option value="6">Thread Locked</option>
-            <option value="7">Thread Rate Limit Per User</option>
-            <option value="8">Thread Member Count</option>
-            <option value="9">Thread Message Count</option>
+            <option value="4">🗃️ Thread Archived</option>
+            <option value="5">⏳ Thread Auto Archive Duration</option>
+            <option value="6">🔒 Thread Locked</option>
+            <option value="7">🛡️ Thread Rate Limit Per User</option>
+            <option value="8">👥 Thread Member Count</option>
+            <option value="9">💬 Thread Message Count</option>
           </optgroup>
           <optgroup label="🧩 Thread Metadata">
-            <option value="10">Thread Metadata Object</option>
-            <option value="11">Archiver ID (Metadata)</option>
-            <option value="12">Archive Timestamp (Metadata)</option>
-            <option value="13">Invitable (Metadata)</option>
-            <option value="14">Create Timestamp (Metadata)</option>
+            <option value="10">⚙️ Thread Metadata Object</option>
+            <option value="11">🗃️ Archiver ID (Metadata)</option>
+            <option value="12">🕓 Archive Timestamp (Metadata)</option>
+            <option value="13">📩 Invitable (Metadata)</option>
+            <option value="14">🕓 Create Timestamp (Metadata)</option>
           </optgroup>
         </select>
       </div>
